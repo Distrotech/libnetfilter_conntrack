@@ -112,14 +112,14 @@ int print_msg(struct nfgenmsg *cm, size_t len)
 
 	ctnl_parse_attr(cb, CTA_MAX, NFM_NFA(cm), len);
 
-	if (cb[CTA_ORIG]) {
+	if (cb[CTA_TUPLE_ORIG]) {
 		printf("orig: %s\n", 
-				display_tuple_flat(NFA_DATA(cb[CTA_ORIG])));
-		ctnl_del_conntrack(cth, NFA_DATA(cb[CTA_ORIG]), CTA_ORIG);
+				display_tuple_flat(NFA_DATA(cb[CTA_TUPLE_ORIG])));
+		ctnl_del_conntrack(cth, NFA_DATA(cb[CTA_TUPLE_ORIG]), CTA_TUPLE_ORIG);
 	}
-	if (cb[CTA_RPLY])
+	if (cb[CTA_TUPLE_REPLY])
 		printf("rply: %s\n", 
-				display_tuple_flat(NFA_DATA(cb[CTA_RPLY])));
+				display_tuple_flat(NFA_DATA(cb[CTA_TUPLE_REPLY])));
 
 
 	return 0;

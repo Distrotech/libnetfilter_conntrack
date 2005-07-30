@@ -16,7 +16,8 @@
 #include <linux/if.h>
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_conntrack.h> 
-#include "libnfnetlink.h"
+
+#include <libnfnetlink/libnfnetlink.h>
 
 #define CTNL_BUFFSIZE	4096
 

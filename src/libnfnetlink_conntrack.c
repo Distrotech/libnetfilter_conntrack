@@ -24,7 +24,9 @@
 #include <linux/if.h>
 #include <linux/netlink.h>
 #include <linux/netfilter/nfnetlink_conntrack.h>
-#include "libctnetlink.h"
+
+#include <libnfnetlink/libnfnetlink.h>
+#include <libnfnetlink_conntrack/libnfnetlink_conntrack.h>
 
 #define ctnl_error printf
 
