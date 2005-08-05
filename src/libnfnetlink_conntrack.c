@@ -60,7 +60,8 @@ static int list_conntrack_handler(struct sockaddr_nl *nladdr,
 	struct ctnl_msg_handler *hdlr = cth->handler[type];
 	int ret;
 
-	if (NFNL_SUBSYS_ID(n->nlmsg_type) != NFNL_SUBSYS_CTNETLINK) {
+	if (NFNL_SUBSYS_ID(n->nlmsg_type) != NFNL_SUBSYS_CTNETLINK &&
+	    NFNL_SUBSYS_ID(n->nlmsg_type) != NFNL_SUBSYS_CTNETLINK_EXP) {
 		ctnl_error("received message for wrong subsys, skipping\n");
 		nfnl_dump_packet(n, n->nlmsg_len, "list_conntrack_handler");
 		return 0;
@@ -91,13 +92,14 @@ static int list_conntrack_handler(struct sockaddr_nl *nladdr,
  * cth: pointer to already allocated library handle
  * subscriptions: netlink groups we are interested in
  */
-int ctnl_open(struct ctnl_handle *cth, unsigned subscriptions)
+int ctnl_open(struct ctnl_handle *cth, u_int8_t subsys_id, 
+	      unsigned subscriptions)
 {
 	int err;
 
 	memset(cth, 0, sizeof(*cth));
 
-	err = nfnl_open(&cth->nfnlh, NFNL_SUBSYS_CTNETLINK, subscriptions);
+	err = nfnl_open(&cth->nfnlh, subsys_id, subscriptions);
 	if (err < 0) {
 		return err;
 	}
@@ -249,9 +251,8 @@ static void ctnl_build_tuple_proto(struct nfnlhdr *req, int size,
 }
 
 static void ctnl_build_tuple(struct nfnlhdr *req, int size, 
-			     struct ctnl_tuple *t, int dir)
+			     struct ctnl_tuple *t, int type)
 {
-	enum ctattr_type type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
 	struct nfattr *nest;
 
 	nest = nfnl_nest(&req->nlh, size, type);
@@ -329,9 +330,9 @@ static void ctnl_build_conntrack(struct nfnlhdr *req, int size,
 				 struct ctnl_conntrack *ct)
 {
 	ctnl_build_tuple(req, size, &ct->tuple[CTNL_DIR_ORIGINAL], 
-			 CTNL_DIR_ORIGINAL);
+			 CTA_TUPLE_ORIG);
 	ctnl_build_tuple(req, size, &ct->tuple[CTNL_DIR_REPLY],
-			 CTNL_DIR_REPLY);
+			 CTA_TUPLE_REPLY);
 	
 	nfnl_addattr_l(&req->nlh, size, CTA_STATUS, &ct->status, 
 		       sizeof(unsigned int));
@@ -382,6 +383,7 @@ int ctnl_del_conntrack(struct ctnl_handle *cth,
 {
 	struct nfnlhdr *req;
 	char buf[CTNL_BUFFSIZE];
+	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
 
 	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
@@ -390,7 +392,7 @@ int ctnl_del_conntrack(struct ctnl_handle *cth,
 		      0, AF_INET, 0, IPCTNL_MSG_CT_DELETE,
 		      NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK);
 
-	ctnl_build_tuple(req, sizeof(buf), tuple, dir); 
+	ctnl_build_tuple(req, sizeof(buf), tuple, type); 
 
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0)
 		return -1;
@@ -470,3 +472,96 @@ int ctnl_flush_expect(struct ctnl_handle *cth)
 
 	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
 }
+
+/**
+ * ctnl_new_expect - create a new expectation
+ *
+ * cth: libctnetlink handle
+ * master_tuple: tuple of the master original direction
+ * t: direction, original or reply.
+ * exp_tuple: tuple of to-be-created expectation
+ * mask: mask of to-be-created expectation
+ * timeout: timeout of new expectation
+ */
+int ctnl_new_expect(struct ctnl_handle *cth,
+		    struct ctnl_tuple *master,
+		    struct ctnl_tuple *tuple,
+		    struct ctnl_tuple *mask,
+		    unsigned long timeout)
+{
+	struct nfnlhdr *req;
+	char buf[CTNL_BUFFSIZE];
+
+	memset(&buf, 0, sizeof(buf));
+	req = (void *) &buf;
+
+	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &buf,
+		      0, AF_INET, 0, IPCTNL_MSG_EXP_NEW,
+		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK);
+
+	ctnl_build_tuple(req, sizeof(buf), master, CTA_EXPECT_MASTER);
+	ctnl_build_tuple(req, sizeof(buf), tuple, CTA_EXPECT_TUPLE);
+	ctnl_build_tuple(req, sizeof(buf), mask, CTA_EXPECT_MASK);
+	
+	if (nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_TIMEOUT, &timeout,
+			   sizeof(timeout)) < 0)
+		return -1;
+
+	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 ) {
+		ctnl_error("error while nfnl_send\n");
+		return -1;
+	}
+
+	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+}
+
+/**
+ * ctnl_del_expect - delete an expectation from conntrack subsystem
+ *
+ * cth: libctnetlink handle
+ * t: tuple of to-be-deleted expectation
+ */
+int ctnl_del_expect(struct ctnl_handle *cth, 
+		    struct ctnl_tuple *tuple)
+{
+	struct nfnlhdr *req;
+	char buf[CTNL_BUFFSIZE];
+
+	memset(&buf, 0, sizeof(buf));
+	req = (void *) &buf;
+
+	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &buf,
+		      0, AF_INET, 0, IPCTNL_MSG_EXP_DELETE,
+		      NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK);
+
+	ctnl_build_tuple(req, sizeof(buf), tuple, CTA_EXPECT_MASTER);
+
+	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0)
+		return -1;
+
+	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+}
+
+int ctnl_get_expect(struct ctnl_handle *cth, 
+		    struct ctnl_tuple *tuple)
+{
+	struct nfnlhdr *req;
+	char buf[CTNL_BUFFSIZE];
+
+	memset(&buf, 0, sizeof(buf));
+	req = (void *) &buf;
+
+	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &buf,
+			0, AF_INET, 0, IPCTNL_MSG_EXP_GET,
+			NLM_F_REQUEST|NLM_F_ACK);
+
+	ctnl_build_tuple(req, sizeof(buf), tuple, CTA_EXPECT_MASTER);
+
+	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 ) {
+		ctnl_error("error while nfnl_send\n");
+		return -1;
+	}
+
+	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+}
+

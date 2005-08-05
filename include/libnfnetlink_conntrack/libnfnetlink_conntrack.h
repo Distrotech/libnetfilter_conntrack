@@ -99,7 +99,7 @@ struct ctnl_handle {
 	struct ctnl_msg_handler *handler[IPCTNL_MSG_MAX];
 };
 
-extern int ctnl_open(struct ctnl_handle *, unsigned);
+extern int ctnl_open(struct ctnl_handle *, u_int8_t, unsigned);
 extern int ctnl_close(struct ctnl_handle *);
 extern int ctnl_unregister_handler(struct ctnl_handle *, int);
 extern int ctnl_register_handler(struct ctnl_handle *, 
@@ -113,6 +113,11 @@ extern int ctnl_list_conntrack_zero_counters(struct ctnl_handle *, int);
 extern int ctnl_event_conntrack(struct ctnl_handle *, int);
 extern int ctnl_flush_conntrack(struct ctnl_handle *);
 
+extern int ctnl_new_expect(struct ctnl_handle *, struct ctnl_tuple *, 
+			   struct ctnl_tuple *, struct ctnl_tuple *, 
+			   unsigned long);
+extern int ctnl_del_expect(struct ctnl_handle *,struct ctnl_tuple *);
+extern int ctnl_get_expect(struct ctnl_handle *, struct ctnl_tuple *);
 extern int ctnl_list_expect(struct ctnl_handle *, int);
 extern int ctnl_event_expect(struct ctnl_handle *, int);
 extern int ctnl_flush_expect(struct ctnl_handle *);
