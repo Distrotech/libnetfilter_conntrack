@@ -99,7 +99,7 @@ int ctnl_open(struct ctnl_handle *cth, u_int8_t subsys_id,
 
 	memset(cth, 0, sizeof(*cth));
 
-	err = nfnl_open(&cth->nfnlh, subsys_id, subscriptions);
+	err = nfnl_open(&cth->nfnlh, subsys_id, IPCTNL_MSG_MAX, subscriptions);
 	if (err < 0) {
 		return err;
 	}

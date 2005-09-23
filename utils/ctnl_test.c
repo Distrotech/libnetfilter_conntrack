@@ -12,7 +12,7 @@
 #include <linux/netlink.h>
 #include <linux/netfilter/nfnetlink.h>
 
-#include "libctnetlink.h"
+#include <libnfnetlink_conntrack/libnfnetlink_conntrack.h>
 
 static struct ctnl_handle *cth;
 

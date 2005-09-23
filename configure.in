@@ -63,5 +63,5 @@ dnl--------------------------------
 
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile include/libnfnetlink_conntrack/Makefile utils/Makefile)
+AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile)
 
