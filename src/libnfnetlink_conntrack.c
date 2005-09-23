@@ -90,6 +90,7 @@ static int list_conntrack_handler(struct sockaddr_nl *nladdr,
  * ctnl_open - open a libctnetlink handle
  *
  * cth: pointer to already allocated library handle
+ * subsys_id: ID of the subsystem
  * subscriptions: netlink groups we are interested in
  */
 int ctnl_open(struct ctnl_handle *cth, u_int8_t subsys_id, 

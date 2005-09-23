@@ -16,6 +16,7 @@
 
 static struct ctnl_handle *cth;
 
+#if 0
 char *display_tuple_flat(struct ip_conntrack_tuple *tuple)
 {
         static char buff[250];
@@ -65,6 +66,12 @@ char *display_tuple_flat(struct ip_conntrack_tuple *tuple)
 
         return (buff);
 }
+#else
+char *display_tuple_flat(void *foo)
+{
+	return "not implemented";
+}
+#endif
 
 int ctnl_parse_attr(struct nfattr *tb[], int max, struct nfattr *cta, int len)
 {
@@ -165,7 +172,7 @@ int main(int argc, char **argv)
 	int len;
 
 	cth = malloc(sizeof(*cth));
-	if (ctnl_open(cth, 0) < 0) {
+	if (ctnl_open(cth, NFNL_SUBSYS_CTNETLINK, 0) < 0) {
 		exit(2);
 	}
 
