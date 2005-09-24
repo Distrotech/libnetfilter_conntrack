@@ -17,6 +17,9 @@
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 
+/* we need this for "enum ip_conntrack_status" */
+#include <linux/netfilter_ipv4/ip_conntrack.h>
+
 #include <libnfnetlink/libnfnetlink.h>
 
 #define CTNL_BUFFSIZE	4096
