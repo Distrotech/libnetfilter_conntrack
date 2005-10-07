@@ -28,7 +28,12 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnfnetlink_conntrack/libnfnetlink_conntrack.h>
 
-#define ctnl_error printf
+#define ctnl_error(format, args...) fprintf(stderr, format, ## args)
+
+struct nfnlhdr {
+	struct nlmsghdr nlh;
+	struct nfgenmsg nfmsg;
+};
 
 /***********************************************************************
  * low level stuff 
@@ -40,10 +45,7 @@ int ctnl_send(struct ctnl_handle *cth, struct nlmsghdr *n)
 
 int ctnl_wilddump_request(struct ctnl_handle *cth, int family, int type)
 {
-        struct {
-                struct nlmsghdr nlh;
-                struct nfgenmsg g;
-        } req;
+	struct nfnlhdr req;
 
 	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
 		      type, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST);
@@ -52,8 +54,8 @@ int ctnl_wilddump_request(struct ctnl_handle *cth, int family, int type)
 }
 
 /* handler used for nfnl_listen */
-static int list_conntrack_handler(struct sockaddr_nl *nladdr, 
-				  struct nlmsghdr *n, void *arg)
+static int callback_handler(struct sockaddr_nl *nladdr, 
+			    struct nlmsghdr *n, void *arg)
 {
 	struct ctnl_handle *cth = (struct ctnl_handle *) arg;
 	int type = NFNL_MSG_TYPE(n->nlmsg_type);
@@ -63,7 +65,7 @@ static int list_conntrack_handler(struct sockaddr_nl *nladdr,
 	if (NFNL_SUBSYS_ID(n->nlmsg_type) != NFNL_SUBSYS_CTNETLINK &&
 	    NFNL_SUBSYS_ID(n->nlmsg_type) != NFNL_SUBSYS_CTNETLINK_EXP) {
 		ctnl_error("received message for wrong subsys, skipping\n");
-		nfnl_dump_packet(n, n->nlmsg_len, "list_conntrack_handler");
+		nfnl_dump_packet(n, n->nlmsg_len, "callback_handler");
 		return 0;
 	}
 
@@ -97,10 +99,22 @@ int ctnl_open(struct ctnl_handle *cth, u_int8_t subsys_id,
 	      unsigned subscriptions)
 {
 	int err;
+	u_int8_t cb_count;
 
+	switch(subsys_id) {
+		case NFNL_SUBSYS_CTNETLINK:
+			cb_count = IPCTNL_MSG_MAX;
+			break;
+		case NFNL_SUBSYS_CTNETLINK_EXP:
+			cb_count = IPCTNL_MSG_EXP_MAX;
+			break;
+		default:
+			return -ENOENT;
+			break;
+	}
 	memset(cth, 0, sizeof(*cth));
 
-	err = nfnl_open(&cth->nfnlh, subsys_id, IPCTNL_MSG_MAX, subscriptions);
+	err = nfnl_open(&cth->nfnlh, subsys_id, cb_count, subscriptions);
 	if (err < 0) {
 		return err;
 	}
@@ -155,14 +169,10 @@ int ctnl_unregister_handler(struct ctnl_handle *cth, int type)
 
 int ctnl_flush_conntrack(struct ctnl_handle *cth)
 {
-	struct {
-		struct nlmsghdr nlh;
-		struct nfgenmsg g;
-	} *req;
-
+	struct nfnlhdr *req;
 	char buf[sizeof(*req)];
-	memset(&buf, 0, sizeof(buf));
 
+	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
 
 	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &buf,
@@ -172,7 +182,7 @@ int ctnl_flush_conntrack(struct ctnl_handle *cth)
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 /**
@@ -185,7 +195,7 @@ int ctnl_list_conntrack(struct ctnl_handle *cth, int family)
 	if (ctnl_wilddump_request(cth, family, IPCTNL_MSG_CT_GET) < 0)
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int ctnl_list_conntrack_zero_counters(struct ctnl_handle *cth, int family)
@@ -193,18 +203,13 @@ int ctnl_list_conntrack_zero_counters(struct ctnl_handle *cth, int family)
 	if (ctnl_wilddump_request(cth, family, IPCTNL_MSG_CT_GET_CTRZERO) < 0)
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int ctnl_event_conntrack(struct ctnl_handle *cth, int family)
 {
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
-
-struct nfnlhdr {
-	struct nlmsghdr nlh;
-	struct nfgenmsg nfmsg;
-}; 
 
 static void ctnl_build_tuple_ip(struct nfnlhdr *req, int size,
 			        struct ctnl_tuple *t)
@@ -243,9 +248,13 @@ static void ctnl_build_tuple_proto(struct nfnlhdr *req, int size,
 		break;
 	case IPPROTO_ICMP:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_CODE,
-			       &t->l4src.icmp.code, sizeof(u_int8_t));
+			       &t->l4dst.icmp.code, sizeof(u_int8_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_TYPE,
 			       &t->l4dst.icmp.type, sizeof(u_int8_t));
+		/* This is an ICMP echo */
+		if (t->l4dst.icmp.type == 8)
+			nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
+				       &t->l4src.icmp.id, sizeof(u_int16_t));
 		break;
 	}
 	nfnl_nest_end(&req->nlh, nest);
@@ -272,9 +281,15 @@ static void ctnl_build_protoinfo(struct nfnlhdr *req, int size,
 	nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 
 	switch (ct->tuple[CTNL_DIR_ORIGINAL].protonum) {
-	case IPPROTO_TCP:
+	case IPPROTO_TCP: {
+		struct nfattr *nest_proto;
+		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTOINFO_TCP_STATE,
 			       &ct->protoinfo.tcp.state, sizeof(u_int8_t));
+		nfnl_nest_end(&req->nlh, nest_proto);
+		break;
+		}
+	default:
 		break;
 	}
 
@@ -370,7 +385,7 @@ int ctnl_get_conntrack(struct ctnl_handle *cth,
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0)
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 /**
@@ -398,7 +413,7 @@ int ctnl_del_conntrack(struct ctnl_handle *cth,
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0)
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 static int new_update_conntrack(struct ctnl_handle *cth,
 				struct ctnl_conntrack *ct,
@@ -419,7 +434,7 @@ static int new_update_conntrack(struct ctnl_handle *cth,
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 /**
@@ -447,13 +462,13 @@ int ctnl_list_expect(struct ctnl_handle *cth, int family)
 	if (ctnl_wilddump_request(cth, family, IPCTNL_MSG_EXP_GET) < 0)
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 
 }
 
 int ctnl_event_expect(struct ctnl_handle *cth, int family)
 {
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int ctnl_flush_expect(struct ctnl_handle *cth)
@@ -471,7 +486,7 @@ int ctnl_flush_expect(struct ctnl_handle *cth)
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 /**
@@ -508,12 +523,10 @@ int ctnl_new_expect(struct ctnl_handle *cth,
 			   sizeof(timeout)) < 0)
 		return -1;
 
-	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 ) {
-		ctnl_error("error while nfnl_send\n");
+	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
 		return -1;
-	}
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 /**
@@ -540,7 +553,7 @@ int ctnl_del_expect(struct ctnl_handle *cth,
 	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0)
 		return -1;
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int ctnl_get_expect(struct ctnl_handle *cth, 
@@ -558,11 +571,9 @@ int ctnl_get_expect(struct ctnl_handle *cth,
 
 	ctnl_build_tuple(req, sizeof(buf), tuple, CTA_EXPECT_MASTER);
 
-	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 ) {
-		ctnl_error("error while nfnl_send\n");
+	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
 		return -1;
-	}
 
-	return nfnl_listen(&cth->nfnlh, &list_conntrack_handler, cth);
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 

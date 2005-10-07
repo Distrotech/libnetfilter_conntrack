@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -14,6 +15,7 @@
 
 #include <libnfnetlink_conntrack/libnfnetlink_conntrack.h>
 
+#if 0
 static struct ctnl_handle *cth;
 
 #if 0
@@ -193,3 +195,4 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+#endif
