@@ -402,7 +402,7 @@ static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock,
 						struct nlmsghdr *nlh, void *arg)
 {
 	struct nfgenmsg *nfmsg;
-	int min_len = sizeof(struct nfgenmsg);;
+	int min_len = sizeof(struct nfgenmsg) + sizeof(struct nlmsghdr);
 	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
 	int attrlen = nlh->nlmsg_len - NLMSG_ALIGN(min_len);
 	struct nfct_conntrack ct;
@@ -571,7 +571,7 @@ static int nfct_expect_netlink_handler(struct sockaddr_nl *sock,
 {
 	struct nfgenmsg *nfmsg;
 	struct nfct_handle *cth = arg;
-	int min_len = sizeof(struct nfgenmsg);
+	int min_len = sizeof(struct nfgenmsg) + sizeof(struct nlmsghdr);
 	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
 	int attrlen = nlh->nlmsg_len - NLMSG_ALIGN(min_len);
 	struct nfct_expect exp;
