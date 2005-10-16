@@ -4,7 +4,7 @@ AC_INIT
 
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(libnfnetlink_conntrack, 0.0.10)
+AM_INIT_AUTOMAKE(libnetfilter_conntrack, 0.0.20)
 
 AC_PROG_CC
 AM_PROG_LIBTOOL
@@ -59,9 +59,14 @@ AC_ARG_WITH(kernel,
                               [ Show location of kernel source. Default is to use uname -r and look in /lib/modules/KERNEL/build/include. ]),
 	       NF_KERNEL_SOURCE($with_kernel),NF_KERNEL_SOURCE())
 
+if test ! -z "$libdir"; then
+	MODULE_DIR="\\\"$libdir/\\\""
+	CFLAGS="$CFLAGS -DLIBNETFILTER_CONNTRACK_DIR=$MODULE_DIR"
+fi
+
 dnl--------------------------------
 
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile)
+AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile extensions/Makefile)
 

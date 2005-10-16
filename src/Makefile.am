@@ -6,7 +6,7 @@ INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR}
 AM_CFLAGS=-fPIC -Wall
 LIBS=
 
-lib_LTLIBRARIES = libnfnetlink_conntrack.la 
+lib_LTLIBRARIES = libnetfilter_conntrack.la 
 
-libnfnetlink_conntrack_la_LDFLAGS = -Wc,-nostartfiles
-libnfnetlink_conntrack_la_SOURCES = libnfnetlink_conntrack.c 
+libnetfilter_conntrack_la_LDFLAGS = -Wc,-nostartfiles
+libnetfilter_conntrack_la_SOURCES = libnetfilter_conntrack.c 

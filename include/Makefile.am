@@ -1,2 +1,2 @@
 
-SUBDIRS = libnfnetlink_conntrack
+SUBDIRS = libnetfilter_conntrack
