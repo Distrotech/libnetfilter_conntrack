@@ -86,8 +86,10 @@ struct nfct_handle *nfct_open(u_int8_t subsys_id, unsigned subscriptions)
 	memset(cth, 0, sizeof(*cth));
 
 	err = nfnl_open(&cth->nfnlh, subsys_id, cb_count, subscriptions);
-	if (err < 0)
+	if (err < 0) {
+		free(cth);
 		return NULL;
+	}
 
 	return cth;
 }
@@ -102,14 +104,13 @@ int nfct_close(struct nfct_handle *cth)
 	return err;
 }
 
-void nfct_set_callback(struct nfct_handle *cth, 
-			       nfct_callback callback)
+void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback)
 {
 	cth->callback = callback;
 }
 
 static int nfct_register_handler(struct nfct_handle *cth, 
-				 	 struct nfct_msg_handler *hndlr)
+				 struct nfct_msg_handler *hndlr)
 {
 	if (hndlr->type >= IPCTNL_MSG_MAX)
 		return -EINVAL;
@@ -119,8 +120,8 @@ static int nfct_register_handler(struct nfct_handle *cth,
 	return 0;
 }
 
-static void nfct_build_tuple_ip(struct nfnlhdr *req, int size,
-					struct nfct_tuple *t)
+static void nfct_build_tuple_ip(struct nfnlhdr *req, int size, 
+				struct nfct_tuple *t)
 {
 	struct nfattr *nest;
 
@@ -136,7 +137,7 @@ static void nfct_build_tuple_ip(struct nfnlhdr *req, int size,
 }
 
 static void nfct_build_tuple_proto(struct nfnlhdr *req, int size,
-					   struct nfct_tuple *t)
+				   struct nfct_tuple *t)
 {
 	struct nfattr *nest;
 
@@ -169,7 +170,7 @@ static void nfct_build_tuple_proto(struct nfnlhdr *req, int size,
 }
 
 static void nfct_build_tuple(struct nfnlhdr *req, int size, 
-				     struct nfct_tuple *t, int type)
+			     struct nfct_tuple *t, int type)
 {
 	struct nfattr *nest;
 
@@ -182,7 +183,7 @@ static void nfct_build_tuple(struct nfnlhdr *req, int size,
 }
 
 static void nfct_build_protoinfo(struct nfnlhdr *req, int size,
-					 struct nfct_conntrack *ct)
+				 struct nfct_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -205,7 +206,7 @@ static void nfct_build_protoinfo(struct nfnlhdr *req, int size,
 }
 
 static void nfct_build_protonat(struct nfnlhdr *req, int size,
-					struct nfct_conntrack *ct)
+				struct nfct_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -231,7 +232,7 @@ static void nfct_build_protonat(struct nfnlhdr *req, int size,
 }
 
 static void nfct_build_nat(struct nfnlhdr *req, int size,
-				   struct nfct_conntrack *ct)
+			   struct nfct_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -251,7 +252,7 @@ static void nfct_build_nat(struct nfnlhdr *req, int size,
 }
 
 static void nfct_build_conntrack(struct nfnlhdr *req, int size, 
-					 struct nfct_conntrack *ct)
+				 struct nfct_conntrack *ct)
 {
 	nfct_build_tuple(req, size, &ct->tuple[NFCT_DIR_ORIGINAL], 
 				 CTA_TUPLE_ORIG);
@@ -399,7 +400,7 @@ static void nfct_parse_counters(struct nfattr *attr,
 }
 
 static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock, 
-						struct nlmsghdr *nlh, void *arg)
+					  struct nlmsghdr *nlh, void *arg)
 {
 	struct nfgenmsg *nfmsg;
 	int min_len = sizeof(struct nfgenmsg) + sizeof(struct nlmsghdr);
@@ -558,8 +559,8 @@ static char *typemsg2str(type, flags)
 }
 
 static int nfct_event_handler(struct sockaddr_nl *sock, 
-				      struct nlmsghdr *nlh,
-				      void *arg)
+			      struct nlmsghdr *nlh,
+			      void *arg)
 {
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type);
 	fprintf(stdout, "%9s ", typemsg2str(type, nlh->nlmsg_flags));
@@ -610,12 +611,12 @@ static int nfct_expect_netlink_handler(struct sockaddr_nl *sock,
 
 static
 int __nfct_create_conntrack(struct nfct_handle *cth,
-				    struct nfct_tuple *orig,
-				    struct nfct_tuple *reply,
-				    unsigned long timeout,
-				    union nfct_protoinfo *proto,
-				    unsigned int status,
-				    struct nfct_nat *range)
+			    struct nfct_tuple *orig,
+			    struct nfct_tuple *reply,
+			    unsigned long timeout,
+			    union nfct_protoinfo *proto,
+			    unsigned int status,
+			    struct nfct_nat *range)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
@@ -649,34 +650,34 @@ int __nfct_create_conntrack(struct nfct_handle *cth,
 }
 
 int nfct_create_conntrack(struct nfct_handle *cth,
-				  struct nfct_tuple *orig,
-				  struct nfct_tuple *reply,
-				  unsigned long timeout,
-				  union nfct_protoinfo *proto,
-				  unsigned int status)
+			  struct nfct_tuple *orig,
+			  struct nfct_tuple *reply,
+			  unsigned long timeout,
+			  union nfct_protoinfo *proto,
+			  unsigned int status)
 {
 	return(__nfct_create_conntrack(cth, orig, reply, timeout,
 					       proto, status, NULL));
 }
 
 int nfct_create_conntrack_nat(struct nfct_handle *cth,
-				      struct nfct_tuple *orig,
-				      struct nfct_tuple *reply,
-				      unsigned long timeout,
-				      union nfct_protoinfo *proto,
-				      unsigned int status,
-				      struct nfct_nat *nat)
+			      struct nfct_tuple *orig,
+			      struct nfct_tuple *reply,
+			      unsigned long timeout,
+			      union nfct_protoinfo *proto,
+			      unsigned int status,
+			      struct nfct_nat *nat)
 {
 	return(__nfct_create_conntrack(cth, orig, reply, timeout,
 					       proto, status, nat));
 }
 
 int nfct_update_conntrack(struct nfct_handle *cth,
-				  struct nfct_tuple *orig,
-				  struct nfct_tuple *reply,
-				  unsigned long timeout,
-				  union nfct_protoinfo *proto,
-				  unsigned int status)
+			  struct nfct_tuple *orig,
+			  struct nfct_tuple *reply,
+			  unsigned long timeout,
+			  union nfct_protoinfo *proto,
+			  unsigned int status)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
@@ -757,7 +758,7 @@ int nfct_get_conntrack(struct nfct_handle *cth,struct nfct_tuple *tuple, int dir
 	return ret;
 }
 
-static int __nfct_dump_conntrack_table(struct nfct_handle *cth,int zero)
+static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 {
 	int ret, msg;
 	struct nfct_msg_handler h = {
@@ -900,9 +901,9 @@ int nfct_get_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple)
 }
 
 int nfct_create_expectation(struct nfct_handle *cth,struct nfct_tuple *master,
-				    struct nfct_tuple *tuple,
-				    struct nfct_tuple *mask,
-				    unsigned long timeout)
+			    struct nfct_tuple *tuple,
+			    struct nfct_tuple *mask,
+			    unsigned long timeout)
 {
 	int ret;
 	struct nfnlhdr *req;

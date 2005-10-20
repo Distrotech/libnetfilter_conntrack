@@ -19,6 +19,11 @@
 
 #define LIBNETFILTER_CONNTRACK_VERSION "0.1.1"
 
+enum {
+	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
+	EXPECT = NFNL_SUBSYS_CTNETLINK_EXP
+};
+
 union nfct_l4 {
 	/* Add other protocols here. */
 	u_int16_t all;
