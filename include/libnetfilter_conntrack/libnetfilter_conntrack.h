@@ -17,12 +17,18 @@
 #include <linux/netfilter_ipv4/ip_conntrack.h>
 #include "linux_list.h"
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.1.2"
+#define LIBNETFILTER_CONNTRACK_VERSION "0.1.3"
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
 	EXPECT = NFNL_SUBSYS_CTNETLINK_EXP
 };
+
+/*
+ * In case that the user doesn't want to do some kind
+ * of action against a conntrack based on its ID 
+ */
+#define NFCT_ANY_ID 0
 
 union nfct_l4 {
 	/* Add other protocols here. */
@@ -115,49 +121,54 @@ struct nfct_proto {
 
 enum {
 	NFCT_STATUS_BIT = 0,
-	NFCT_STATUS = (NFCT_STATUS_BIT << 1),
+	NFCT_STATUS = (1 << NFCT_STATUS_BIT),
 	
 	NFCT_PROTOINFO_BIT = 1,
-	NFCT_PROTOINFO = (NFCT_PROTOINFO_BIT << 1),
+	NFCT_PROTOINFO = (1 << NFCT_PROTOINFO_BIT),
 
 	NFCT_TIMEOUT_BIT = 2,
-	NFCT_TIMEOUT = (NFCT_TIMEOUT_BIT << 1),
+	NFCT_TIMEOUT = (1 << NFCT_TIMEOUT_BIT),
 
 	NFCT_MARK_BIT = 3,
-	NFCT_MARK = (NFCT_MARK_BIT << 1),
+	NFCT_MARK = (1 << NFCT_MARK_BIT),
 
 	NFCT_COUNTERS_BIT = 4,
-	NFCT_COUNTERS = (NFCT_COUNTERS_BIT << 1),
+	NFCT_COUNTERS = (1 << NFCT_COUNTERS_BIT),
 
 	NFCT_USE_BIT = 5,
-	NFCT_USE = (NFCT_USE_BIT << 1),
+	NFCT_USE = (1 << NFCT_USE_BIT),
 
 	NFCT_ID_BIT = 6,
-	NFCT_ID = (NFCT_ID_BIT << 1)
+	NFCT_ID = (1 << NFCT_ID_BIT)
 };
 
-typedef void (*nfct_callback)(void *arg, unsigned int flags);
-
-struct nfct_msg_handler {
-	int type;
-	int (*handler)(struct sockaddr_nl *, struct nlmsghdr *, void *arg);
+enum {
+	NFCT_MSG_UNKNOWN,
+	NFCT_MSG_NEW,
+	NFCT_MSG_UPDATE,
+	NFCT_MSG_DESTROY
 };
+
+typedef void (*nfct_callback)(void *arg, unsigned int flags, int);
+typedef int (*nfct_handler)(struct sockaddr_nl *, struct nlmsghdr *, void *arg);
 
 struct nfct_handle {
 	struct nfnl_handle nfnlh;
-	nfct_callback callback;
-	struct nfct_msg_handler *handler[IPCTNL_MSG_MAX];
+	nfct_callback callback;		/* user callback */
+	nfct_handler handler;		/* netlink handler */
 };
 
 extern struct nfct_conntrack *
 nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
 		     unsigned long timeout, union nfct_protoinfo *proto,
-		     unsigned int status, struct nfct_nat *range);
+		     unsigned int status, unsigned long mark,
+		     unsigned int id, struct nfct_nat *range);
 extern void nfct_conntrack_free(struct nfct_conntrack *ct);
 
 extern struct nfct_expect *
 nfct_expect_alloc(struct nfct_tuple *master, struct nfct_tuple *tuple,
-		  struct nfct_tuple *mask, unsigned long timeout);
+		  struct nfct_tuple *mask, unsigned long timeout, 
+		  unsigned int id);
 extern void nfct_expect_free(struct nfct_expect *exp);
 
 extern void nfct_register_proto(struct nfct_proto *h);
@@ -170,17 +181,19 @@ extern void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback);
 /*
  * callback displayers
  */
-extern void nfct_default_conntrack_display(void *arg, unsigned int flags); 
-extern void nfct_default_expect_display(void *arg, unsigned int flags);
+extern void nfct_default_conntrack_display(void *arg, unsigned int, int); 
+extern void nfct_default_expect_display(void *arg, unsigned int, int);
 
 extern int nfct_create_conntrack(struct nfct_handle *cth, 
 				 struct nfct_conntrack *ct);
 extern int nfct_update_conntrack(struct nfct_handle *cth,
 				 struct nfct_conntrack *ct);
 extern int nfct_delete_conntrack(struct nfct_handle *cth, 
-				 struct nfct_tuple *tuple, int dir);
+				 struct nfct_tuple *tuple, int dir, 
+				 unsigned int id);
 extern int nfct_get_conntrack(struct nfct_handle *cth, 
-			      struct nfct_tuple *tuple, int dir); 
+			      struct nfct_tuple *tuple, int dir,
+			      unsigned int id); 
 extern int nfct_dump_conntrack_table(struct nfct_handle *cth);
 extern int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth);
 extern int nfct_event_conntrack(struct nfct_handle *cth); 
@@ -190,9 +203,12 @@ extern int nfct_event_conntrack(struct nfct_handle *cth);
  */
 extern int nfct_dump_expect_list(struct nfct_handle *cth);
 extern int nfct_flush_conntrack_table(struct nfct_handle *cth);
-extern int nfct_get_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple);
+extern int nfct_get_expectation(struct nfct_handle *cth, 
+				struct nfct_tuple *tuple,
+				unsigned int id);
 extern int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *);
-extern int nfct_delete_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple);
+extern int nfct_delete_expectation(struct nfct_handle *cth,
+				   struct nfct_tuple *tuple, unsigned int id);
 extern int nfct_event_expectation(struct nfct_handle *cth);
 extern int nfct_flush_expectation_table(struct nfct_handle *cth);
 
