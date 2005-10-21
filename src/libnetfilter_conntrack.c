@@ -456,7 +456,7 @@ static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock,
 			flags |= NFCT_ID;
 			break;
 		default:
-			fprintf(stderr, "Unknown Attribute\n");
+			fprintf(stderr, "Unknown Attribute %d\n", NFA_TYPE(attr));
 			break;
 		}
 		attr = NFA_NEXT(attr, attrlen);
@@ -609,37 +609,48 @@ static int nfct_expect_netlink_handler(struct sockaddr_nl *sock,
 	return 0;
 }
 
-static
-int __nfct_create_conntrack(struct nfct_handle *cth,
-			    struct nfct_tuple *orig,
-			    struct nfct_tuple *reply,
-			    unsigned long timeout,
-			    union nfct_protoinfo *proto,
-			    unsigned int status,
-			    struct nfct_nat *range)
+struct nfct_conntrack *
+nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
+		     unsigned long timeout, union nfct_protoinfo *proto,
+		     unsigned int status, struct nfct_nat *range)
+{
+	struct nfct_conntrack *ct;
+
+	ct = malloc(sizeof(struct nfct_conntrack));
+	if (!ct)
+		return NULL;
+	memset(ct, 0, sizeof(struct nfct_conntrack));
+
+	ct->tuple[NFCT_DIR_ORIGINAL] = *orig;
+	ct->tuple[NFCT_DIR_REPLY] = *reply;
+	ct->timeout = htonl(timeout);
+	ct->status = htonl(status);
+	ct->protoinfo = *proto;
+	if (range)
+		ct->nat = *range;
+
+	return ct;
+}
+
+void nfct_conntrack_free(struct nfct_conntrack *ct)
+{
+	free(ct);
+}
+
+int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
-	struct nfct_conntrack ct;
 	int ret;
 
 	req = (void *) buf;
 
 	memset(buf, 0, sizeof(buf));
-	memset(&ct, 0, sizeof(struct nfct_conntrack));
-
-	ct.tuple[NFCT_DIR_ORIGINAL] = *orig;
-	ct.tuple[NFCT_DIR_REPLY] = *reply;
-	ct.timeout = htonl(timeout);
-	ct.status = htonl(status);
-	ct.protoinfo = *proto;
-	if (range)
-		ct.nat = *range;
 	
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_CT_NEW,
 		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL);
 
-	nfct_build_conntrack(req, sizeof(buf), &ct);
+	nfct_build_conntrack(req, sizeof(buf), ct);
 
 	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0 )
 		return -1;
@@ -649,55 +660,19 @@ int __nfct_create_conntrack(struct nfct_handle *cth,
 	return ret;
 }
 
-int nfct_create_conntrack(struct nfct_handle *cth,
-			  struct nfct_tuple *orig,
-			  struct nfct_tuple *reply,
-			  unsigned long timeout,
-			  union nfct_protoinfo *proto,
-			  unsigned int status)
-{
-	return(__nfct_create_conntrack(cth, orig, reply, timeout,
-					       proto, status, NULL));
-}
-
-int nfct_create_conntrack_nat(struct nfct_handle *cth,
-			      struct nfct_tuple *orig,
-			      struct nfct_tuple *reply,
-			      unsigned long timeout,
-			      union nfct_protoinfo *proto,
-			      unsigned int status,
-			      struct nfct_nat *nat)
-{
-	return(__nfct_create_conntrack(cth, orig, reply, timeout,
-					       proto, status, nat));
-}
-
-int nfct_update_conntrack(struct nfct_handle *cth,
-			  struct nfct_tuple *orig,
-			  struct nfct_tuple *reply,
-			  unsigned long timeout,
-			  union nfct_protoinfo *proto,
-			  unsigned int status)
+int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
-	struct nfct_conntrack ct;
 	int ret;
 
 	req = (void *) &buf;
 	memset(&buf, 0, sizeof(buf));
-	memset(&ct, 0, sizeof(struct nfct_conntrack));
 
-	ct.tuple[NFCT_DIR_ORIGINAL] = *orig;
-	ct.tuple[NFCT_DIR_REPLY] = *reply;
-	ct.timeout = htonl(timeout);
-	ct.status = htonl(status);
-	ct.protoinfo = *proto;
-	
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_CT_NEW,
 		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK);	
 
-	nfct_build_conntrack(req, sizeof(buf), &ct);
+	nfct_build_conntrack(req, sizeof(buf), ct);
 
 	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
 		return -1;
@@ -707,7 +682,8 @@ int nfct_update_conntrack(struct nfct_handle *cth,
 	return ret;
 }
 
-int nfct_delete_conntrack(struct nfct_handle *cth,struct nfct_tuple *tuple, int dir)
+int nfct_delete_conntrack(struct nfct_handle *cth, 
+			  struct nfct_tuple *tuple, int dir)
 {
 	int ret;
 	struct nfnlhdr *req;
@@ -732,7 +708,8 @@ int nfct_delete_conntrack(struct nfct_handle *cth,struct nfct_tuple *tuple, int 
 }
 
 /* get_conntrack_handler */
-int nfct_get_conntrack(struct nfct_handle *cth,struct nfct_tuple *tuple, int dir)
+int nfct_get_conntrack(struct nfct_handle *cth, 
+		       struct nfct_tuple *tuple, int dir)
 {
 	int ret;
 	struct nfnlhdr *req;
@@ -741,14 +718,18 @@ int nfct_get_conntrack(struct nfct_handle *cth,struct nfct_tuple *tuple, int dir
 		.handler = nfct_conntrack_netlink_handler
 	};
 	char buf[NFCT_BUFSIZE];
+	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
+
+	nfct_register_handler(cth, &h);
 	
 	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
 
-	nfct_build_tuple(req, sizeof(buf), tuple, dir); 
-
-	nfct_register_handler(cth, &h);
-	nfct_build_tuple(req, sizeof(buf), tuple, dir); 
+	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0,
+		      AF_INET, 0, IPCTNL_MSG_CT_GET,
+		      NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK);
+	
+	nfct_build_tuple(req, sizeof(buf), tuple, type); 
 
 	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
 		return -1;
@@ -775,7 +756,7 @@ static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 		msg = IPCTNL_MSG_CT_GET;
 
 	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
-		      msg, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST);
+		      msg, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_DUMP);
 
 	if (nfnl_send(&cth->nfnlh, &req.nlh) < 0)
 		return -1;
@@ -790,7 +771,7 @@ int nfct_dump_conntrack_table(struct nfct_handle *cth)
 	return(__nfct_dump_conntrack_table(cth, 0));
 }
 
-int nfct_dump_conntrack_table_zero(struct nfct_handle *cth)
+int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth)
 {
 	return(__nfct_dump_conntrack_table(cth, 1));
 }
@@ -873,7 +854,7 @@ int nfct_flush_conntrack_table(struct nfct_handle *cth)
 	return ret;
 }
 
-int nfct_get_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple)
+int nfct_get_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple)
 {
 	struct nfct_msg_handler h = {
 		.type = IPCTNL_MSG_EXP_NEW,
@@ -900,10 +881,31 @@ int nfct_get_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple)
 	return ret;
 }
 
-int nfct_create_expectation(struct nfct_handle *cth,struct nfct_tuple *master,
-			    struct nfct_tuple *tuple,
-			    struct nfct_tuple *mask,
-			    unsigned long timeout)
+struct nfct_expect *
+nfct_expect_alloc(struct nfct_tuple *master, struct nfct_tuple *tuple,
+		  struct nfct_tuple *mask, unsigned long timeout)
+{
+	struct nfct_expect *exp;
+
+	exp = malloc(sizeof(struct nfct_expect));
+	if (!exp)
+		return NULL;
+	memset(exp, 0, sizeof(struct nfct_expect));
+
+	exp->master = *master;
+	exp->tuple = *tuple;
+	exp->mask = *mask;
+	exp->timeout = htonl(timeout);
+
+	return exp;
+}
+
+void nfct_expect_free(struct nfct_expect *exp)
+{
+	free(exp);
+}
+
+int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *exp)
 {
 	int ret;
 	struct nfnlhdr *req;
@@ -915,12 +917,12 @@ int nfct_create_expectation(struct nfct_handle *cth,struct nfct_tuple *master,
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_EXP_NEW,
 		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK);
 
-	nfct_build_tuple(req, sizeof(buf), master, CTA_EXPECT_MASTER);
-	nfct_build_tuple(req, sizeof(buf), tuple, CTA_EXPECT_TUPLE);
-	nfct_build_tuple(req, sizeof(buf), mask, CTA_EXPECT_MASK);
+	nfct_build_tuple(req, sizeof(buf), &exp->master, CTA_EXPECT_MASTER);
+	nfct_build_tuple(req, sizeof(buf), &exp->tuple, CTA_EXPECT_TUPLE);
+	nfct_build_tuple(req, sizeof(buf), &exp->mask, CTA_EXPECT_MASK);
 	
-	if (nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_TIMEOUT, &timeout,
-			   sizeof(timeout)) < 0)
+	if (nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_TIMEOUT, 
+			   &exp->timeout, sizeof(unsigned long)) < 0)
 		return -1;	
 
 	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0 )
