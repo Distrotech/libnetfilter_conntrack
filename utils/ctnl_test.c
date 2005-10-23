@@ -1,198 +1,88 @@
-#include <stdlib.h>
+/*
+ * (C) 2005 by Pablo Neira Ayuso <pablo@eurodev.net>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libnetfilter_conntrack test file: yet incomplete
+ */
+
 #include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-       #include <sys/socket.h>
-       #include <netinet/in.h>
-       #include <arpa/inet.h>
-
-
-#include <linux/types.h>
-#include <linux/netlink.h>
-#include <linux/netfilter/nfnetlink.h>
-
-#include <libnfnetlink_conntrack/libnfnetlink_conntrack.h>
-
-#if 0
-static struct ctnl_handle *cth;
-
-#if 0
-char *display_tuple_flat(struct ip_conntrack_tuple *tuple)
-{
-        static char buff[250];
-        char psb[20];
-        int len = 0;
-
-        memset(buff, '\0', sizeof(buff));
-	len += sprintf(buff + len, "%s:", inet_ntoa((struct in_addr){tuple->src.ip}));
-        switch(tuple->dst.protonum) {
-                case (IPPROTO_ICMP):
-                        len += sprintf(buff + len, "Icmp (id %d)",
-                                ntohs(tuple->src.u.icmp.id));
-                        break;
-                case (IPPROTO_TCP):
-                        sprintf(psb, "%d", ntohs(tuple->src.u.tcp.port));
-                        len += sprintf(buff + len, "%s", psb);
-                        break;
-                case (IPPROTO_UDP):
-                        sprintf(psb, "%d", ntohs(tuple->src.u.udp.port));
-                        len += sprintf(buff + len, "%s", psb);
-                        break;
-                default:
-                        len += sprintf(buff + len, "Unknown");
-                        break;
-        }
-
-	len += sprintf(buff + len, "->");
-        len += sprintf(buff + len, "%s:", inet_ntoa((struct in_addr){tuple->dst.ip}));
-        switch(tuple->dst.protonum) {
-                case (IPPROTO_ICMP):
-                        len += sprintf(buff + len, "Icmp (%d, code %d)",
-                                tuple->dst.u.icmp.type,
-                                tuple->dst.u.icmp.code);
-                        break;
-                case (IPPROTO_TCP):
-                        sprintf(psb, "%d", ntohs(tuple->dst.u.tcp.port));
-                        len += sprintf(buff + len, "%s", psb);
-                        break;
-                case (IPPROTO_UDP):
-                        sprintf(psb, "%d", ntohs(tuple->dst.u.udp.port));
-                        len += sprintf(buff + len, "%s", psb);
-                        break;
-                default:
-                        len += sprintf(buff + len, "Unknown");
-                        break;
-        }
-
-        return (buff);
-}
-#else
-char *display_tuple_flat(void *foo)
-{
-	return "not implemented";
-}
-#endif
-
-int ctnl_parse_attr(struct nfattr *tb[], int max, struct nfattr *cta, int len)
-{
-        while(NFA_OK(cta, len)) {
-                if(cta->nfa_type <= max)
-                        tb[cta->nfa_type] = cta;
-                cta = NFA_NEXT(cta,len);
-        }
-        if (len)
-		printf("ctnl_parse_attr: deficit (%d) len (%d).\n",
-			len, cta->nfa_len);
-        return 0;
-}
-
-#if 0
-int dump()
-{
-	struct {
-		struct nlmsghdr nlh;
-		struct nfgenmsg nfmsg;
-	} req;
-	struct sockaddr_nl nladdr;
-
-	memset(&nladdr, 0, sizeof(nladdr));
-	nladdr.nl_family = AF_NETLINK;
-
-	req.nlh.nlmsg_len = sizeof(req);
-	req.nlh.nlmsg_type = (NFNL_SUBSYS_CTNETLINK << 8)|CTNL_MSG_CT_GET;
-	req.nlh.nlmsg_flags = NLM_F_ROOT|NLM_F_DUMP|NLM_F_REQUEST;
-	req.nlh.nlmsg_pid = 0;
-	req.nlh.nlmsg_seq = 1;
-	req.nfmsg.nfgen_family = AF_INET;
-
-	return (sendto(ctnlfd, &req, sizeof(req), 0,
-			(struct sockaddr *) &nladdr, sizeof(nladdr)));
-
-}
-#endif
-
-int print_msg(struct nfgenmsg *cm, size_t len)
-{
-	struct nfattr *cb[CTA_MAX + 1];
-
-	printf("ctm_family=0x%x\n", cm->nfgen_family);
-
-	ctnl_parse_attr(cb, CTA_MAX, NFM_NFA(cm), len);
-
-	if (cb[CTA_TUPLE_ORIG]) {
-		printf("orig: %s\n", 
-				display_tuple_flat(NFA_DATA(cb[CTA_TUPLE_ORIG])));
-		ctnl_del_conntrack(cth, NFA_DATA(cb[CTA_TUPLE_ORIG]), CTA_TUPLE_ORIG);
-	}
-	if (cb[CTA_TUPLE_REPLY])
-		printf("rply: %s\n", 
-				display_tuple_flat(NFA_DATA(cb[CTA_TUPLE_REPLY])));
-
-
-	return 0;
-}
-
-struct nlmsghdr *ctnl_get_packet(struct nlmsghdr **last_nlhdr, 
-			      char *buf, size_t len)
-{
-	struct nlmsghdr *nlh;
-	size_t remain_len;
-
-	if ((char *)(*last_nlhdr) > (buf + len) ||
-	    (char *)(*last_nlhdr) < buf)
-		*last_nlhdr = NULL;
-
-	if (!*last_nlhdr) {
-		nlh = (struct nlmsghdr *) buf;
-		if (!NLMSG_OK(nlh, len)) {
-			printf("error parsing nlmsg\n");
-			return NULL;
-		}
-	} else {
-		/* we are n-th part of multipart mesasge */
-		if ((*last_nlhdr)->nlmsg_type == NLMSG_DONE ||
-		    !((*last_nlhdr)->nlmsg_flags & NLM_F_MULTI)) {
-			*last_nlhdr = NULL;
-			return NULL;
-		}
-
-		remain_len = (len - ((char *)(*last_nlhdr) - buf));
-		nlh = NLMSG_NEXT(*last_nlhdr, remain_len);
-	}
-
-	*last_nlhdr = nlh;
-	return nlh;
-}
+#include <stdlib.h>
+#include <errno.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
 int main(int argc, char **argv)
 {
-	char buf[20480];
-	struct nfgenmsg *last_cm = NULL, *cm;
-	struct nlmsghdr *nlh;
-	int len;
+	struct nfct_conntrack *ct;
+	struct nfct_tuple orig = {
+		.src = { .v4 = inet_addr("1.1.1.1") },
+		.dst = { .v4 = inet_addr("2.2.2.2") },
+		.protonum = IPPROTO_TCP,
+		.l4src = { .tcp = { .port = 10 } },
+		.l4dst = { .tcp = { .port = 20 } }
+	};
+	struct nfct_tuple reply = {
+		.src = { .v4 = inet_addr("2.2.2.2") },
+		.dst = { .v4 = inet_addr("1.1.1.1") },
+		.protonum = IPPROTO_TCP,
+		.l4src = { .tcp = { .port = 20 } },
+		.l4dst = { .tcp = { .port = 10 } }
+	};
+	union nfct_protoinfo proto = {
+		.tcp = { .state = 1 },
+	};
+	unsigned long status = IPS_ASSURED | IPS_CONFIRMED;
+	unsigned long timeout = 100;
+	unsigned long mark = 0;
+	unsigned long id = NFCT_ANY_ID;
+	struct nfct_handle *cth;
+	int ret = 0, errors = 0;
 
-	cth = malloc(sizeof(*cth));
-	if (ctnl_open(cth, NFNL_SUBSYS_CTNETLINK, 0) < 0) {
-		exit(2);
+	/* Here we go... */
+	fprintf(stdout, "Test for libnetfilter_conntrack\n\n");
+
+	ct = nfct_conntrack_alloc(&orig, &reply, timeout, &proto, status,
+				  mark, id, NULL);
+	if (!ct) {
+		fprintf(stderr, "Not enough memory");
+		errors++;
+		ret = -ENOMEM;
+		goto end;
 	}
 
-	ctnl_wilddump_request(cth, AF_INET, IPCTNL_MSG_CT_GET);
-
-	while (len = recv(cth->nfnlh.fd, &buf, sizeof(buf), 0)) {
-		printf("pkt received\n");
-		while (nlh = ctnl_get_packet(&last_cm, (char *)&buf, len)) {
-			printf("  decoding msg type 0x%04x\n", nlh->nlmsg_type);
-			if (NFNL_SUBSYS_ID(nlh->nlmsg_type) == 
-					NFNL_SUBSYS_CTNETLINK) {
-				cm = NLMSG_DATA(nlh);
-				print_msg(cm, nlh->nlmsg_len);
-			}
-		}
+	cth = nfct_open(CONNTRACK, 0);
+	if (!cth) {
+		fprintf(stderr, "Can't open handler\n");
+		errors++;
+		ret = -ENOENT;
+		nfct_conntrack_free(ct);
+		goto end;
 	}
 
-	return 0;
+	ret = nfct_create_conntrack(cth, ct);
+	fprintf(stdout, "TEST 1: create conntrack (%d)\n", ret);
+	
+	/* Skip EEXIST error, in case that the test has been called
+	 * twice this spot a bogus error */
+	if (ret < 0 && ret != -EEXIST)
+		errors++;
+
+	nfct_set_callback(cth, nfct_default_conntrack_display);
+	ret = nfct_dump_conntrack_table(cth);
+	fprintf(stdout, "TEST 2: dump conntrack table (%d)\n", ret);
+	if (ret < 0)
+		errors++;
+	
+	nfct_close(cth);
+	nfct_conntrack_free(ct);
+
+end:
+	if (errors)
+		fprintf(stdout, "Test failed with error %d. Errors=%d\n", 
+			ret, errors);
+	else
+		fprintf(stdout, "Test OK\n");
 }
-
-#endif

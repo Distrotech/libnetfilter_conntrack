@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign dist-bzip2 1.6
 
 INCLUDES =$(all_includes) -I$(top_srcdir)/include -I${KERNELDIR}
-SUBDIRS	= include src extensions
+SUBDIRS	= include src extensions utils
 LINKOPTS = -lnfnetlink
 
 man_MANS = #nfnetlink_conntrack.3 nfnetlink_conntrack.7

@@ -27,7 +27,7 @@
 	((unsigned char *)&addr)[3]
 
 char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
-struct list_head proto_list;
+LIST_HEAD(proto_list);
 char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_TCP] = "tcp",
         [IPPROTO_UDP] = "udp",
