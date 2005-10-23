@@ -14,6 +14,17 @@
 #include <errno.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
+static int event_counter(void *arg, unsigned int flags, int type)
+{
+	static int counter = 0;
+
+	fprintf(stdout, "Event number %d\n", ++counter);
+	if (counter > 10)
+		return -1;
+	
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	struct nfct_conntrack *ct;
@@ -53,7 +64,7 @@ int main(int argc, char **argv)
 		goto end;
 	}
 
-	cth = nfct_open(CONNTRACK, 0);
+	cth = nfct_open(CONNTRACK, NFCT_ANY_GROUP);
 	if (!cth) {
 		fprintf(stderr, "Can't open handler\n");
 		errors++;
@@ -75,6 +86,11 @@ int main(int argc, char **argv)
 	fprintf(stdout, "TEST 2: dump conntrack table (%d)\n", ret);
 	if (ret < 0)
 		errors++;
+
+	fprintf(stdout, "TEST 3: Waiting for 10 conntrack events\n");
+	nfct_set_callback(cth, event_counter);
+	ret = nfct_event_conntrack(cth);
+	fprintf(stdout, "TEST 3: Received 10 conntrack events (%d)\n", ret);
 	
 	nfct_close(cth);
 	nfct_conntrack_free(ct);

@@ -104,6 +104,11 @@ void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback)
 	cth->callback = callback;
 }
 
+void nfct_unset_callback(struct nfct_handle *cth)
+{
+	cth->callback = NULL;
+}
+
 static void nfct_set_handler(struct nfct_handle *cth, nfct_handler hndlr)
 {
 	cth->handler = hndlr;
@@ -419,7 +424,7 @@ static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock,
 	struct nfct_conntrack ct;
 	unsigned int flags = 0;
 	struct nfct_handle *cth = arg;
-	int type = NFNL_MSG_TYPE(nlh->nlmsg_type);
+	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
 
 	memset(&ct, 0, sizeof(struct nfct_conntrack));
 
@@ -473,13 +478,13 @@ static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock,
 		attr = NFA_NEXT(attr, attrlen);
 	}
 	if (cth->callback)
-		cth->callback((void *) &ct, flags,
-			      typemsg2enum(type, nlh->nlmsg_flags));
+		ret = cth->callback((void *) &ct, flags,
+				    typemsg2enum(type, nlh->nlmsg_flags));
 
-	return 0;
+	return ret;
 }
 
-void nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
+int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
 {
 	struct nfct_conntrack *ct = arg;
 	struct nfct_proto *h = NULL;
@@ -535,9 +540,11 @@ void nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
 
 	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
+
+	return 0;
 }
 
-void nfct_default_expect_display(void *arg, unsigned int flags, int type)
+int nfct_default_expect_display(void *arg, unsigned int flags, int type)
 {
 	struct nfct_expect *exp = arg;
 	char buf[256];
@@ -553,6 +560,8 @@ void nfct_default_expect_display(void *arg, unsigned int flags, int type)
 	size += sprintf(buf+size, "id=%u ", exp->id);
 	size += sprintf(buf, "\n");
 	fprintf(stdout, buf);
+
+	return 0;
 }
 
 static int nfct_event_netlink_handler(struct sockaddr_nl *sock, 

@@ -30,6 +30,12 @@ enum {
  */
 #define NFCT_ANY_ID 0
 
+/*
+ * Default flag that is passed to nfct_open(), subscribe
+ * to all possible groups
+ */
+#define NFCT_ANY_GROUP ~0U
+
 union nfct_l4 {
 	/* Add other protocols here. */
 	u_int16_t all;
@@ -149,7 +155,7 @@ enum {
 	NFCT_MSG_DESTROY
 };
 
-typedef void (*nfct_callback)(void *arg, unsigned int flags, int);
+typedef int (*nfct_callback)(void *arg, unsigned int flags, int);
 typedef int (*nfct_handler)(struct sockaddr_nl *, struct nlmsghdr *, void *arg);
 
 struct nfct_handle {
@@ -177,12 +183,13 @@ extern void nfct_unregister_proto(struct nfct_proto *h);
 extern struct nfct_handle *nfct_open(u_int8_t, unsigned);
 extern int nfct_close(struct nfct_handle *cth);
 extern void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback);
+extern void nfct_unset_callback(struct nfct_handle *cth);
 
 /*
  * callback displayers
  */
-extern void nfct_default_conntrack_display(void *arg, unsigned int, int); 
-extern void nfct_default_expect_display(void *arg, unsigned int, int);
+extern int nfct_default_conntrack_display(void *arg, unsigned int, int); 
+extern int nfct_default_expect_display(void *arg, unsigned int, int);
 
 extern int nfct_create_conntrack(struct nfct_handle *cth, 
 				 struct nfct_conntrack *ct);
