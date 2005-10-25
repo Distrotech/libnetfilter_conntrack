@@ -11,7 +11,8 @@ run ()
     fi
 }
 
-run aclocal-1.6
+run aclocal
+run libtoolize -f
 #run autoheader
-run automake-1.6 -a
+run automake -a
 run autoconf
