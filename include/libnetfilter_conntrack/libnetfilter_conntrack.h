@@ -138,13 +138,16 @@ enum {
 	NFCT_MARK_BIT = 3,
 	NFCT_MARK = (1 << NFCT_MARK_BIT),
 
-	NFCT_COUNTERS_BIT = 4,
-	NFCT_COUNTERS = (1 << NFCT_COUNTERS_BIT),
+	NFCT_COUNTERS_ORIG_BIT = 4,
+	NFCT_COUNTERS_ORIG = (1 << NFCT_COUNTERS_ORIG_BIT),
 
-	NFCT_USE_BIT = 5,
+	NFCT_COUNTERS_RPLY_BIT = 5,
+	NFCT_COUNTERS_RPLY = (1 << NFCT_COUNTERS_RPLY_BIT),
+
+	NFCT_USE_BIT = 6,
 	NFCT_USE = (1 << NFCT_USE_BIT),
 
-	NFCT_ID_BIT = 6,
+	NFCT_ID_BIT = 7,
 	NFCT_ID = (1 << NFCT_ID_BIT)
 };
 
@@ -155,8 +158,10 @@ enum {
 	NFCT_MSG_DESTROY
 };
 
+struct nfct_handle;
 typedef int (*nfct_callback)(void *arg, unsigned int flags, int);
-typedef int (*nfct_handler)(struct sockaddr_nl *, struct nlmsghdr *, void *arg);
+typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
+			    void *arg);
 
 struct nfct_handle {
 	struct nfnl_handle nfnlh;

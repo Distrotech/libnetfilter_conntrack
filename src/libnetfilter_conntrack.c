@@ -26,9 +26,9 @@
 	((unsigned char *)&addr)[2], \
 	((unsigned char *)&addr)[3]
 
-char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
-LIST_HEAD(proto_list);
-char *proto2str[IPPROTO_MAX] = {
+static char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
+static LIST_HEAD(proto_list);
+static char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_TCP] = "tcp",
         [IPPROTO_UDP] = "udp",
         [IPPROTO_ICMP] = "icmp",
@@ -48,10 +48,13 @@ static int callback_handler(struct sockaddr_nl *nladdr,
 		return 0;
 	}
 
-	if (!cth->handler)
-		return 0;
+	if (!cth)
+		return -ENODEV;
 
-	ret = cth->handler(nladdr, n, arg);
+	if (!cth->handler)
+		return -ENODEV;
+
+	ret = cth->handler(cth, n, NULL);
 
 	return ret;
 }
@@ -107,11 +110,6 @@ void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback)
 void nfct_unset_callback(struct nfct_handle *cth)
 {
 	cth->callback = NULL;
-}
-
-static void nfct_set_handler(struct nfct_handle *cth, nfct_handler hndlr)
-{
-	cth->handler = hndlr;
 }
 
 static void nfct_build_tuple_ip(struct nfnlhdr *req, int size, 
@@ -414,7 +412,7 @@ static int typemsg2enum(u_int8_t type, u_int8_t flags)
 	return ret;
 }
 
-static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock, 
+static int nfct_conntrack_netlink_handler(struct nfct_handle *cth, 
 					  struct nlmsghdr *nlh, void *arg)
 {
 	struct nfgenmsg *nfmsg;
@@ -423,7 +421,6 @@ static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock,
 	int attrlen = nlh->nlmsg_len - NLMSG_ALIGN(min_len);
 	struct nfct_conntrack ct;
 	unsigned int flags = 0;
-	struct nfct_handle *cth = arg;
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
 
 	memset(&ct, 0, sizeof(struct nfct_conntrack));
@@ -458,10 +455,12 @@ static int nfct_conntrack_netlink_handler(struct sockaddr_nl *sock,
 			flags |= NFCT_MARK;
 			break;
 		case CTA_COUNTERS_ORIG:
+			nfct_parse_counters(attr, &ct, NFA_TYPE(attr)-1);
+			flags |= NFCT_COUNTERS_ORIG;
+			break;
 		case CTA_COUNTERS_REPLY:
-			nfct_parse_counters(attr, &ct, 
-						    NFA_TYPE(attr)-1);
-			flags |= NFCT_COUNTERS;
+			nfct_parse_counters(attr, &ct, NFA_TYPE(attr)-1);
+			flags |= NFCT_COUNTERS_RPLY;
 			break;
 		case CTA_USE:
 			ct.use = ntohl(*(u_int32_t *)NFA_DATA(attr));
@@ -510,8 +509,8 @@ int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
 	if (h && h->print_proto)
 		size += h->print_proto(buf+size, &ct->tuple[NFCT_DIR_ORIGINAL]);
 
-	if (flags & NFCT_COUNTERS)
-		size += printf(buf+size, "packets=%llu bytes=%llu ",
+	if (flags & NFCT_COUNTERS_ORIG)
+		size += sprintf(buf+size, "packets=%llu bytes=%llu ",
 			       ct->counters[NFCT_DIR_ORIGINAL].packets,
 			       ct->counters[NFCT_DIR_ORIGINAL].bytes);
 
@@ -523,7 +522,7 @@ int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
 	if (h && h->print_proto)
 		size += h->print_proto(buf+size, &ct->tuple[NFCT_DIR_REPLY]);
 
-	if (flags & NFCT_COUNTERS)
+	if (flags & NFCT_COUNTERS_RPLY)
 		size += sprintf(buf+size, "packets=%llu bytes=%llu ",
 				ct->counters[NFCT_DIR_REPLY].packets,
 				ct->counters[NFCT_DIR_REPLY].bytes);
@@ -564,25 +563,24 @@ int nfct_default_expect_display(void *arg, unsigned int flags, int type)
 	return 0;
 }
 
-static int nfct_event_netlink_handler(struct sockaddr_nl *sock, 
+static int nfct_event_netlink_handler(struct nfct_handle *cth, 
 				      struct nlmsghdr *nlh,
 				      void *arg)
 {
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type);
 	fprintf(stdout, "%9s ", msgtype[typemsg2enum(type, nlh->nlmsg_flags)]);
-	return nfct_conntrack_netlink_handler(sock, nlh, arg);
+	return nfct_conntrack_netlink_handler(cth, nlh, arg);
 }
 
-static int nfct_expect_netlink_handler(struct sockaddr_nl *sock, 
+static int nfct_expect_netlink_handler(struct nfct_handle *cth, 
 				       struct nlmsghdr *nlh, void *arg)
 {
 	struct nfgenmsg *nfmsg;
-	struct nfct_handle *cth = arg;
 	int min_len = sizeof(struct nfgenmsg) + sizeof(struct nlmsghdr);
 	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
 	int attrlen = nlh->nlmsg_len - NLMSG_ALIGN(min_len);
 	struct nfct_expect exp;
-	int type = NFNL_MSG_TYPE(nlh->nlmsg_type);
+	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
 
 	memset(&exp, 0, sizeof(struct nfct_expect));
 
@@ -611,8 +609,8 @@ static int nfct_expect_netlink_handler(struct sockaddr_nl *sock,
 		attr = NFA_NEXT(attr, attrlen);
 	}
 	if (cth->callback)
-		cth->callback((void *)&exp, 0, 
-			      typemsg2enum(type, nlh->nlmsg_flags));
+		ret = cth->callback((void *)&exp, 0, 
+				    typemsg2enum(type, nlh->nlmsg_flags));
 
 	return 0;
 }
@@ -653,7 +651,7 @@ int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
-	int ret;
+	int err;
 
 	req = (void *) buf;
 
@@ -664,19 +662,18 @@ int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 
 	nfct_build_conntrack(req, sizeof(buf), ct);
 
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0 )
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
-	int ret;
+	int err;
 
 	req = (void *) &buf;
 	memset(&buf, 0, sizeof(buf));
@@ -686,18 +683,17 @@ int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 
 	nfct_build_conntrack(req, sizeof(buf), ct);
 
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-	
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple, 
 			  int dir, unsigned int id)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
@@ -715,31 +711,29 @@ int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_ID, &id, 
 			       sizeof(unsigned int));
 
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
-/* get_conntrack_handler */
 int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple, 
 		       int dir, unsigned int id)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
 
-	nfct_set_handler(cth, nfct_conntrack_netlink_handler);
+	cth->handler = nfct_conntrack_netlink_handler;
 	
 	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
 
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0,
 		      AF_INET, 0, IPCTNL_MSG_CT_GET,
-		      NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK);
+		      NLM_F_REQUEST|NLM_F_ACK);
 	
 	nfct_build_tuple(req, sizeof(buf), tuple, type);
 
@@ -747,20 +741,19 @@ int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_ID, &id,
 			       sizeof(unsigned int));
 
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 {
-	int ret, msg;
+	int err, msg;
 	struct nfnlhdr req;
 	
-	nfct_set_handler(cth, nfct_conntrack_netlink_handler);
+	cth->handler = nfct_conntrack_netlink_handler;
 
 	if (zero)
 		msg = IPCTNL_MSG_CT_GET_CTRZERO;
@@ -770,12 +763,11 @@ static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
 		      msg, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_DUMP);
 
-	if (nfnl_send(&cth->nfnlh, &req.nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req.nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth); 
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth); 
 }
 
 int nfct_dump_conntrack_table(struct nfct_handle *cth)
@@ -790,12 +782,8 @@ int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth)
 
 int nfct_event_conntrack(struct nfct_handle *cth)
 {
-	int ret;
-
-	nfct_set_handler(cth, nfct_event_netlink_handler);
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return 0;
+	cth->handler = nfct_event_netlink_handler;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 void nfct_register_proto(struct nfct_proto *h)
@@ -815,24 +803,23 @@ void nfct_unregister_proto(struct nfct_proto *h)
 
 int nfct_dump_expect_list(struct nfct_handle *cth)
 {
-	int ret;
+	int err;
 	struct nfnlhdr req;
 
-	nfct_set_handler(cth, nfct_expect_netlink_handler);
+	cth->handler = nfct_expect_netlink_handler;
 	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
 		      IPCTNL_MSG_EXP_GET, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST);
 
-	if (nfnl_send(&cth->nfnlh, &req.nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req.nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_flush_conntrack_table(struct nfct_handle *cth)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[sizeof(*req)];
 
@@ -843,18 +830,17 @@ int nfct_flush_conntrack_table(struct nfct_handle *cth)
 			0, AF_INET, 0, IPCTNL_MSG_CT_DELETE,
 			NLM_F_REQUEST|NLM_F_ACK);
 
-	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
-		return -1;
+	err = nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_get_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
 			 unsigned int id)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 
@@ -864,19 +850,18 @@ int nfct_get_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_EXP_GET,
 		      NLM_F_REQUEST|NLM_F_ACK);
 
-	nfct_set_handler(cth, nfct_expect_netlink_handler);
+	cth->handler = nfct_expect_netlink_handler;
 	nfct_build_tuple(req, sizeof(buf), tuple, CTA_EXPECT_MASTER);
 
 	if (id != NFCT_ANY_ID)
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_ID, &id,
 			       sizeof(unsigned int));
 
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 struct nfct_expect *
@@ -908,7 +893,7 @@ void nfct_expect_free(struct nfct_expect *exp)
 
 int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *exp)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	req = (void *) &buf;
@@ -925,18 +910,17 @@ int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *exp)
 	nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_TIMEOUT, 
 		       &exp->timeout, sizeof(unsigned long));
 
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0 )
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_delete_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple,
 			    unsigned int id)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 
@@ -953,27 +937,22 @@ int nfct_delete_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple,
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_ID, &id,
 			       sizeof(unsigned int));
 	
-	if (nfnl_send(&cth->nfnlh, &req->nlh) < 0)
-		return -1;
+	err = nfnl_send(&cth->nfnlh, &req->nlh);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_event_expectation(struct nfct_handle *cth)
 {
-	int ret;
-	
-	nfct_set_handler(cth, nfct_expect_netlink_handler);
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	cth->handler = nfct_expect_netlink_handler;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
 int nfct_flush_expectation_table(struct nfct_handle *cth)
 {
-	int ret;
+	int err;
 	struct nfnlhdr *req;
 	char buf[sizeof(*req)];
 
@@ -984,10 +963,9 @@ int nfct_flush_expectation_table(struct nfct_handle *cth)
 		      0, AF_INET, 0, IPCTNL_MSG_EXP_DELETE,
 		      NLM_F_REQUEST|NLM_F_ACK);
 
-	if (nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf) < 0 )
-		return -1;
+	err = nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf);
+	if (err < 0)
+		return err;
 
-	ret = nfnl_listen(&cth->nfnlh, &callback_handler, cth);
-
-	return ret;
+	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }

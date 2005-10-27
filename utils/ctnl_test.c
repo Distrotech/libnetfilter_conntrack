@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <signal.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
 static int event_counter(void *arg, unsigned int flags, int type)
@@ -19,15 +20,24 @@ static int event_counter(void *arg, unsigned int flags, int type)
 	static int counter = 0;
 
 	fprintf(stdout, "Event number %d\n", ++counter);
-	if (counter > 10)
+	if (counter >= 10)
 		return -1;
 	
 	return 0;
 }
 
+static struct nfct_conntrack *ct;
+static struct nfct_handle *cth;
+
+static void event_sighandler(int s)
+{
+	nfct_conntrack_free(ct);
+	nfct_close(cth);
+}
+
+/* I know, better with fork() as Rusty does in nfsim ;), later */
 int main(int argc, char **argv)
 {
-	struct nfct_conntrack *ct;
 	struct nfct_tuple orig = {
 		.src = { .v4 = inet_addr("1.1.1.1") },
 		.dst = { .v4 = inet_addr("2.2.2.2") },
@@ -49,7 +59,6 @@ int main(int argc, char **argv)
 	unsigned long timeout = 100;
 	unsigned long mark = 0;
 	unsigned long id = NFCT_ANY_ID;
-	struct nfct_handle *cth;
 	int ret = 0, errors = 0;
 
 	/* Here we go... */
@@ -82,16 +91,39 @@ int main(int argc, char **argv)
 		errors++;
 
 	nfct_set_callback(cth, nfct_default_conntrack_display);
-	ret = nfct_dump_conntrack_table(cth);
-	fprintf(stdout, "TEST 2: dump conntrack table (%d)\n", ret);
+	ret = nfct_dump_conntrack_table_reset_counters(cth);
+	fprintf(stdout, "TEST 2: dump conntrack table and reset (%d)\n", ret);
 	if (ret < 0)
 		errors++;
 
-	fprintf(stdout, "TEST 3: Waiting for 10 conntrack events\n");
+	ret = nfct_dump_conntrack_table(cth);
+	fprintf(stdout, "TEST 3: dump conntrack table (%d)\n", ret);
+	if (ret < 0)
+		errors++;
+
+	ret = nfct_get_conntrack(cth, &orig, NFCT_DIR_ORIGINAL, NFCT_ANY_ID);
+	fprintf(stdout, "TEST 4: get conntrack (%d)\n", ret);
+	if (ret < 0)
+		errors++;
+
+	ct->status |= IPS_SEEN_REPLY;
+	ct->timeout = 1000;
+	ret = nfct_update_conntrack(cth, ct);
+	fprintf(stdout, "TEST 5: update conntrack (%d)\n", ret);
+	if (ret < 0)
+		errors++;
+
+	ret = nfct_delete_conntrack(cth, &orig, NFCT_DIR_ORIGINAL, NFCT_ANY_ID);
+	fprintf(stdout, "TEST 6: delete conntrack (%d)\n", ret);
+	if (ret < 0)
+		errors++;
+
+	fprintf(stdout, "TEST 7: Waiting for 10 conntrack events\n");
+	signal(SIGINT, event_sighandler);
 	nfct_set_callback(cth, event_counter);
 	ret = nfct_event_conntrack(cth);
-	fprintf(stdout, "TEST 3: Received 10 conntrack events (%d)\n", ret);
-	
+	fprintf(stdout, "TEST 7: Received 10 conntrack events (%d)\n", ret);
+
 	nfct_close(cth);
 	nfct_conntrack_free(ct);
 
