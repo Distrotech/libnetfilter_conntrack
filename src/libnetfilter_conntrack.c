@@ -102,12 +102,12 @@ int nfct_close(struct nfct_handle *cth)
 	return err;
 }
 
-void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback)
+void nfct_register_callback(struct nfct_handle *cth, nfct_callback callback)
 {
 	cth->callback = callback;
 }
 
-void nfct_unset_callback(struct nfct_handle *cth)
+void nfct_unregister_callback(struct nfct_handle *cth)
 {
 	cth->callback = NULL;
 }
@@ -306,14 +306,22 @@ static struct nfct_proto *findproto(char *name)
 	return handler;
 }
 
-static int print_status(char *buf, unsigned int status)
+int nfct_sprintf_status_assured(char *buf, struct nfct_conntrack *ct)
 {
 	int size = 0;
 	
-	if (status & IPS_ASSURED)
+	if (ct->status & IPS_ASSURED)
 		size = sprintf(buf, "[ASSURED] ");
-	if (!(status & IPS_SEEN_REPLY))
-		size += sprintf(buf+size, "[UNREPLIED] ");
+
+	return size;
+}
+
+int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct)
+{
+	int size = 0;
+	
+        if (!(ct->status & IPS_SEEN_REPLY))
+                size = sprintf(buf, "[UNREPLIED] ");
 
 	return size;
 }
@@ -483,60 +491,142 @@ static int nfct_conntrack_netlink_handler(struct nfct_handle *cth,
 	return ret;
 }
 
-int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
+int nfct_sprintf_protocol(char *buf, struct nfct_conntrack *ct)
 {
-	struct nfct_conntrack *ct = arg;
-	struct nfct_proto *h = NULL;
-	char buf[512];
-	int size = 0;
-
-	size += sprintf(buf, "%-8s %u ", 
+	return (sprintf(buf, "%-8s %u ", 
 		proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum] == NULL ?
 		"unknown" : proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum], 
-		ct->tuple[NFCT_DIR_ORIGINAL].protonum);
+		 ct->tuple[NFCT_DIR_ORIGINAL].protonum));
+}
+
+int nfct_sprintf_timeout(char *buf, struct nfct_conntrack *ct)
+{
+	return sprintf(buf, "%lu ", ct->timeout);
+}
+
+int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct)
+{
+	int size = 0;
+	struct nfct_proto *h = NULL;
+	
+	h = findproto(proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum]);
+	if (h && h->print_protoinfo)
+		size += h->print_protoinfo(buf+size, &ct->protoinfo);
+	
+	return size;
+}
+
+int nfct_sprintf_address(char *buf, struct nfct_conntrack *ct, int dir)
+{
+	return (sprintf(buf, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
+			NIPQUAD(ct->tuple[dir].src.v4),
+			NIPQUAD(ct->tuple[dir].dst.v4)));
+}
+
+int nfct_sprintf_proto(char *buf, struct nfct_conntrack *ct, int dir)
+{
+	int size = 0;
+	struct nfct_proto *h = NULL;
+
+	h = findproto(proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum]);
+	if (h && h->print_proto)
+		size += h->print_proto(buf, &ct->tuple[dir]);
+
+	return size;
+}
+
+int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir)
+{
+	return (sprintf(buf, "packets=%llu bytes=%llu ",
+			ct->counters[dir].packets,
+			ct->counters[dir].bytes));
+}
+
+int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct)
+{
+	return (sprintf(buf, "mark=%lu ", ct->mark));
+}
+
+int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct)
+{
+	return (sprintf(buf, "use=%u ", ct->use));
+}
+
+int nfct_sprintf_id(char *buf, struct nfct_conntrack *ct)
+{
+	return (sprintf(buf, "id=%u ", ct->id));
+}
+
+int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct, 
+			  unsigned int flags)
+{
+	int size = 0;
+
+	size += nfct_sprintf_protocol(buf, ct);
 
 	if (flags & NFCT_TIMEOUT)
-		size += sprintf(buf+size, "%lu ", ct->timeout);
+		size += nfct_sprintf_timeout(buf+size, ct);
 
-        h = findproto(proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum]);
-        if ((flags & NFCT_PROTOINFO) && h && h->print_protoinfo)
-                size += h->print_protoinfo(buf+size, &ct->protoinfo);
+        if (flags & NFCT_PROTOINFO)
+		size += nfct_sprintf_protoinfo(buf+size, ct);
 
-	size += sprintf(buf+size, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
-			NIPQUAD(ct->tuple[NFCT_DIR_ORIGINAL].src.v4),
-			NIPQUAD(ct->tuple[NFCT_DIR_ORIGINAL].dst.v4));
-
-	if (h && h->print_proto)
-		size += h->print_proto(buf+size, &ct->tuple[NFCT_DIR_ORIGINAL]);
+	size += nfct_sprintf_address(buf+size, ct, NFCT_DIR_ORIGINAL);
+	size += nfct_sprintf_proto(buf+size, ct, NFCT_DIR_ORIGINAL);
 
 	if (flags & NFCT_COUNTERS_ORIG)
-		size += sprintf(buf+size, "packets=%llu bytes=%llu ",
-			       ct->counters[NFCT_DIR_ORIGINAL].packets,
-			       ct->counters[NFCT_DIR_ORIGINAL].bytes);
+		size += nfct_sprintf_counters(buf+size, ct, NFCT_DIR_ORIGINAL);
 
-	size += sprintf(buf+size, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
-			NIPQUAD(ct->tuple[NFCT_DIR_REPLY].src.v4),
-			NIPQUAD(ct->tuple[NFCT_DIR_REPLY].dst.v4));
+	if (flags & NFCT_STATUS)
+		size += nfct_sprintf_status_seen_reply(buf+size, ct);
 
-        h = findproto(proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum]);
-	if (h && h->print_proto)
-		size += h->print_proto(buf+size, &ct->tuple[NFCT_DIR_REPLY]);
+	size += nfct_sprintf_address(buf+size, ct, NFCT_DIR_REPLY);
+	size += nfct_sprintf_proto(buf+size, ct, NFCT_DIR_REPLY);
 
 	if (flags & NFCT_COUNTERS_RPLY)
-		size += sprintf(buf+size, "packets=%llu bytes=%llu ",
-				ct->counters[NFCT_DIR_REPLY].packets,
-				ct->counters[NFCT_DIR_REPLY].bytes);
+		size += nfct_sprintf_counters(buf+size, ct, NFCT_DIR_REPLY);
 	
 	if (flags & NFCT_STATUS)
-		size += print_status(buf+size, ct->status);
+		size += nfct_sprintf_status_assured(buf+size, ct);
 
 	if (flags & NFCT_MARK)
-		size += sprintf(buf+size, "mark=%lu ", ct->mark);
-	if (flags & NFCT_USE)
-		size += sprintf(buf+size, "use=%u ", ct->use);
-	if (flags & NFCT_ID)
-		size += sprintf(buf+size, "id=%u ", ct->id);
+		size += nfct_sprintf_mark(buf+size, ct);
 
+	if (flags & NFCT_USE)
+		size += nfct_sprintf_use(buf+size, ct);
+
+	return size;
+}
+
+int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct, 
+			     unsigned int flags)
+{
+	int size;
+	
+	size = nfct_sprintf_conntrack(buf, ct, flags);
+	if (flags & NFCT_ID)
+		size += nfct_sprintf_id(buf+size, ct);
+
+	return size;
+}
+
+int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
+{
+	char buf[512];
+	int size;
+
+	size = nfct_sprintf_conntrack(buf, arg, flags);
+	sprintf(buf+size, "\n");
+	fprintf(stdout, buf);
+
+	return 0;
+}
+
+int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type)
+{
+	char buf[512];
+	int size;
+
+	size = nfct_sprintf_conntrack_id(buf, arg, flags);
 	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
 
@@ -651,7 +741,6 @@ int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
-	int err;
 
 	req = (void *) buf;
 
@@ -662,11 +751,7 @@ int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 
 	nfct_build_conntrack(req, sizeof(buf), ct);
 
-	err = nfnl_send(&cth->nfnlh, &req->nlh);
-	if (err < 0)
-		return err;
-
-	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(&cth->nfnlh, &req->nlh, 0, 0, NULL, NULL, NULL);
 }
 
 int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
@@ -679,7 +764,7 @@ int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 	memset(&buf, 0, sizeof(buf));
 
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_CT_NEW,
-		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK);	
+		      NLM_F_REQUEST|NLM_F_ACK);	
 
 	nfct_build_conntrack(req, sizeof(buf), ct);
 
@@ -693,7 +778,6 @@ int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple, 
 			  int dir, unsigned int id)
 {
-	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
@@ -711,11 +795,7 @@ int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_ID, &id, 
 			       sizeof(unsigned int));
 
-	err = nfnl_send(&cth->nfnlh, &req->nlh);
-	if (err < 0)
-		return err;
-
-	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(&cth->nfnlh, &req->nlh, 0, 0, NULL, NULL, NULL);
 }
 
 int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple, 
@@ -752,7 +832,8 @@ static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 {
 	int err, msg;
 	struct nfnlhdr req;
-	
+
+	memset(&req, 0, sizeof(req));
 	cth->handler = nfct_conntrack_netlink_handler;
 
 	if (zero)
@@ -796,15 +877,12 @@ void nfct_register_proto(struct nfct_proto *h)
 	list_add(&h->head, &proto_list);
 }
 
-void nfct_unregister_proto(struct nfct_proto *h)
-{
-	list_del(&h->head);
-}
-
 int nfct_dump_expect_list(struct nfct_handle *cth)
 {
 	int err;
 	struct nfnlhdr req;
+
+	memset(&req, 0, sizeof(req));
 
 	cth->handler = nfct_expect_netlink_handler;
 	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
@@ -819,22 +897,15 @@ int nfct_dump_expect_list(struct nfct_handle *cth)
 
 int nfct_flush_conntrack_table(struct nfct_handle *cth)
 {
-	int err;
-	struct nfnlhdr *req;
-	char buf[sizeof(*req)];
+	struct nfnlhdr req;
 
-	memset(&buf, 0, sizeof(buf));
-	req = (void *) &buf;
+	memset(&req, 0, sizeof(req));
 
-	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &buf,
+	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &req,
 			0, AF_INET, 0, IPCTNL_MSG_CT_DELETE,
 			NLM_F_REQUEST|NLM_F_ACK);
 
-	err = nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf);
-	if (err < 0)
-		return err;
-
-	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(&cth->nfnlh, &req.nlh, 0, 0, NULL, NULL, NULL);
 }
 
 int nfct_get_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
@@ -952,20 +1023,13 @@ int nfct_event_expectation(struct nfct_handle *cth)
 
 int nfct_flush_expectation_table(struct nfct_handle *cth)
 {
-	int err;
-	struct nfnlhdr *req;
-	char buf[sizeof(*req)];
+	struct nfnlhdr req;
 
-	memset(&buf, 0, sizeof(buf));
-	req = (void *) &buf;
+	memset(&req, 0, sizeof(req));
 	
-	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &buf,
+	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &req,
 		      0, AF_INET, 0, IPCTNL_MSG_EXP_DELETE,
 		      NLM_F_REQUEST|NLM_F_ACK);
 
-	err = nfnl_send(&cth->nfnlh, (struct nlmsghdr *)&buf);
-	if (err < 0)
-		return err;
-
-	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(&cth->nfnlh, &req.nlh, 0, 0, NULL, NULL, NULL);
 }

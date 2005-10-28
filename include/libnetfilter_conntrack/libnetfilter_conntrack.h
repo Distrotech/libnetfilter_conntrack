@@ -17,7 +17,7 @@
 #include <linux/netfilter_ipv4/ip_conntrack.h>
 #include "linux_list.h"
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.1.3"
+#define LIBNETFILTER_CONNTRACK_VERSION "0.2.0"
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
@@ -169,6 +169,11 @@ struct nfct_handle {
 	nfct_handler handler;		/* netlink handler */
 };
 
+extern void nfct_register_proto(struct nfct_proto *h);
+
+/*
+ * [Allocate|free] a conntrack
+ */
 extern struct nfct_conntrack *
 nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
 		     unsigned long timeout, union nfct_protoinfo *proto,
@@ -176,26 +181,38 @@ nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
 		     unsigned int id, struct nfct_nat *range);
 extern void nfct_conntrack_free(struct nfct_conntrack *ct);
 
+/*
+ * [Allocate|free] an expectation
+ */
 extern struct nfct_expect *
 nfct_expect_alloc(struct nfct_tuple *master, struct nfct_tuple *tuple,
 		  struct nfct_tuple *mask, unsigned long timeout, 
 		  unsigned int id);
 extern void nfct_expect_free(struct nfct_expect *exp);
 
-extern void nfct_register_proto(struct nfct_proto *h);
-extern void nfct_unregister_proto(struct nfct_proto *h);
-
+/*
+ * [Open|close] a conntrack handler
+ */
 extern struct nfct_handle *nfct_open(u_int8_t, unsigned);
 extern int nfct_close(struct nfct_handle *cth);
-extern void nfct_set_callback(struct nfct_handle *cth, nfct_callback callback);
-extern void nfct_unset_callback(struct nfct_handle *cth);
+
+/*
+ * [Register|unregister] callbacks
+ */
+extern void nfct_register_callback(struct nfct_handle *cth,
+				   nfct_callback callback);
+extern void nfct_unregister_callback(struct nfct_handle *cth);
 
 /*
  * callback displayers
  */
 extern int nfct_default_conntrack_display(void *arg, unsigned int, int); 
+extern int nfct_default_conntrack_display_id(void *arg, unsigned int, int);
 extern int nfct_default_expect_display(void *arg, unsigned int, int);
 
+/*
+ * [Create|update|get|destroy] conntracks
+ */
 extern int nfct_create_conntrack(struct nfct_handle *cth, 
 				 struct nfct_conntrack *ct);
 extern int nfct_update_conntrack(struct nfct_handle *cth,
@@ -206,9 +223,35 @@ extern int nfct_delete_conntrack(struct nfct_handle *cth,
 extern int nfct_get_conntrack(struct nfct_handle *cth, 
 			      struct nfct_tuple *tuple, int dir,
 			      unsigned int id); 
+/*
+ * Conntrack table dumping & zeroing
+ */
 extern int nfct_dump_conntrack_table(struct nfct_handle *cth);
 extern int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth);
+
+/*
+ * Conntrack event notification
+ */
 extern int nfct_event_conntrack(struct nfct_handle *cth); 
+
+/*
+ * Conntrack printing functions
+ */
+extern int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct, 
+				  unsigned int flags);
+extern int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
+				     unsigned int flags);
+extern int nfct_sprintf_address(char *buf, struct nfct_conntrack *ct, int dir);
+extern int nfct_sprintf_proto(char *buf, struct nfct_conntrack *ct, int dir);
+extern int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_timeout(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_protocol(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_status_assured(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir);
+extern int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_id(char *buf, struct nfct_conntrack *ct);
 
 /* 
  * Expectations

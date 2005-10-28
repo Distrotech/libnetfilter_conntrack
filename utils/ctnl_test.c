@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	if (ret < 0 && ret != -EEXIST)
 		errors++;
 
-	nfct_set_callback(cth, nfct_default_conntrack_display);
+	nfct_register_callback(cth, nfct_default_conntrack_display);
 	ret = nfct_dump_conntrack_table_reset_counters(cth);
 	fprintf(stdout, "TEST 2: dump conntrack table and reset (%d)\n", ret);
 	if (ret < 0)
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
 	fprintf(stdout, "TEST 7: Waiting for 10 conntrack events\n");
 	signal(SIGINT, event_sighandler);
-	nfct_set_callback(cth, event_counter);
+	nfct_register_callback(cth, event_counter);
 	ret = nfct_event_conntrack(cth);
 	fprintf(stdout, "TEST 7: Received 10 conntrack events (%d)\n", ret);
 

@@ -52,14 +52,8 @@ static struct nfct_proto icmp = {
 };
 
 void __attribute__ ((constructor)) init(void);
-void __attribute__ ((destructor)) fini(void);
 
 void init(void)
 {
 	nfct_register_proto(&icmp);
-}
-
-void fini(void)
-{
-	nfct_unregister_proto(&icmp);
 }

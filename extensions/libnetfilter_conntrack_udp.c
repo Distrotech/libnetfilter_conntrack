@@ -40,14 +40,8 @@ static struct nfct_proto udp = {
 };
 
 void __attribute__ ((constructor)) init(void);
-void __attribute__ ((destructor)) fini(void);
 
 void init(void)
 {
 	nfct_register_proto(&udp);
-}
-
-void fini(void)
-{
-	nfct_unregister_proto(&udp);
 }
