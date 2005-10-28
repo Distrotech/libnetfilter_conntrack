@@ -424,9 +424,8 @@ static int nfct_conntrack_netlink_handler(struct nfct_handle *cth,
 					  struct nlmsghdr *nlh, void *arg)
 {
 	struct nfgenmsg *nfmsg;
-	int min_len = sizeof(struct nfgenmsg) + sizeof(struct nlmsghdr);
 	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
-	int attrlen = nlh->nlmsg_len - NLMSG_ALIGN(min_len);
+	int attrlen = NLMSG_LENGTH(nlh->nlmsg_len) - NFNL_HEADER_LEN;
 	struct nfct_conntrack ct;
 	unsigned int flags = 0;
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
@@ -435,7 +434,7 @@ static int nfct_conntrack_netlink_handler(struct nfct_handle *cth,
 
 	nfmsg = NLMSG_DATA(nlh);
 
-	if (nlh->nlmsg_len < min_len)
+	if (NLMSG_LENGTH(nlh->nlmsg_len) < NFNL_HEADER_LEN)
 		return -EINVAL;
 
 	while (NFA_OK(attr, attrlen)) {
@@ -666,9 +665,8 @@ static int nfct_expect_netlink_handler(struct nfct_handle *cth,
 				       struct nlmsghdr *nlh, void *arg)
 {
 	struct nfgenmsg *nfmsg;
-	int min_len = sizeof(struct nfgenmsg) + sizeof(struct nlmsghdr);
 	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
-	int attrlen = nlh->nlmsg_len - NLMSG_ALIGN(min_len);
+	int attrlen = NLMSG_LENGTH(nlh->nlmsg_len) - NFNL_HEADER_LEN;
 	struct nfct_expect exp;
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
 
@@ -676,7 +674,7 @@ static int nfct_expect_netlink_handler(struct nfct_handle *cth,
 
 	nfmsg = NLMSG_DATA(nlh);
 
-	if (nlh->nlmsg_len < min_len)
+	if (NLMSG_LENGTH(nlh->nlmsg_len) < NFNL_HEADER_LEN)
 		return -EINVAL;
 
 	while (NFA_OK(attr, attrlen)) {
