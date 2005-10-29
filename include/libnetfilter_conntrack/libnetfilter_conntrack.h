@@ -9,13 +9,9 @@
 #define _LIBNETFILTER_CONNTRACK_H_
 
 #include <netinet/in.h>
-#include <asm/types.h>
-#include <linux/if.h>
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 #include <libnfnetlink/libnfnetlink.h>
-#include <linux/netfilter_ipv4/ip_conntrack.h>
-#include "linux_list.h"
 
 #define LIBNETFILTER_CONNTRACK_VERSION "0.2.0"
 
@@ -57,7 +53,7 @@ union nfct_l4 {
 struct nfct_tuple {
 	union {
 		u_int32_t v4;
-		u_int64_t v6;
+		u_int32_t v6[4];
 	} src;
 
 	union {
@@ -112,18 +108,6 @@ struct nfct_expect {
 	unsigned int id;
 };
 
-struct nfct_proto {
-	struct list_head head;
-	
-	char 		*name;
-	u_int8_t 	protonum;
-	char		*version;
-	
-	void (*parse_proto)(struct nfattr **, struct nfct_tuple *);
-	void (*parse_protoinfo)(struct nfattr **, struct nfct_conntrack *);
-	int (*print_protoinfo)(char *, union nfct_protoinfo *);
-	int (*print_proto)(char *, struct nfct_tuple *);
-};
 
 enum {
 	NFCT_STATUS_BIT = 0,
@@ -151,6 +135,58 @@ enum {
 	NFCT_ID = (1 << NFCT_ID_BIT)
 };
 
+/* Bitset representing status of connection. Taken from ip_conntrack.h
+ * 
+ * Note: For backward compatibility this shouldn't ever change
+ * 	 in kernel space.
+ */
+enum ip_conntrack_status {
+	/* It's an expected connection: bit 0 set.  This bit never changed */
+	IPS_EXPECTED_BIT = 0,
+	IPS_EXPECTED = (1 << IPS_EXPECTED_BIT),
+
+	/* We've seen packets both ways: bit 1 set.  Can be set, not unset. */
+	IPS_SEEN_REPLY_BIT = 1,
+	IPS_SEEN_REPLY = (1 << IPS_SEEN_REPLY_BIT),
+
+	/* Conntrack should never be early-expired. */
+	IPS_ASSURED_BIT = 2,
+	IPS_ASSURED = (1 << IPS_ASSURED_BIT),
+
+	/* Connection is confirmed: originating packet has left box */
+	IPS_CONFIRMED_BIT = 3,
+	IPS_CONFIRMED = (1 << IPS_CONFIRMED_BIT),
+
+	/* Connection needs src nat in orig dir.  This bit never changed. */
+	IPS_SRC_NAT_BIT = 4,
+	IPS_SRC_NAT = (1 << IPS_SRC_NAT_BIT),
+
+	/* Connection needs dst nat in orig dir.  This bit never changed. */
+	IPS_DST_NAT_BIT = 5,
+	IPS_DST_NAT = (1 << IPS_DST_NAT_BIT),
+
+	/* Both together. */
+	IPS_NAT_MASK = (IPS_DST_NAT | IPS_SRC_NAT),
+
+	/* Connection needs TCP sequence adjusted. */
+	IPS_SEQ_ADJUST_BIT = 6,
+	IPS_SEQ_ADJUST = (1 << IPS_SEQ_ADJUST_BIT),
+
+	/* NAT initialization bits. */
+	IPS_SRC_NAT_DONE_BIT = 7,
+	IPS_SRC_NAT_DONE = (1 << IPS_SRC_NAT_DONE_BIT),
+
+	IPS_DST_NAT_DONE_BIT = 8,
+	IPS_DST_NAT_DONE = (1 << IPS_DST_NAT_DONE_BIT),
+
+	/* Both together */
+	IPS_NAT_DONE_MASK = (IPS_DST_NAT_DONE | IPS_SRC_NAT_DONE),
+
+	/* Connection is dying (removed from lists), can not be unset. */
+	IPS_DYING_BIT = 9,
+	IPS_DYING = (1 << IPS_DYING_BIT),
+};
+
 enum {
 	NFCT_MSG_UNKNOWN,
 	NFCT_MSG_NEW,
@@ -162,14 +198,6 @@ struct nfct_handle;
 typedef int (*nfct_callback)(void *arg, unsigned int flags, int);
 typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
 			    void *arg);
-
-struct nfct_handle {
-	struct nfnl_handle nfnlh;
-	nfct_callback callback;		/* user callback */
-	nfct_handler handler;		/* netlink handler */
-};
-
-extern void nfct_register_proto(struct nfct_proto *h);
 
 /*
  * [Allocate|free] a conntrack

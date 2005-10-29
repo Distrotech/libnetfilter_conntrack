@@ -14,6 +14,7 @@
 #include <netinet/in.h> /* For htons */
 #include <linux/netfilter/nfnetlink_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
 void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 {

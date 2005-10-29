@@ -17,6 +17,7 @@
 #include "linux_list.h"
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
 #define NFCT_BUFSIZE 4096
 
@@ -25,6 +26,13 @@
 	((unsigned char *)&addr)[1], \
 	((unsigned char *)&addr)[2], \
 	((unsigned char *)&addr)[3]
+
+/* Harald says: "better for encapsulation" ;) */
+struct nfct_handle {
+	struct nfnl_handle nfnlh;
+	nfct_callback callback;		/* user callback */
+	nfct_handler handler;		/* netlink handler */
+};
 
 static char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
 static LIST_HEAD(proto_list);
