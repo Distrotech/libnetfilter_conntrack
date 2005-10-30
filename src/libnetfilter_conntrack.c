@@ -506,21 +506,21 @@ int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct)
 	return size;
 }
 
-int nfct_sprintf_address(char *buf, struct nfct_conntrack *ct, int dir)
+int nfct_sprintf_address(char *buf, struct nfct_tuple *t)
 {
 	return (sprintf(buf, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
-			NIPQUAD(ct->tuple[dir].src.v4),
-			NIPQUAD(ct->tuple[dir].dst.v4)));
+			NIPQUAD(t->src.v4),
+			NIPQUAD(t->dst.v4)));
 }
 
-int nfct_sprintf_proto(char *buf, struct nfct_conntrack *ct, int dir)
+int nfct_sprintf_proto(char *buf, struct nfct_tuple *t)
 {
 	int size = 0;
 	struct nfct_proto *h = NULL;
 
-	h = findproto(proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum]);
+	h = findproto(proto2str[t->protonum]);
 	if (h && h->print_proto)
-		size += h->print_proto(buf, &ct->tuple[dir]);
+		size += h->print_proto(buf, t);
 
 	return size;
 }
@@ -542,9 +542,9 @@ int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct)
 	return (sprintf(buf, "use=%u ", ct->use));
 }
 
-int nfct_sprintf_id(char *buf, struct nfct_conntrack *ct)
+int nfct_sprintf_id(char *buf, unsigned int id)
 {
-	return (sprintf(buf, "id=%u ", ct->id));
+	return (sprintf(buf, "id=%u ", id));
 }
 
 int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct, 
@@ -560,8 +560,8 @@ int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct,
         if (flags & NFCT_PROTOINFO)
 		size += nfct_sprintf_protoinfo(buf+size, ct);
 
-	size += nfct_sprintf_address(buf+size, ct, NFCT_DIR_ORIGINAL);
-	size += nfct_sprintf_proto(buf+size, ct, NFCT_DIR_ORIGINAL);
+	size += nfct_sprintf_address(buf+size, &ct->tuple[NFCT_DIR_ORIGINAL]);
+	size += nfct_sprintf_proto(buf+size, &ct->tuple[NFCT_DIR_ORIGINAL]);
 
 	if (flags & NFCT_COUNTERS_ORIG)
 		size += nfct_sprintf_counters(buf+size, ct, NFCT_DIR_ORIGINAL);
@@ -569,8 +569,8 @@ int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct,
 	if (flags & NFCT_STATUS)
 		size += nfct_sprintf_status_seen_reply(buf+size, ct);
 
-	size += nfct_sprintf_address(buf+size, ct, NFCT_DIR_REPLY);
-	size += nfct_sprintf_proto(buf+size, ct, NFCT_DIR_REPLY);
+	size += nfct_sprintf_address(buf+size, &ct->tuple[NFCT_DIR_REPLY]);
+	size += nfct_sprintf_proto(buf+size, &ct->tuple[NFCT_DIR_REPLY]);
 
 	if (flags & NFCT_COUNTERS_RPLY)
 		size += nfct_sprintf_counters(buf+size, ct, NFCT_DIR_REPLY);
@@ -594,7 +594,7 @@ int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
 	
 	size = nfct_sprintf_conntrack(buf, ct, flags);
 	if (flags & NFCT_ID)
-		size += nfct_sprintf_id(buf+size, ct);
+		size += nfct_sprintf_id(buf+size, ct->id);
 
 	return size;
 }
@@ -623,24 +623,52 @@ int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type)
 	return 0;
 }
 
+int nfct_sprintf_expect_proto(char *buf, struct nfct_expect *exp)
+{
+	 return(sprintf(buf, "%ld proto=%d ", exp->timeout, 
+					      exp->tuple.protonum));
+}
+
+int nfct_sprintf_expect(char *buf, struct nfct_expect *exp)
+{
+	int size = 0;
+	
+	size = nfct_sprintf_expect_proto(buf, exp);
+	size += nfct_sprintf_address(buf+size, &exp->tuple);
+	size += nfct_sprintf_proto(buf+size, &exp->tuple);
+
+	return size;
+}
+
+int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp)
+{
+	int size = 0;
+
+	size = nfct_sprintf_expect(buf, exp);
+	size += nfct_sprintf_id(buf+size, exp->id);
+
+	return size;
+}
+
 int nfct_default_expect_display(void *arg, unsigned int flags, int type)
 {
-	struct nfct_expect *exp = arg;
 	char buf[256];
 	int size = 0;
-        struct nfct_proto *h = NULL;
 
-	size += sprintf(buf, "%ld proto=%d ", exp->timeout, exp->tuple.protonum);
-	size += sprintf(buf+size, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
-					NIPQUAD(exp->tuple.src.v4),
-					NIPQUAD(exp->tuple.dst.v4));
+	size = nfct_sprintf_expect(buf, arg);
+	sprintf(buf+size, "\n");
+	fprintf(stdout, buf);
 
-	h = findproto(proto2str[exp->tuple.protonum]);
-	if (h && h->print_proto)
-		size += h->print_proto(buf+size, &exp->tuple);
-	
-	size += sprintf(buf+size, "id=%u ", exp->id);
-	size += sprintf(buf+size, "\n");
+	return 0;
+}
+
+int nfct_default_expect_display_id(void *arg, unsigned int flags, int type)
+{
+	char buf[256];
+	int size = 0;
+
+	size = nfct_sprintf_expect_id(buf, arg);
+	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
 
 	return 0;

@@ -13,7 +13,7 @@
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 #include <libnfnetlink/libnfnetlink.h>
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.2.1"
+#define LIBNETFILTER_CONNTRACK_VERSION "0.2.2"
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
@@ -269,8 +269,8 @@ extern int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct,
 				  unsigned int flags);
 extern int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
 				     unsigned int flags);
-extern int nfct_sprintf_address(char *buf, struct nfct_conntrack *ct, int dir);
-extern int nfct_sprintf_proto(char *buf, struct nfct_conntrack *ct, int dir);
+extern int nfct_sprintf_address(char *buf, struct nfct_tuple *t);
+extern int nfct_sprintf_proto(char *buf, struct nfct_tuple *t);
 extern int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_timeout(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_protocol(char *buf, struct nfct_conntrack *ct);
@@ -279,7 +279,7 @@ extern int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir);
 extern int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_id(char *buf, struct nfct_conntrack *ct);
+extern int nfct_sprintf_id(char *buf, unsigned int id);
 
 /* 
  * Expectations
@@ -294,5 +294,11 @@ extern int nfct_delete_expectation(struct nfct_handle *cth,
 				   struct nfct_tuple *tuple, unsigned int id);
 extern int nfct_event_expectation(struct nfct_handle *cth);
 extern int nfct_flush_expectation_table(struct nfct_handle *cth);
+
+/*
+ * expectation printing functions
+ */
+extern int nfct_sprintf_expect(char *buf, struct nfct_expect *exp);
+extern int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp);
 
 #endif	/* _LIBNETFILTER_CONNTRACK_H_ */
