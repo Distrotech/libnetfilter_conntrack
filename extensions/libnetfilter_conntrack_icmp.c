@@ -16,7 +16,7 @@
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
-void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
+static void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 {
 	if (cda[CTA_PROTO_ICMP_TYPE-1])
 		tuple->l4dst.icmp.type =
@@ -31,7 +31,20 @@ void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 			*(u_int16_t *)NFA_DATA(cda[CTA_PROTO_ICMP_ID-1]);
 }
 
-int print_proto(char *buf, struct nfct_tuple *t)
+static void build_tuple_proto(struct nfnlhdr *req, int size,
+			      struct nfct_tuple *t)
+{
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_CODE,
+		       &t->l4dst.icmp.code, sizeof(u_int8_t));
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_TYPE,
+		       &t->l4dst.icmp.type, sizeof(u_int8_t));
+	/* This is an ICMP echo */
+	if (t->l4dst.icmp.type == 8)
+		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
+			       &t->l4src.icmp.id, sizeof(u_int16_t));
+}
+
+static int print_proto(char *buf, struct nfct_tuple *t)
 {
 	int size = 0;
 	
@@ -48,13 +61,14 @@ static struct nfct_proto icmp = {
 	.name 			= "icmp",
 	.protonum		= IPPROTO_ICMP,
 	.parse_proto		= parse_proto,
+	.build_tuple_proto	= build_tuple_proto,
 	.print_proto		= print_proto,
 	.version		= LIBNETFILTER_CONNTRACK_VERSION
 };
 
-void __attribute__ ((constructor)) init(void);
+static void __attribute__ ((constructor)) init(void);
 
-void init(void)
+static void init(void)
 {
 	nfct_register_proto(&icmp);
 }

@@ -42,6 +42,7 @@ static char *proto2str[IPPROTO_MAX] = {
         [IPPROTO_ICMP] = "icmp",
         [IPPROTO_SCTP] = "sctp"
 };
+static struct nfct_proto *findproto(char *name);
 
 /* handler used for nfnl_listen */
 static int callback_handler(struct sockaddr_nl *nladdr,
@@ -139,6 +140,7 @@ static void nfct_build_tuple_ip(struct nfnlhdr *req, int size,
 static void nfct_build_tuple_proto(struct nfnlhdr *req, int size,
 				   struct nfct_tuple *t)
 {
+	struct nfct_proto *h;
 	struct nfattr *nest;
 
 	nest = nfnl_nest(&req->nlh, size, CTA_TUPLE_PROTO);
@@ -146,26 +148,11 @@ static void nfct_build_tuple_proto(struct nfnlhdr *req, int size,
 	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_NUM, &t->protonum,
 		       sizeof(u_int16_t));
 
-	switch(t->protonum) {
-	case IPPROTO_TCP:
-	case IPPROTO_UDP:
-	case IPPROTO_SCTP:
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
-			       &t->l4src.tcp.port, sizeof(u_int16_t));
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,
-			       &t->l4dst.tcp.port, sizeof(u_int16_t));
-		break;
-	case IPPROTO_ICMP:
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_CODE,
-			       &t->l4dst.icmp.code, sizeof(u_int8_t));
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_TYPE,
-			       &t->l4dst.icmp.type, sizeof(u_int8_t));
-		/* This is an ICMP echo */
-		if (t->l4dst.icmp.type == 8)
-			nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
-				       &t->l4src.icmp.id, sizeof(u_int16_t));
-		break;
-	}
+	h = findproto(proto2str[t->protonum]);
+
+	if (h && h->build_tuple_proto)
+		h->build_tuple_proto(req, size, t);
+
 	nfnl_nest_end(&req->nlh, nest);
 }
 
@@ -186,23 +173,14 @@ static void nfct_build_protoinfo(struct nfnlhdr *req, int size,
 				 struct nfct_conntrack *ct)
 {
 	struct nfattr *nest;
+	struct nfct_proto *h;
 
-	nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
-
-	switch (ct->tuple[NFCT_DIR_ORIGINAL].protonum) {
-	case IPPROTO_TCP: {
-		struct nfattr *nest_proto;
-		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTOINFO_TCP_STATE,
-			       &ct->protoinfo.tcp.state, sizeof(u_int8_t));
-		nfnl_nest_end(&req->nlh, nest_proto);
-		break;
-		}
-	default:
-		break;
+	h = findproto(proto2str[ct->tuple[NFCT_DIR_ORIGINAL].protonum]);
+	if (h && h->build_protoinfo) {
+		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
+		h->build_protoinfo(req, size, ct);
+		nfnl_nest_end(&req->nlh, nest);
 	}
-
-	nfnl_nest_end(&req->nlh, nest);
 }
 
 static void nfct_build_protonat(struct nfnlhdr *req, int size,
@@ -431,66 +409,71 @@ static int typemsg2enum(u_int8_t type, u_int8_t flags)
 static int nfct_conntrack_netlink_handler(struct nfct_handle *cth, 
 					  struct nlmsghdr *nlh, void *arg)
 {
-	struct nfgenmsg *nfmsg;
-	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
-	int attrlen = NLMSG_LENGTH(nlh->nlmsg_len) - NFNL_HEADER_LEN;
 	struct nfct_conntrack ct;
 	unsigned int flags = 0;
+	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
+	int len = nlh->nlmsg_len;
+	struct nfattr *cda[CTA_MAX];
+
+	len -= NLMSG_LENGTH(sizeof(struct nfgenmsg));
+	if (len < 0)
+		return -EINVAL;
 
 	memset(&ct, 0, sizeof(struct nfct_conntrack));
 
-	nfmsg = NLMSG_DATA(nlh);
+	nfnl_parse_attr(cda, CTA_MAX, NFA_DATA(nfhdr), len);
 
-	if (NLMSG_LENGTH(nlh->nlmsg_len) < NFNL_HEADER_LEN)
-		return -EINVAL;
-
-	while (NFA_OK(attr, attrlen)) {
-		switch(NFA_TYPE(attr)) {
-		case CTA_TUPLE_ORIG:
-			parse_tuple(attr, &ct.tuple[NFCT_DIR_ORIGINAL]);
-			break;
-		case CTA_TUPLE_REPLY:
-			parse_tuple(attr, &ct.tuple[NFCT_DIR_REPLY]);
-			break;
-		case CTA_STATUS:
-			ct.status = ntohl(*(u_int32_t *)NFA_DATA(attr));
-			flags |= NFCT_STATUS;
-			break;
-		case CTA_PROTOINFO:
-			parse_protoinfo(attr, &ct);
-			flags |= NFCT_PROTOINFO;
-			break;
-		case CTA_TIMEOUT:
-			ct.timeout = ntohl(*(u_int32_t *)NFA_DATA(attr));
-			flags |= NFCT_TIMEOUT;
-			break;
-		case CTA_MARK:
-			ct.mark = ntohl(*(u_int32_t *)NFA_DATA(attr));
-			flags |= NFCT_MARK;
-			break;
-		case CTA_COUNTERS_ORIG:
-			nfct_parse_counters(attr, &ct, NFA_TYPE(attr)-1);
-			flags |= NFCT_COUNTERS_ORIG;
-			break;
-		case CTA_COUNTERS_REPLY:
-			nfct_parse_counters(attr, &ct, NFA_TYPE(attr)-1);
-			flags |= NFCT_COUNTERS_RPLY;
-			break;
-		case CTA_USE:
-			ct.use = ntohl(*(u_int32_t *)NFA_DATA(attr));
-			flags |= NFCT_USE;
-			break;
-		case CTA_ID:
-			ct.id = ntohl(*(u_int32_t *)NFA_DATA(attr));
-			flags |= NFCT_ID;
-			break;
-		default:
-			fprintf(stderr, "Unknown Attribute %d\n", NFA_TYPE(attr));
-			break;
-		}
-		attr = NFA_NEXT(attr, attrlen);
+	if (cda[CTA_TUPLE_ORIG-1])
+		parse_tuple(cda[CTA_TUPLE_ORIG-1], 
+			    &ct.tuple[NFCT_DIR_ORIGINAL]);
+	
+	if (cda[CTA_TUPLE_REPLY-1])
+		parse_tuple(cda[CTA_TUPLE_REPLY-1], 
+			    &ct.tuple[NFCT_DIR_REPLY]);
+	
+	if (cda[CTA_STATUS-1]) {
+		ct.status = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_STATUS-1]));
+		flags |= NFCT_STATUS;
 	}
+
+	if (cda[CTA_PROTOINFO-1]) {
+		parse_protoinfo(cda[CTA_PROTOINFO-1], &ct);
+		flags |= NFCT_PROTOINFO;
+	}
+
+	if (cda[CTA_TIMEOUT-1]) {
+		ct.timeout = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_TIMEOUT-1]));
+		flags |= NFCT_TIMEOUT;
+	}
+	
+	if (cda[CTA_MARK-1]) {
+		ct.mark = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_MARK-1]));
+		flags |= NFCT_MARK;
+	}
+	
+	if (cda[CTA_COUNTERS_ORIG-1]) {
+		nfct_parse_counters(cda[CTA_COUNTERS_ORIG-1], &ct, 
+				    NFA_TYPE(cda[CTA_COUNTERS_ORIG-1])-1);
+		flags |= NFCT_COUNTERS_ORIG;
+	}
+
+	if (cda[CTA_COUNTERS_REPLY-1]) {
+		nfct_parse_counters(cda[CTA_COUNTERS_REPLY-1], &ct, 
+				    NFA_TYPE(cda[CTA_COUNTERS_REPLY-1])-1);
+		flags |= NFCT_COUNTERS_RPLY;
+	}
+
+	if (cda[CTA_USE-1]) {
+		ct.use = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_USE-1]));
+		flags |= NFCT_USE;
+	}
+
+	if (cda[CTA_ID-1]) {
+		ct.id = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_ID-1]));
+		flags |= NFCT_ID;
+	}
+
 	if (cth->callback)
 		ret = cth->callback((void *) &ct, flags,
 				    typemsg2enum(type, nlh->nlmsg_flags));
@@ -645,16 +628,19 @@ int nfct_default_expect_display(void *arg, unsigned int flags, int type)
 	struct nfct_expect *exp = arg;
 	char buf[256];
 	int size = 0;
-	
+        struct nfct_proto *h = NULL;
+
 	size += sprintf(buf, "%ld proto=%d ", exp->timeout, exp->tuple.protonum);
 	size += sprintf(buf+size, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
 					NIPQUAD(exp->tuple.src.v4),
 					NIPQUAD(exp->tuple.dst.v4));
-	size += sprintf(buf+size, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
-					NIPQUAD(exp->mask.src.v4),
-					NIPQUAD(exp->mask.dst.v4));
+
+	h = findproto(proto2str[exp->tuple.protonum]);
+	if (h && h->print_proto)
+		size += h->print_proto(buf+size, &exp->tuple);
+	
 	size += sprintf(buf+size, "id=%u ", exp->id);
-	size += sprintf(buf, "\n");
+	size += sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
 
 	return 0;
@@ -672,38 +658,33 @@ static int nfct_event_netlink_handler(struct nfct_handle *cth,
 static int nfct_expect_netlink_handler(struct nfct_handle *cth, 
 				       struct nlmsghdr *nlh, void *arg)
 {
-	struct nfgenmsg *nfmsg;
-	struct nfattr *attr = NFM_NFA(NLMSG_DATA(nlh));
-	int attrlen = NLMSG_LENGTH(nlh->nlmsg_len) - NFNL_HEADER_LEN;
+	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);
 	struct nfct_expect exp;
 	int type = NFNL_MSG_TYPE(nlh->nlmsg_type), ret = 0;
+	int len = nlh->nlmsg_len;
+	struct nfattr *cda[CTA_EXPECT_MAX];
 
+	len -= NLMSG_LENGTH(sizeof(struct nfgenmsg));
+	if (len < 0)
+		return -EINVAL;
+	
 	memset(&exp, 0, sizeof(struct nfct_expect));
 
-	nfmsg = NLMSG_DATA(nlh);
+	nfnl_parse_attr(cda, CTA_EXPECT_MAX, NFA_DATA(nfhdr), len);
 
-	if (NLMSG_LENGTH(nlh->nlmsg_len) < NFNL_HEADER_LEN)
-		return -EINVAL;
+	if (cda[CTA_EXPECT_TUPLE-1])
+		parse_tuple(cda[CTA_EXPECT_TUPLE-1], &exp.tuple);
 
-	while (NFA_OK(attr, attrlen)) {
-		switch(NFA_TYPE(attr)) {
+	if (cda[CTA_EXPECT_MASK-1])
+		parse_tuple(cda[CTA_EXPECT_MASK-1], &exp.mask);
 
-			case CTA_EXPECT_TUPLE:
-				parse_tuple(attr, &exp.tuple);
-				break;
-			case CTA_EXPECT_MASK:
-				parse_tuple(attr, &exp.mask);
-				break;
-			case CTA_EXPECT_TIMEOUT:
-				exp.timeout = htonl(*(unsigned long *)
-						NFA_DATA(attr));
-				break;
-			case CTA_EXPECT_ID:
-				exp.id = htonl(*(u_int32_t *)NFA_DATA(attr));	
-				break;
-		}
-		attr = NFA_NEXT(attr, attrlen);
-	}
+	if (cda[CTA_EXPECT_TIMEOUT-1])
+		exp.timeout = htonl(*(unsigned long *)
+				NFA_DATA(cda[CTA_EXPECT_TIMEOUT-1]));
+
+	if (cda[CTA_EXPECT_ID-1])
+		exp.id = htonl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_ID-1]));
+
 	if (cth->callback)
 		ret = cth->callback((void *)&exp, 0, 
 				    typemsg2enum(type, nlh->nlmsg_flags));

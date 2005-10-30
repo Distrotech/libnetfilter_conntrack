@@ -29,7 +29,7 @@ static const char *states[] = {
 	"LISTEN"
 };
 
-void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
+static void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 {
 	if (cda[CTA_PROTO_SRC_PORT-1])
 		tuple->l4src.tcp.port =
@@ -39,7 +39,7 @@ void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 			*(u_int16_t *)NFA_DATA(cda[CTA_PROTO_DST_PORT-1]);
 }
 
-void parse_protoinfo(struct nfattr *cda[], struct nfct_conntrack *ct)
+static void parse_protoinfo(struct nfattr *cda[], struct nfct_conntrack *ct)
 {
 	struct nfattr *tb[CTA_PROTOINFO_TCP_MAX];
 	
@@ -50,12 +50,32 @@ void parse_protoinfo(struct nfattr *cda[], struct nfct_conntrack *ct)
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_TCP_STATE-1]);
 }
 
-int print_protoinfo(char *buf, union nfct_protoinfo *protoinfo)
+static void build_tuple_proto(struct nfnlhdr *req, int size,
+			      struct nfct_tuple *t)
+{
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
+		       &t->l4src.tcp.port, sizeof(u_int16_t));
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,
+		       &t->l4dst.tcp.port, sizeof(u_int16_t));
+}
+
+static void build_protoinfo(struct nfnlhdr *req, int size, 
+			    struct nfct_conntrack *ct)
+{
+	struct nfattr *nest_proto;
+
+	nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTOINFO_TCP_STATE,
+		       &ct->protoinfo.tcp.state, sizeof(u_int8_t));
+	nfnl_nest_end(&req->nlh, nest_proto);
+}
+
+static int print_protoinfo(char *buf, union nfct_protoinfo *protoinfo)
 {
 	return(sprintf(buf, "%s ", states[protoinfo->tcp.state]));
 }
 
-int print_proto(char *buf, struct nfct_tuple *tuple)
+static int print_proto(char *buf, struct nfct_tuple *tuple)
 {
 	return(sprintf(buf, "sport=%u dport=%u ", htons(tuple->l4src.tcp.port),
 					          htons(tuple->l4dst.tcp.port)));
@@ -66,14 +86,16 @@ static struct nfct_proto tcp = {
 	.protonum		= IPPROTO_TCP,
 	.parse_protoinfo	= parse_protoinfo,
 	.parse_proto		= parse_proto,
+	.build_tuple_proto	= build_tuple_proto,
+	.build_protoinfo	= build_protoinfo,
 	.print_protoinfo	= print_protoinfo,
 	.print_proto		= print_proto,
 	.version		= LIBNETFILTER_CONNTRACK_VERSION
 };
 
-void __attribute__ ((constructor)) init(void);
+static void __attribute__ ((constructor)) init(void);
 
-void init(void)
+static void init(void)
 {
 	nfct_register_proto(&tcp);
 }

@@ -19,6 +19,8 @@ struct nfct_proto {
 	
 	void (*parse_proto)(struct nfattr **, struct nfct_tuple *);
 	void (*parse_protoinfo)(struct nfattr **, struct nfct_conntrack *);
+	void (*build_tuple_proto)(struct nfnlhdr *, int, struct nfct_tuple *);
+	void (*build_protoinfo)(struct nfnlhdr *, int, struct nfct_conntrack *);
 	int (*print_protoinfo)(char *, union nfct_protoinfo *);
 	int (*print_proto)(char *, struct nfct_tuple *);
 };

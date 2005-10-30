@@ -16,7 +16,7 @@
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
-void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
+static void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 {
 	if (cda[CTA_PROTO_SRC_PORT-1])
 		tuple->l4src.udp.port =
@@ -26,23 +26,33 @@ void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 			*(u_int16_t *)NFA_DATA(cda[CTA_PROTO_DST_PORT-1]);
 }
 
-int print_proto(char *buf, struct nfct_tuple *tuple)
+static int print_proto(char *buf, struct nfct_tuple *tuple)
 {
 	return (sprintf(buf, "sport=%u dport=%u ", htons(tuple->l4src.udp.port),
 					           htons(tuple->l4dst.udp.port)));
 }
 
+static void build_tuple_proto(struct nfnlhdr *req, int size, 
+			      struct nfct_tuple *t)
+{
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
+		       &t->l4src.tcp.port, sizeof(u_int16_t));
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,
+		       &t->l4dst.tcp.port, sizeof(u_int16_t));
+}
+
 static struct nfct_proto udp = {
 	.name 			= "udp",
 	.protonum		= IPPROTO_UDP,
+	.build_tuple_proto	= build_tuple_proto,
 	.parse_proto		= parse_proto,
 	.print_proto		= print_proto,
 	.version		= LIBNETFILTER_CONNTRACK_VERSION,
 };
 
-void __attribute__ ((constructor)) init(void);
+static void __attribute__ ((constructor)) init(void);
 
-void init(void)
+static void init(void)
 {
 	nfct_register_proto(&udp);
 }
