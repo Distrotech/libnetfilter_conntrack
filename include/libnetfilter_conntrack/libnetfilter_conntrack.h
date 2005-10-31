@@ -13,7 +13,7 @@
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 #include <libnfnetlink/libnfnetlink.h>
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.2.2"
+#define LIBNETFILTER_CONNTRACK_VERSION "0.2.3"
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
@@ -27,10 +27,12 @@ enum {
 #define NFCT_ANY_ID 0
 
 /*
- * Default flag that is passed to nfct_open(), subscribe
- * to all possible groups
+ * Subscribe to all possible netlink groups. Use this 
+ * flag in case that you want to catch up all the possible 
+ * events. Do not use this flag for dumping or any other
+ * similar operation.
  */
-#define NFCT_ANY_GROUP ~0U
+#define NFCT_ALL_GROUPS ~0U
 
 union nfct_l4 {
 	/* Add other protocols here. */
@@ -237,6 +239,7 @@ extern void nfct_unregister_callback(struct nfct_handle *cth);
 extern int nfct_default_conntrack_display(void *arg, unsigned int, int); 
 extern int nfct_default_conntrack_display_id(void *arg, unsigned int, int);
 extern int nfct_default_expect_display(void *arg, unsigned int, int);
+extern int nfct_default_expect_display_id(void *arg, unsigned int, int);
 
 /*
  * [Create|update|get|destroy] conntracks

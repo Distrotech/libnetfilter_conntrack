@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 		goto end;
 	}
 
-	cth = nfct_open(CONNTRACK, NFCT_ANY_GROUP);
+	cth = nfct_open(CONNTRACK, 0);
 	if (!cth) {
 		fprintf(stderr, "Can't open handler\n");
 		errors++;
@@ -117,6 +117,18 @@ int main(int argc, char **argv)
 	fprintf(stdout, "TEST 6: delete conntrack (%d)\n", ret);
 	if (ret < 0)
 		errors++;
+
+	nfct_close(cth);
+
+	/* Now open a handler that is subscribed to all possible events */
+	cth = nfct_open(CONNTRACK, NFCT_ALL_GROUPS);
+	if (!cth) {
+		fprintf(stderr, "Can't open handler\n");
+		errors++;
+		ret = -ENOENT;
+		nfct_conntrack_free(ct);
+		goto end;
+	}
 
 	fprintf(stdout, "TEST 7: Waiting for 10 conntrack events\n");
 	signal(SIGINT, event_sighandler);

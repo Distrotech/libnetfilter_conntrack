@@ -52,7 +52,7 @@ static int print_proto(char *buf, struct nfct_tuple *t)
 					         t->l4dst.icmp.code);
 	/* ID only makes sense with ECHO */
 	if (t->l4dst.icmp.type == 8)
-		size += sprintf(buf, "id=%d ", t->l4src.icmp.id);
+		size += sprintf(buf+size, "id=%d ", ntohs(t->l4src.icmp.id));
 
 	return size;
 }

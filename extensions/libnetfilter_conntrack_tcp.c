@@ -42,6 +42,18 @@ static void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 static void parse_protoinfo(struct nfattr *cda[], struct nfct_conntrack *ct)
 {
 	struct nfattr *tb[CTA_PROTOINFO_TCP_MAX];
+
+	/*
+	 * Listen to me carefully: This is easy to trigger with events ;). 
+	 * The conntrack event messages don't always contain all the
+	 * information about a conntrack, just those fields that have changed.
+	 * So you can receive a message about a TCP connection with no bits 
+	 * talking about the private protocol information. 
+	 *
+	 * 						--pablo 05/10/31
+	 */
+	if (!cda[CTA_PROTOINFO_TCP-1])
+		return;
 	
 	nfnl_parse_nested(tb,CTA_PROTOINFO_TCP_MAX, cda[CTA_PROTOINFO_TCP-1]);
 	
