@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 	nfct_close(cth);
 
 	/* Now open a handler that is subscribed to all possible events */
-	cth = nfct_open(CONNTRACK, NFCT_ALL_GROUPS);
+	cth = nfct_open(CONNTRACK, NFCT_ALL_CT_GROUPS);
 	if (!cth) {
 		fprintf(stderr, "Can't open handler\n");
 		errors++;
