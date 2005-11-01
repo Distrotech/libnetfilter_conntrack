@@ -13,7 +13,7 @@
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 #include <libnfnetlink/libnfnetlink.h>
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.2.3"
+#define LIBNETFILTER_CONNTRACK_VERSION "0.2.4"
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
@@ -27,12 +27,12 @@ enum {
 #define NFCT_ANY_ID 0
 
 /*
- * Subscribe to all possible netlink groups. Use this 
+ * Subscribe to all possible conntrack event groups. Use this 
  * flag in case that you want to catch up all the possible 
  * events. Do not use this flag for dumping or any other
  * similar operation.
  */
-#define NFCT_ALL_GROUPS ~0U
+#define NFCT_ALL_CT_GROUPS (NF_NETLINK_CONNTRACK_NEW|NF_NETLINK_CONNTRACK_UPDATE|NF_NETLINK_CONNTRACK_DESTROY)
 
 union nfct_l4 {
 	/* Add other protocols here. */

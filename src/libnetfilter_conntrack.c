@@ -391,12 +391,12 @@ static void nfct_parse_counters(struct nfattr *attr,
 
 static char *msgtype[] = {"[UNKNOWN]", "[NEW]", "[UPDATE]", "[DESTROY]"};
 
-static int typemsg2enum(u_int8_t type, u_int8_t flags)
+static int typemsg2enum(u_int16_t type, u_int16_t flags)
 {
 	int ret = NFCT_MSG_UNKNOWN;
 
 	if (type == IPCTNL_MSG_CT_NEW) {
-		if (flags & NLM_F_CREATE)
+		if (flags & (NLM_F_CREATE|NLM_F_EXCL))
 			ret = NFCT_MSG_NEW;
 		else
 			ret = NFCT_MSG_UPDATE;
@@ -707,11 +707,11 @@ static int nfct_expect_netlink_handler(struct nfct_handle *cth,
 		parse_tuple(cda[CTA_EXPECT_MASK-1], &exp.mask);
 
 	if (cda[CTA_EXPECT_TIMEOUT-1])
-		exp.timeout = htonl(*(unsigned long *)
+		exp.timeout = ntohl(*(unsigned long *)
 				NFA_DATA(cda[CTA_EXPECT_TIMEOUT-1]));
 
 	if (cda[CTA_EXPECT_ID-1])
-		exp.id = htonl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_ID-1]));
+		exp.id = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_ID-1]));
 
 	if (cth->callback)
 		ret = cth->callback((void *)&exp, 0, 
@@ -797,8 +797,8 @@ int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	char buf[NFCT_BUFSIZE];
 	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
 
-	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
+	memset(&buf, 0, sizeof(buf));
 
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, 
 		      AF_INET, 0, IPCTNL_MSG_CT_DELETE, 
@@ -806,9 +806,11 @@ int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 
 	nfct_build_tuple(req, sizeof(buf), tuple, type);
 
-	if (id != NFCT_ANY_ID)
+	if (id != NFCT_ANY_ID) {
+		id = htonl(id); /* to network byte order */
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_ID, &id, 
 			       sizeof(unsigned int));
+	}
 
 	return nfnl_talk(&cth->nfnlh, &req->nlh, 0, 0, NULL, NULL, NULL);
 }
@@ -832,9 +834,11 @@ int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	
 	nfct_build_tuple(req, sizeof(buf), tuple, type);
 
-        if (id != NFCT_ANY_ID)
+        if (id != NFCT_ANY_ID) {
+		id = htonl(id); /* to network byte order */
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_ID, &id,
 			       sizeof(unsigned int));
+	}
 
 	err = nfnl_send(&cth->nfnlh, &req->nlh);
 	if (err < 0)
