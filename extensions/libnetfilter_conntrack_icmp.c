@@ -46,15 +46,11 @@ static void build_tuple_proto(struct nfnlhdr *req, int size,
 
 static int print_proto(char *buf, struct nfct_tuple *t)
 {
-	int size = 0;
-	
-	size += sprintf(buf, "type=%d code=%d ", t->l4dst.icmp.type,
-					         t->l4dst.icmp.code);
-	/* ID only makes sense with ECHO */
-	if (t->l4dst.icmp.type == 8)
-		size += sprintf(buf+size, "id=%d ", ntohs(t->l4src.icmp.id));
-
-	return size;
+	/* The ID only makes sense for type=8 (ECHO) but we want to
+	 * display the same output that /proc/net/ip_conntrack does */
+	return (sprintf(buf, "type=%d code=%d id=%d ",t->l4dst.icmp.type,
+						      t->l4dst.icmp.code,
+						      ntohs(t->l4src.icmp.id)));
 }
 
 static struct nfct_proto icmp = {
