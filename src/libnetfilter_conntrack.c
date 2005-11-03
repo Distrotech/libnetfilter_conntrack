@@ -665,7 +665,8 @@ int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp)
 {
 	int size = 0;
 
-	size = nfct_sprintf_expect(buf, exp);
+	/* add a blank space, that's why the add 1 to the size */
+	size = nfct_sprintf_expect(buf, exp) + 1;
 	size += nfct_sprintf_id(buf+size, exp->id);
 
 	/* remove last blank space */
