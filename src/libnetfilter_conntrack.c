@@ -668,7 +668,8 @@ int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp)
 	size = nfct_sprintf_expect(buf, exp);
 	size += nfct_sprintf_id(buf+size, exp->id);
 
-	return size;
+	/* remove last blank space */
+	return --size;
 }
 
 int nfct_default_expect_display(void *arg, unsigned int flags, int type)
