@@ -14,18 +14,13 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include "linux_list.h"
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
 #define NFCT_BUFSIZE 4096
-
-#define NIPQUAD(addr) \
-	((unsigned char *)&addr)[0], \
-	((unsigned char *)&addr)[1], \
-	((unsigned char *)&addr)[2], \
-	((unsigned char *)&addr)[3]
 
 /* Harald says: "better for encapsulation" ;) */
 struct nfct_handle {
@@ -232,18 +227,27 @@ static void nfct_build_nat(struct nfnlhdr *req, int size,
 static void nfct_build_conntrack(struct nfnlhdr *req, int size, 
 				 struct nfct_conntrack *ct)
 {
+	unsigned int status = htonl(ct->status);
+	unsigned long timeout = htonl(ct->timeout);
+	unsigned int id = htonl(ct->id);
+	unsigned int mark = htonl(ct->mark);
+	
 	nfct_build_tuple(req, size, &ct->tuple[NFCT_DIR_ORIGINAL], 
 				 CTA_TUPLE_ORIG);
 	nfct_build_tuple(req, size, &ct->tuple[NFCT_DIR_REPLY],
 				 CTA_TUPLE_REPLY);
 	
-	nfnl_addattr_l(&req->nlh, size, CTA_STATUS, &ct->status, 
+	nfnl_addattr_l(&req->nlh, size, CTA_STATUS, &status, 
 		       sizeof(unsigned int));
-	nfnl_addattr_l(&req->nlh, size, CTA_TIMEOUT, &ct->timeout, 
+	nfnl_addattr_l(&req->nlh, size, CTA_TIMEOUT, &timeout, 
 		       sizeof(unsigned long));
+	
+	if (ct->mark != 0)
+		nfnl_addattr_l(&req->nlh, size, CTA_MARK, &mark,
+			       sizeof(unsigned int));
 
 	if (ct->id != NFCT_ANY_ID)
-		nfnl_addattr_l(&req->nlh, size, CTA_ID, &ct->id, 
+		nfnl_addattr_l(&req->nlh, size, CTA_ID, &id, 
 			       sizeof(unsigned int));
 
 	nfct_build_protoinfo(req, size, ct);
@@ -253,10 +257,14 @@ static void nfct_build_conntrack(struct nfnlhdr *req, int size,
 
 void nfct_dump_tuple(struct nfct_tuple *tp)
 {
-	fprintf(stdout, "tuple %p: %u %u.%u.%u.%u:%hu -> %u.%u.%u.%u:%hu\n",
-			tp, tp->protonum,
-			NIPQUAD(tp->src.v4), ntohs(tp->l4src.all),
-			NIPQUAD(tp->dst.v4), ntohs(tp->l4dst.all));
+	struct in_addr src = { .s_addr = tp->src.v4 };
+	struct in_addr dst = { .s_addr = tp->dst.v4 };
+	
+	fprintf(stdout, "tuple %p: %u %s:%hu -> ", tp, tp->protonum,
+						   inet_ntoa(src),
+						   ntohs(tp->l4src.all));
+
+	fprintf(stdout, "%s:%hu\n", inet_ntoa(dst), ntohs(tp->l4dst.all));
 }
 
 static struct nfct_proto *findproto(char *name)
@@ -508,9 +516,14 @@ int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct)
 
 int nfct_sprintf_address(char *buf, struct nfct_tuple *t)
 {
-	return (sprintf(buf, "src=%u.%u.%u.%u dst=%u.%u.%u.%u ",
-			NIPQUAD(t->src.v4),
-			NIPQUAD(t->dst.v4)));
+	int size = 0;
+	struct in_addr src = { .s_addr = t->src.v4 };
+	struct in_addr dst = { .s_addr = t->dst.v4 };
+
+	size += sprintf(buf, "src=%s ", inet_ntoa(src));
+	size += sprintf(buf+size, "dst=%s ", inet_ntoa(dst));
+
+	return size;
 }
 
 int nfct_sprintf_proto(char *buf, struct nfct_tuple *t)
@@ -584,6 +597,9 @@ int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct,
 	if (flags & NFCT_USE)
 		size += nfct_sprintf_use(buf+size, ct);
 
+	/* Delete the last blank space */
+	size--;
+
 	return size;
 }
 
@@ -592,11 +608,13 @@ int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
 {
 	int size;
 	
-	size = nfct_sprintf_conntrack(buf, ct, flags);
+	/* add a blank space, that's why the add 1 to the size */
+	size = nfct_sprintf_conntrack(buf, ct, flags) + 1;
 	if (flags & NFCT_ID)
 		size += nfct_sprintf_id(buf+size, ct->id);
 
-	return size;
+	/* Delete the last blank space */
+	return --size;
 }
 
 int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
@@ -604,6 +622,7 @@ int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
 	char buf[512];
 	int size;
 
+	memset(buf, 0, sizeof(buf));
 	size = nfct_sprintf_conntrack(buf, arg, flags);
 	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
@@ -616,6 +635,7 @@ int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type)
 	char buf[512];
 	int size;
 
+	memset(buf, 0, sizeof(buf));
 	size = nfct_sprintf_conntrack_id(buf, arg, flags);
 	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
@@ -637,7 +657,8 @@ int nfct_sprintf_expect(char *buf, struct nfct_expect *exp)
 	size += nfct_sprintf_address(buf+size, &exp->tuple);
 	size += nfct_sprintf_proto(buf+size, &exp->tuple);
 
-	return size;
+	/* remove last blank space */
+	return --size;
 }
 
 int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp)
@@ -655,6 +676,7 @@ int nfct_default_expect_display(void *arg, unsigned int flags, int type)
 	char buf[256];
 	int size = 0;
 
+	memset(buf, 0, sizeof(buf));
 	size = nfct_sprintf_expect(buf, arg);
 	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
@@ -735,12 +757,12 @@ nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
 
 	ct->tuple[NFCT_DIR_ORIGINAL] = *orig;
 	ct->tuple[NFCT_DIR_REPLY] = *reply;
-	ct->timeout = htonl(timeout);
-	ct->status = htonl(status);
+	ct->timeout = timeout;
+	ct->status = status;
 	ct->protoinfo = *proto;
-	ct->mark = htonl(mark);
+	ct->mark = mark;
 	if (id != NFCT_ANY_ID)
-		ct->id = htonl(id);
+		ct->id = id;
 	if (range)
 		ct->nat = *range;
 

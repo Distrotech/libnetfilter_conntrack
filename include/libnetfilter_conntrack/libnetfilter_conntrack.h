@@ -13,7 +13,7 @@
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 #include <libnfnetlink/libnfnetlink.h>
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.2.4"
+#define LIBNETFILTER_CONNTRACK_VERSION "0.2.5"
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
