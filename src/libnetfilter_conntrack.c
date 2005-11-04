@@ -107,6 +107,11 @@ int nfct_close(struct nfct_handle *cth)
 	return err;
 }
 
+int nfct_fd(struct nfct_handle *cth)
+{
+	return nfnl_fd(&cth->nfnlh);
+}
+
 void nfct_register_callback(struct nfct_handle *cth, nfct_callback callback,
 			    void *data)
 {

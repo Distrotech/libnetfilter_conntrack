@@ -226,6 +226,8 @@ extern void nfct_expect_free(struct nfct_expect *exp);
 extern struct nfct_handle *nfct_open(u_int8_t, unsigned);
 extern int nfct_close(struct nfct_handle *cth);
 
+extern int nfct_fd(struct nfct_handle *cth);
+
 /*
  * [Register|unregister] callbacks
  */
