@@ -60,7 +60,7 @@ struct nfct_tuple {
 
 	union {
 		u_int32_t v4;
-		u_int64_t v6;
+		u_int32_t v6[4];
 	} dst;
 
 	u_int8_t protonum;
