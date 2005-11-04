@@ -15,7 +15,7 @@
 #include <signal.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
-static int event_counter(void *arg, unsigned int flags, int type)
+static int event_counter(void *arg, unsigned int flags, int type, void *data)
 {
 	static int counter = 0;
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	if (ret < 0 && ret != -EEXIST)
 		errors++;
 
-	nfct_register_callback(cth, nfct_default_conntrack_display);
+	nfct_register_callback(cth, nfct_default_conntrack_display, NULL);
 	ret = nfct_dump_conntrack_table_reset_counters(cth);
 	fprintf(stdout, "TEST 2: dump conntrack table and reset (%d)\n", ret);
 	if (ret < 0)
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 
 	fprintf(stdout, "TEST 7: Waiting for 10 conntrack events\n");
 	signal(SIGINT, event_sighandler);
-	nfct_register_callback(cth, event_counter);
+	nfct_register_callback(cth, event_counter, NULL);
 	ret = nfct_event_conntrack(cth);
 	fprintf(stdout, "TEST 7: Received 10 conntrack events (%d)\n", ret);
 

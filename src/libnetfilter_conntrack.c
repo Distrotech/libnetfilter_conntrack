@@ -26,6 +26,7 @@
 struct nfct_handle {
 	struct nfnl_handle nfnlh;
 	nfct_callback callback;		/* user callback */
+	void *callback_data;		/* user data for callback */
 	nfct_handler handler;		/* netlink handler */
 };
 
@@ -106,14 +107,17 @@ int nfct_close(struct nfct_handle *cth)
 	return err;
 }
 
-void nfct_register_callback(struct nfct_handle *cth, nfct_callback callback)
+void nfct_register_callback(struct nfct_handle *cth, nfct_callback callback,
+			    void *data)
 {
 	cth->callback = callback;
+	cth->callback_data = data;
 }
 
 void nfct_unregister_callback(struct nfct_handle *cth)
 {
 	cth->callback = NULL;
+	cth->callback_data = NULL;
 }
 
 static void nfct_build_tuple_ip(struct nfnlhdr *req, int size, 
@@ -484,7 +488,8 @@ static int nfct_conntrack_netlink_handler(struct nfct_handle *cth,
 
 	if (cth->callback)
 		ret = cth->callback((void *) &ct, flags,
-				    typemsg2enum(type, nlh->nlmsg_flags));
+				    typemsg2enum(type, nlh->nlmsg_flags),
+				    cth->callback_data);
 
 	return ret;
 }
@@ -541,8 +546,8 @@ int nfct_sprintf_proto(char *buf, struct nfct_tuple *t)
 int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir)
 {
 	return (sprintf(buf, "packets=%llu bytes=%llu ",
-			ct->counters[dir].packets,
-			ct->counters[dir].bytes));
+			(unsigned long long) ct->counters[dir].packets,
+			(unsigned long long) ct->counters[dir].bytes));
 }
 
 int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct)
@@ -617,7 +622,8 @@ int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
 	return --size;
 }
 
-int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
+int nfct_default_conntrack_display(void *arg, unsigned int flags, int type,
+				   void *data)
 {
 	char buf[512];
 	int size;
@@ -630,7 +636,8 @@ int nfct_default_conntrack_display(void *arg, unsigned int flags, int type)
 	return 0;
 }
 
-int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type)
+int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type,
+				      void *data)
 {
 	char buf[512];
 	int size;
@@ -673,7 +680,8 @@ int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp)
 	return --size;
 }
 
-int nfct_default_expect_display(void *arg, unsigned int flags, int type)
+int nfct_default_expect_display(void *arg, unsigned int flags, int type,
+				void *data)
 {
 	char buf[256];
 	int size = 0;
@@ -686,7 +694,8 @@ int nfct_default_expect_display(void *arg, unsigned int flags, int type)
 	return 0;
 }
 
-int nfct_default_expect_display_id(void *arg, unsigned int flags, int type)
+int nfct_default_expect_display_id(void *arg, unsigned int flags, int type,
+				   void *data)
 {
 	char buf[256];
 	int size = 0;
@@ -739,7 +748,8 @@ static int nfct_expect_netlink_handler(struct nfct_handle *cth,
 
 	if (cth->callback)
 		ret = cth->callback((void *)&exp, 0, 
-				    typemsg2enum(type, nlh->nlmsg_flags));
+				    typemsg2enum(type, nlh->nlmsg_flags),
+				    cth->callback_data);
 
 	return 0;
 }

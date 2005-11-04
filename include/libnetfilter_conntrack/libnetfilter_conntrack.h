@@ -197,7 +197,7 @@ enum {
 };
 
 struct nfct_handle;
-typedef int (*nfct_callback)(void *arg, unsigned int flags, int);
+typedef int (*nfct_callback)(void *arg, unsigned int flags, int, void *data);
 typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
 			    void *arg);
 
@@ -230,16 +230,16 @@ extern int nfct_close(struct nfct_handle *cth);
  * [Register|unregister] callbacks
  */
 extern void nfct_register_callback(struct nfct_handle *cth,
-				   nfct_callback callback);
+				   nfct_callback callback, void *data);
 extern void nfct_unregister_callback(struct nfct_handle *cth);
 
 /*
  * callback displayers
  */
-extern int nfct_default_conntrack_display(void *arg, unsigned int, int); 
-extern int nfct_default_conntrack_display_id(void *arg, unsigned int, int);
-extern int nfct_default_expect_display(void *arg, unsigned int, int);
-extern int nfct_default_expect_display_id(void *arg, unsigned int, int);
+extern int nfct_default_conntrack_display(void *arg, unsigned int, int, void *); 
+extern int nfct_default_conntrack_display_id(void *arg, unsigned int, int, void *);
+extern int nfct_default_expect_display(void *arg, unsigned int, int, void *);
+extern int nfct_default_expect_display_id(void *arg, unsigned int, int, void *);
 
 /*
  * [Create|update|get|destroy] conntracks
