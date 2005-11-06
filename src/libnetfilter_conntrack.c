@@ -22,6 +22,9 @@
 
 #define NFCT_BUFSIZE 4096
 
+typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
+			    void *arg);
+
 /* Harald says: "better for encapsulation" ;) */
 struct nfct_handle {
 	struct nfnl_handle nfnlh;
@@ -927,9 +930,9 @@ int nfct_event_conntrack(struct nfct_handle *cth)
 
 void nfct_register_proto(struct nfct_proto *h)
 {
-	if (strcmp(h->version, LIBNETFILTER_CONNTRACK_VERSION) != 0) {
+	if (strcmp(h->version, VERSION) != 0) {
 		fprintf(stderr, "plugin `%s': version %s (I'm %s)\n",
-			h->name, h->version, LIBNETFILTER_CONNTRACK_VERSION);
+			h->name, h->version, VERSION);
 		exit(1);
 	}
 	list_add(&h->head, &proto_list);

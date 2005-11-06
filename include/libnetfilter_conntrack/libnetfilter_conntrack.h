@@ -13,8 +13,6 @@
 #include <linux/netfilter/nfnetlink_conntrack.h> 
 #include <libnfnetlink/libnfnetlink.h>
 
-#define LIBNETFILTER_CONNTRACK_VERSION "0.2.5"
-
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
 	EXPECT = NFNL_SUBSYS_CTNETLINK_EXP
@@ -198,8 +196,6 @@ enum {
 
 struct nfct_handle;
 typedef int (*nfct_callback)(void *arg, unsigned int flags, int, void *data);
-typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
-			    void *arg);
 
 /*
  * [Allocate|free] a conntrack

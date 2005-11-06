@@ -47,7 +47,7 @@ static struct nfct_proto udp = {
 	.build_tuple_proto	= build_tuple_proto,
 	.parse_proto		= parse_proto,
 	.print_proto		= print_proto,
-	.version		= LIBNETFILTER_CONNTRACK_VERSION,
+	.version		= VERSION,
 };
 
 static void __attribute__ ((constructor)) init(void);

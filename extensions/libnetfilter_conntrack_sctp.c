@@ -63,7 +63,7 @@ static struct nfct_proto sctp = {
 	.build_tuple_proto	= build_tuple_proto,
 	.print_proto		= print_proto,
 	.print_protoinfo	= print_protoinfo,
-	.version		= LIBNETFILTER_CONNTRACK_VERSION
+	.version		= VERSION
 };
 
 static void __attribute__ ((constructor)) init(void);

@@ -38,15 +38,13 @@ static void build_tuple_proto(struct nfnlhdr *req, int size,
 		       &t->l4dst.icmp.code, sizeof(u_int8_t));
 	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_TYPE,
 		       &t->l4dst.icmp.type, sizeof(u_int8_t));
-	/* This is an ICMP echo */
-	if (t->l4dst.icmp.type == 8)
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
-			       &t->l4src.icmp.id, sizeof(u_int16_t));
+	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
+		       &t->l4src.icmp.id, sizeof(u_int16_t));
 }
 
 static int print_proto(char *buf, struct nfct_tuple *t)
 {
-	/* The ID only makes sense for type=8 (ECHO) but we want to
+	/* The ID only makes sense some ICMP messages but we want to
 	 * display the same output that /proc/net/ip_conntrack does */
 	return (sprintf(buf, "type=%d code=%d id=%d ",t->l4dst.icmp.type,
 						      t->l4dst.icmp.code,
@@ -59,7 +57,7 @@ static struct nfct_proto icmp = {
 	.parse_proto		= parse_proto,
 	.build_tuple_proto	= build_tuple_proto,
 	.print_proto		= print_proto,
-	.version		= LIBNETFILTER_CONNTRACK_VERSION
+	.version		= VERSION
 };
 
 static void __attribute__ ((constructor)) init(void);

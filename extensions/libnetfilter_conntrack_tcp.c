@@ -102,7 +102,7 @@ static struct nfct_proto tcp = {
 	.build_protoinfo	= build_protoinfo,
 	.print_protoinfo	= print_protoinfo,
 	.print_proto		= print_proto,
-	.version		= LIBNETFILTER_CONNTRACK_VERSION
+	.version		= VERSION
 };
 
 static void __attribute__ ((constructor)) init(void);
