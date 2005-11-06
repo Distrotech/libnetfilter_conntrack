@@ -300,9 +300,9 @@ static struct nfct_proto *findproto(char *name)
 	}
 
 	if (!handler) {
-		char path[sizeof("nfct_proto_.so")
+		char path[sizeof("nfct_proto_.so") + strlen(VERSION)
 			 + strlen(name) + strlen(lib_dir)];
-                sprintf(path, "%s/nfct_proto_%s.so", lib_dir, name);
+                sprintf(path, "%s/nfct_proto_%s-%s.so", lib_dir, name, VERSION);
 		if (dlopen(path, RTLD_NOW))
 			handler = findproto(name);
 		else
