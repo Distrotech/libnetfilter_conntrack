@@ -89,11 +89,11 @@ struct nfct_nat {
 struct nfct_conntrack {
 	struct nfct_tuple tuple[NFCT_DIR_MAX];
 	
-	unsigned long 	timeout;
-	unsigned long	mark;
-	unsigned int 	status;
-	unsigned int	use;
-	unsigned int	id;
+	u_int32_t 	timeout;
+	u_int32_t	mark;
+	u_int32_t 	status;
+	u_int32_t	use;
+	u_int32_t	id;
 
 	union nfct_protoinfo protoinfo;
 	struct nfct_counters counters[NFCT_DIR_MAX];
@@ -104,8 +104,8 @@ struct nfct_expect {
 	struct nfct_tuple master;
 	struct nfct_tuple tuple;
 	struct nfct_tuple mask;
-	unsigned long timeout;
-	unsigned int id;
+	u_int32_t timeout;
+	u_int32_t id;
 };
 
 
@@ -202,9 +202,9 @@ typedef int (*nfct_callback)(void *arg, unsigned int flags, int, void *data);
  */
 extern struct nfct_conntrack *
 nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
-		     unsigned long timeout, union nfct_protoinfo *proto,
-		     unsigned int status, unsigned long mark,
-		     unsigned int id, struct nfct_nat *range);
+		     u_int32_t timeout, union nfct_protoinfo *proto,
+		     u_int32_t status, u_int32_t mark,
+		     u_int32_t id, struct nfct_nat *range);
 extern void nfct_conntrack_free(struct nfct_conntrack *ct);
 
 /*
@@ -212,8 +212,8 @@ extern void nfct_conntrack_free(struct nfct_conntrack *ct);
  */
 extern struct nfct_expect *
 nfct_expect_alloc(struct nfct_tuple *master, struct nfct_tuple *tuple,
-		  struct nfct_tuple *mask, unsigned long timeout, 
-		  unsigned int id);
+		  struct nfct_tuple *mask, u_int32_t timeout, 
+		  u_int32_t id);
 extern void nfct_expect_free(struct nfct_expect *exp);
 
 /*
@@ -248,10 +248,10 @@ extern int nfct_update_conntrack(struct nfct_handle *cth,
 				 struct nfct_conntrack *ct);
 extern int nfct_delete_conntrack(struct nfct_handle *cth, 
 				 struct nfct_tuple *tuple, int dir, 
-				 unsigned int id);
+				 u_int32_t id);
 extern int nfct_get_conntrack(struct nfct_handle *cth, 
 			      struct nfct_tuple *tuple, int dir,
-			      unsigned int id); 
+			      u_int32_t id); 
 /*
  * Conntrack table dumping & zeroing
  */
@@ -280,7 +280,7 @@ extern int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir);
 extern int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_id(char *buf, unsigned int id);
+extern int nfct_sprintf_id(char *buf, u_int32_t id);
 
 /* 
  * Expectations
@@ -289,10 +289,10 @@ extern int nfct_dump_expect_list(struct nfct_handle *cth);
 extern int nfct_flush_conntrack_table(struct nfct_handle *cth);
 extern int nfct_get_expectation(struct nfct_handle *cth, 
 				struct nfct_tuple *tuple,
-				unsigned int id);
+				u_int32_t id);
 extern int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *);
 extern int nfct_delete_expectation(struct nfct_handle *cth,
-				   struct nfct_tuple *tuple, unsigned int id);
+				   struct nfct_tuple *tuple, u_int32_t id);
 extern int nfct_event_expectation(struct nfct_handle *cth);
 extern int nfct_flush_expectation_table(struct nfct_handle *cth);
 
