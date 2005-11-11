@@ -9,9 +9,9 @@
 #define _LIBNETFILTER_CONNTRACK_H_
 
 #include <netinet/in.h>
-#include <linux/netfilter/nfnetlink.h>
-#include <linux/netfilter/nfnetlink_conntrack.h> 
+#include <libnfnetlink/linux_nfnetlink.h>
 #include <libnfnetlink/libnfnetlink.h>
+#include <libnetfilter_conntrack/linux_nfnetlink_conntrack.h> 
 
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
