@@ -7,6 +7,8 @@ LINKOPTS = -lnfnetlink
 
 man_MANS = #nfnetlink_conntrack.3 nfnetlink_conntrack.7
 
+EXTRA_DIST = Make_global.am
+
 $(OBJECTS): libtool
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
