@@ -1,6 +1,7 @@
+include $(top_srcdir)/Make_global.am
+
 AUTOMAKE_OPTIONS = no-dependencies foreign
 
-INCLUDES=-I../include -I${KERNELDIR}
 CFLAGS=-fPIC -Wall
 LIBS=
 

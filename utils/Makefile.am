@@ -1,4 +1,4 @@
-INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR} 
+include $(top_srcdir)/Make_global.am
 
 bin_PROGRAMS = ctnl_test
 
