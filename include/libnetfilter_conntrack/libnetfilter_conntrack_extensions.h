@@ -8,6 +8,12 @@
 #ifndef _LIBNETFILTER_CONNTRACK_EXTENSIONS_H_
 #define _LIBNETFILTER_CONNTRACK_EXTENSIONS_H_
 
+/* some systems have old libc's */
+#include <netinet/in.h>
+#ifndef IPPROTO_SCTP
+#define IPPROTO_SCTP	132
+#endif
+
 #include "linux_list.h"
 
 struct nfct_proto {
