@@ -2,7 +2,7 @@ include $(top_srcdir)/Make_global.am
 
 AUTOMAKE_OPTIONS = no-dependencies foreign
 
-CFLAGS=-fPIC -Wall
+AM_CFLAGS=-fPIC -Wall
 LIBS=
 
 pkglib_LTLIBRARIES = nfct_proto_tcp.la nfct_proto_udp.la 		\
