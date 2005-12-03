@@ -8,6 +8,7 @@
  *      (at your option) any later version.
  */
 #include <stdio.h>
+#include <unistd.h>
 #include <getopt.h>
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -604,6 +605,10 @@ int nfct_default_conntrack_display(void *arg, unsigned int flags, int type,
 {
 	char buf[512];
 	int size;
+	struct nfct_conntrack_compare *cmp = data;
+
+	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, 0, cmp->protoflag))
+		return 0;
 
 	memset(buf, 0, sizeof(buf));
 	size = nfct_sprintf_conntrack(buf, arg, flags);
@@ -618,6 +623,10 @@ int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type,
 {
 	char buf[512];
 	int size;
+        struct nfct_conntrack_compare *cmp = data;
+
+	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, 0, cmp->protoflag))
+		return 0;
 
 	memset(buf, 0, sizeof(buf));
 	size = nfct_sprintf_conntrack_id(buf, arg, flags);
@@ -625,6 +634,13 @@ int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type,
 	fprintf(stdout, buf);
 
 	return 0;
+}
+
+int nfct_default_conntrack_event_display(void *arg, unsigned int flags, 
+					 int type, void *data)
+{
+	fprintf(stdout, "%9s ", msgtype[type]);
+	return nfct_default_conntrack_display_id(arg, flags, type, data);
 }
 
 int nfct_sprintf_expect_proto(char *buf, struct nfct_expect *exp)
@@ -682,15 +698,6 @@ int nfct_default_expect_display_id(void *arg, unsigned int flags, int type,
 	fprintf(stdout, buf);
 
 	return 0;
-}
-
-static int nfct_event_netlink_handler(struct nfct_handle *cth, 
-				      struct nlmsghdr *nlh,
-				      void *arg)
-{
-	int type = NFNL_MSG_TYPE(nlh->nlmsg_type);
-	fprintf(stdout, "%9s ", msgtype[typemsg2enum(type, nlh->nlmsg_flags)]);
-	return nfct_conntrack_netlink_handler(cth, nlh, arg);
 }
 
 static int nfct_expect_netlink_handler(struct nfct_handle *cth, 
@@ -761,6 +768,28 @@ nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
 void nfct_conntrack_free(struct nfct_conntrack *ct)
 {
 	free(ct);
+}
+
+int nfct_conntrack_compare(struct nfct_conntrack *ct1,
+			   struct nfct_conntrack *ct2,
+			   unsigned int cmp_flag,
+			   unsigned int cmp_protoflag)
+{
+	struct nfct_proto *proto;
+
+	if (ct1->tuple[NFCT_DIR_ORIGINAL].protonum !=
+	    ct2->tuple[NFCT_DIR_ORIGINAL].protonum)
+		return 0;
+
+	/*
+	 * TODO: implement tuple, status, mark... comparison.
+	 */
+
+	proto = findproto(proto2str[ct1->tuple[NFCT_DIR_ORIGINAL].protonum]);
+	if (!proto)
+		return 0;
+
+	return proto->compare(ct1, ct2, cmp_protoflag);
 }
 
 int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
@@ -938,7 +967,13 @@ int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth)
 
 int nfct_event_conntrack(struct nfct_handle *cth)
 {
-	cth->handler = nfct_event_netlink_handler;
+	/*
+	 * You need to be root to listen to conntrack events
+	 */
+	if (getuid() != 0)
+		return -EPERM;
+	
+	cth->handler = nfct_conntrack_netlink_handler;
 	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
@@ -1092,6 +1127,12 @@ int nfct_delete_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple,
 
 int nfct_event_expectation(struct nfct_handle *cth)
 {
+	/*
+	 * You need to be root to listen to conntrack events
+	 */
+	if (getuid() != 0)
+		return -EPERM;
+
 	cth->handler = nfct_expect_netlink_handler;
 	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }

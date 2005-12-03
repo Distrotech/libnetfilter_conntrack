@@ -90,6 +90,11 @@ int main(int argc, char **argv)
 	if (ret < 0 && ret != -EEXIST)
 		errors++;
 
+	if (ret == -EINVAL)
+		fprintf(stdout, "NFNETLINK answers: -EINVAL, make sure "
+				"ip_conntrack_netlink is loaded and "
+				"you have NET_CAPABILITIES");
+
 	nfct_register_callback(cth, nfct_default_conntrack_display, NULL);
 	ret = nfct_dump_conntrack_table_reset_counters(cth);
 	fprintf(stdout, "TEST 2: dump conntrack table and reset (%d)\n", ret);

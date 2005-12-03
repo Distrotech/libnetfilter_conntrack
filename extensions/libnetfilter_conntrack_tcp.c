@@ -15,6 +15,7 @@
 #include <libnetfilter_conntrack/linux_nfnetlink_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_tcp.h>
 
 static const char *states[] = {
 	"NONE",
@@ -93,6 +94,35 @@ static int print_proto(char *buf, struct nfct_tuple *tuple)
 					          htons(tuple->l4dst.tcp.port)));
 }
 
+static int compare(struct nfct_conntrack *ct1,
+		   struct nfct_conntrack *ct2,
+		   unsigned int flags)
+{
+	int ret = 1;
+	
+	if (flags & TCP_ORIG_SPORT)
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4src.tcp.port !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l4src.tcp.port)
+			ret = 0;
+	if (flags & TCP_ORIG_DPORT)
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.tcp.port !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.tcp.port)
+			ret = 0;
+	if (flags & TCP_REPL_SPORT)
+		if (ct1->tuple[NFCT_DIR_REPLY].l4src.tcp.port !=
+		    ct2->tuple[NFCT_DIR_REPLY].l4src.tcp.port)
+			ret = 0;
+	if (flags & TCP_REPL_DPORT)
+		if (ct1->tuple[NFCT_DIR_REPLY].l4dst.tcp.port !=
+		    ct2->tuple[NFCT_DIR_REPLY].l4dst.tcp.port)
+			ret = 0;
+	if (flags & TCP_STATE)
+		if (ct1->protoinfo.tcp.state != ct2->protoinfo.tcp.state)
+			ret = 0;
+
+	return ret;
+}
+
 static struct nfct_proto tcp = {
 	.name 			= "tcp",
 	.protonum		= IPPROTO_TCP,
@@ -102,6 +132,7 @@ static struct nfct_proto tcp = {
 	.build_protoinfo	= build_protoinfo,
 	.print_protoinfo	= print_protoinfo,
 	.print_proto		= print_proto,
+	.compare		= compare,
 	.version		= VERSION
 };
 

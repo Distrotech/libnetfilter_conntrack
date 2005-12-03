@@ -15,6 +15,7 @@
 #include <libnetfilter_conntrack/linux_nfnetlink_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_udp.h>
 
 static void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 {
@@ -36,9 +37,35 @@ static void build_tuple_proto(struct nfnlhdr *req, int size,
 			      struct nfct_tuple *t)
 {
 	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
-		       &t->l4src.tcp.port, sizeof(u_int16_t));
+		       &t->l4src.udp.port, sizeof(u_int16_t));
 	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,
-		       &t->l4dst.tcp.port, sizeof(u_int16_t));
+		       &t->l4dst.udp.port, sizeof(u_int16_t));
+}
+
+static int compare(struct nfct_conntrack *ct1,
+		   struct nfct_conntrack *ct2,
+		   unsigned int flags)
+{
+	int ret = 1;
+	
+	if (flags & UDP_ORIG_SPORT)
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4src.udp.port !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l4src.udp.port)
+			ret = 0;
+	if (flags & UDP_ORIG_DPORT)
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.udp.port !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.udp.port)
+			ret = 0;
+	if (flags & UDP_REPL_SPORT)
+		if (ct1->tuple[NFCT_DIR_REPLY].l4src.udp.port !=
+		    ct2->tuple[NFCT_DIR_REPLY].l4src.udp.port)
+			ret = 0;
+	if (flags & UDP_REPL_DPORT)
+		if (ct1->tuple[NFCT_DIR_REPLY].l4dst.udp.port !=
+		    ct2->tuple[NFCT_DIR_REPLY].l4dst.udp.port)
+			ret = 0;
+
+	return ret;
 }
 
 static struct nfct_proto udp = {
@@ -47,6 +74,7 @@ static struct nfct_proto udp = {
 	.build_tuple_proto	= build_tuple_proto,
 	.parse_proto		= parse_proto,
 	.print_proto		= print_proto,
+	.compare		= compare,
 	.version		= VERSION,
 };
 

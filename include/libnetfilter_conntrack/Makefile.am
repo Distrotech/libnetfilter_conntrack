@@ -1,4 +1,4 @@
 
-pkginclude_HEADERS = libnetfilter_conntrack.h linux_nfnetlink_conntrack.h
+pkginclude_HEADERS = libnetfilter_conntrack.h linux_nfnetlink_conntrack.h libnetfilter_conntrack_tcp.h libnetfilter_conntrack_udp.h libnetfilter_conntrack_icmp.h libnetfilter_conntrack_sctp.h
 
 noinst_HEADERS = libnetfilter_conntrack_extensions.h

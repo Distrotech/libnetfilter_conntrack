@@ -15,6 +15,7 @@
 #include <libnetfilter_conntrack/linux_nfnetlink_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_icmp.h>
 
 static void parse_proto(struct nfattr *cda[], struct nfct_tuple *tuple)
 {
@@ -51,12 +52,35 @@ static int print_proto(char *buf, struct nfct_tuple *t)
 						      ntohs(t->l4src.icmp.id)));
 }
 
+static int compare(struct nfct_conntrack *ct1,
+		   struct nfct_conntrack *ct2,
+		   unsigned int flags)
+{
+	int ret = 1;
+	
+	if (flags & ICMP_TYPE)
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.type !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.type)
+			ret = 0;
+	if (flags & ICMP_CODE)
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.code !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.code)
+			ret = 0;
+	if (flags & ICMP_ID)
+		if (ct1->tuple[NFCT_DIR_REPLY].l4src.icmp.id !=
+		    ct2->tuple[NFCT_DIR_REPLY].l4src.icmp.id)
+			ret = 0;
+
+	return ret;
+}
+
 static struct nfct_proto icmp = {
 	.name 			= "icmp",
 	.protonum		= IPPROTO_ICMP,
 	.parse_proto		= parse_proto,
 	.build_tuple_proto	= build_tuple_proto,
 	.print_proto		= print_proto,
+	.compare		= compare,
 	.version		= VERSION
 };
 

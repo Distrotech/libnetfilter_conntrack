@@ -29,6 +29,8 @@ struct nfct_proto {
 	void (*build_protoinfo)(struct nfnlhdr *, int, struct nfct_conntrack *);
 	int (*print_protoinfo)(char *, union nfct_protoinfo *);
 	int (*print_proto)(char *, struct nfct_tuple *);
+	int (*compare)(struct nfct_conntrack *, struct nfct_conntrack *,
+		       unsigned int);
 };
 
 extern void nfct_register_proto(struct nfct_proto *h);

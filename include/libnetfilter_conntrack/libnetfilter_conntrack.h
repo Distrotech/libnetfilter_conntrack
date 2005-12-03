@@ -108,6 +108,11 @@ struct nfct_expect {
 	u_int32_t id;
 };
 
+struct nfct_conntrack_compare {
+	struct nfct_conntrack *ct;
+	unsigned int flag;
+	unsigned int protoflag;
+};
 
 enum {
 	NFCT_STATUS_BIT = 0,
@@ -234,10 +239,12 @@ extern void nfct_unregister_callback(struct nfct_handle *cth);
 /*
  * callback displayers
  */
-extern int nfct_default_conntrack_display(void *arg, unsigned int, int, void *); 
-extern int nfct_default_conntrack_display_id(void *arg, unsigned int, int, void *);
-extern int nfct_default_expect_display(void *arg, unsigned int, int, void *);
-extern int nfct_default_expect_display_id(void *arg, unsigned int, int, void *);
+extern int nfct_default_conntrack_display(void *, unsigned int, int, void *); 
+extern int nfct_default_conntrack_display_id(void *, unsigned int, int, void *);
+extern int nfct_default_expect_display(void *, unsigned int, int, void *);
+extern int nfct_default_expect_display_id(void *, unsigned int, int, void *);
+extern int nfct_default_conntrack_event_display(void *, unsigned int, int, 
+						void *);
 
 /*
  * [Create|update|get|destroy] conntracks
@@ -281,6 +288,14 @@ extern int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir);
 extern int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct);
 extern int nfct_sprintf_id(char *buf, u_int32_t id);
+
+/*
+ * Conntrack comparison
+ */
+extern int nfct_conntrack_compare(struct nfct_conntrack *ct1, 
+				  struct nfct_conntrack *ct2,
+				  unsigned int cmp_flag,
+				  unsigned int cmp_protoflag);
 
 /* 
  * Expectations
