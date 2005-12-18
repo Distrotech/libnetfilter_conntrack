@@ -154,7 +154,7 @@ static void nfct_build_tuple_proto(struct nfnlhdr *req, int size,
 	nest = nfnl_nest(&req->nlh, size, CTA_TUPLE_PROTO);
 
 	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_NUM, &t->protonum,
-		       sizeof(u_int16_t));
+		       sizeof(u_int8_t));
 
 	h = findproto(proto2str[t->protonum]);
 
