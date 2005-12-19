@@ -96,12 +96,12 @@ int main(int argc, char **argv)
 				"you have NET_CAPABILITIES");
 
 	nfct_register_callback(cth, nfct_default_conntrack_display, NULL);
-	ret = nfct_dump_conntrack_table_reset_counters(cth);
+	ret = nfct_dump_conntrack_table_reset_counters(cth, AF_INET);
 	fprintf(stdout, "TEST 2: dump conntrack table and reset (%d)\n", ret);
 	if (ret < 0)
 		errors++;
 
-	ret = nfct_dump_conntrack_table(cth);
+	ret = nfct_dump_conntrack_table(cth, AF_INET);
 	fprintf(stdout, "TEST 3: dump conntrack table (%d)\n", ret);
 	if (ret < 0)
 		errors++;

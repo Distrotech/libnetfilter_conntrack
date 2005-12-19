@@ -932,7 +932,8 @@ int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
-static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
+static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero, 
+				       int family)
 {
 	int err, msg;
 	struct nfnlhdr req;
@@ -945,7 +946,7 @@ static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 	else
 		msg = IPCTNL_MSG_CT_GET;
 
-	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
+	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, family, 0,
 		      msg, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_DUMP);
 
 	err = nfnl_send(&cth->nfnlh, &req.nlh);
@@ -955,14 +956,15 @@ static int __nfct_dump_conntrack_table(struct nfct_handle *cth, int zero)
 	return nfnl_listen(&cth->nfnlh, &callback_handler, cth); 
 }
 
-int nfct_dump_conntrack_table(struct nfct_handle *cth)
+int nfct_dump_conntrack_table(struct nfct_handle *cth, int family)
 {
-	return(__nfct_dump_conntrack_table(cth, 0));
+	return(__nfct_dump_conntrack_table(cth, 0, family));
 }
 
-int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth)
+int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth,
+					     int family)
 {
-	return(__nfct_dump_conntrack_table(cth, 1));
+	return(__nfct_dump_conntrack_table(cth, 1, family));
 }
 
 int nfct_event_conntrack(struct nfct_handle *cth)
@@ -987,7 +989,7 @@ void nfct_register_proto(struct nfct_proto *h)
 	list_add(&h->head, &proto_list);
 }
 
-int nfct_dump_expect_list(struct nfct_handle *cth)
+int nfct_dump_expect_list(struct nfct_handle *cth, int family)
 {
 	int err;
 	struct nfnlhdr req;
@@ -995,7 +997,7 @@ int nfct_dump_expect_list(struct nfct_handle *cth)
 	memset(&req, 0, sizeof(req));
 
 	cth->handler = nfct_expect_netlink_handler;
-	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, AF_INET, 0,
+	nfnl_fill_hdr(&cth->nfnlh, &req.nlh, 0, family, 0,
 		      IPCTNL_MSG_EXP_GET, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST);
 
 	err = nfnl_send(&cth->nfnlh, &req.nlh);

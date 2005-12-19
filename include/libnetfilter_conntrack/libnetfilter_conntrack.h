@@ -263,8 +263,9 @@ extern int nfct_get_conntrack(struct nfct_handle *cth,
 /*
  * Conntrack table dumping & zeroing
  */
-extern int nfct_dump_conntrack_table(struct nfct_handle *cth);
-extern int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth);
+extern int nfct_dump_conntrack_table(struct nfct_handle *cth, int family);
+extern int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth, 
+						    int family);
 
 /*
  * Conntrack event notification
@@ -301,7 +302,7 @@ extern int nfct_conntrack_compare(struct nfct_conntrack *ct1,
 /* 
  * Expectations
  */
-extern int nfct_dump_expect_list(struct nfct_handle *cth);
+extern int nfct_dump_expect_list(struct nfct_handle *cth, int family);
 extern int nfct_flush_conntrack_table(struct nfct_handle *cth);
 extern int nfct_get_expectation(struct nfct_handle *cth, 
 				struct nfct_tuple *tuple,
