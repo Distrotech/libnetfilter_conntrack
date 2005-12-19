@@ -61,6 +61,7 @@ struct nfct_tuple {
 		u_int32_t v6[4];
 	} dst;
 
+	u_int16_t l3protonum;
 	u_int8_t protonum;
 	union nfct_l4 l4src;
 	union nfct_l4 l4dst;
