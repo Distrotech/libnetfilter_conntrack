@@ -1007,14 +1007,14 @@ int nfct_dump_expect_list(struct nfct_handle *cth, int family)
 	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
-int nfct_flush_conntrack_table(struct nfct_handle *cth)
+int nfct_flush_conntrack_table(struct nfct_handle *cth, int family)
 {
 	struct nfnlhdr req;
 
 	memset(&req, 0, sizeof(req));
 
 	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &req,
-			0, AF_INET, 0, IPCTNL_MSG_CT_DELETE,
+			0, family, 0, IPCTNL_MSG_CT_DELETE,
 			NLM_F_REQUEST|NLM_F_ACK);
 
 	return nfnl_talk(&cth->nfnlh, &req.nlh, 0, 0, NULL, NULL, NULL);
@@ -1139,14 +1139,14 @@ int nfct_event_expectation(struct nfct_handle *cth)
 	return nfnl_listen(&cth->nfnlh, &callback_handler, cth);
 }
 
-int nfct_flush_expectation_table(struct nfct_handle *cth)
+int nfct_flush_expectation_table(struct nfct_handle *cth, int family)
 {
 	struct nfnlhdr req;
 
 	memset(&req, 0, sizeof(req));
 	
 	nfnl_fill_hdr(&cth->nfnlh, (struct nlmsghdr *) &req,
-		      0, AF_INET, 0, IPCTNL_MSG_EXP_DELETE,
+		      0, family, 0, IPCTNL_MSG_EXP_DELETE,
 		      NLM_F_REQUEST|NLM_F_ACK);
 
 	return nfnl_talk(&cth->nfnlh, &req.nlh, 0, 0, NULL, NULL, NULL);

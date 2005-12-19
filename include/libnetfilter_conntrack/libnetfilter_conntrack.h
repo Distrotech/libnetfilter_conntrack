@@ -303,7 +303,7 @@ extern int nfct_conntrack_compare(struct nfct_conntrack *ct1,
  * Expectations
  */
 extern int nfct_dump_expect_list(struct nfct_handle *cth, int family);
-extern int nfct_flush_conntrack_table(struct nfct_handle *cth);
+extern int nfct_flush_conntrack_table(struct nfct_handle *cth, int family);
 extern int nfct_get_expectation(struct nfct_handle *cth, 
 				struct nfct_tuple *tuple,
 				u_int32_t id);
@@ -311,7 +311,7 @@ extern int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *
 extern int nfct_delete_expectation(struct nfct_handle *cth,
 				   struct nfct_tuple *tuple, u_int32_t id);
 extern int nfct_event_expectation(struct nfct_handle *cth);
-extern int nfct_flush_expectation_table(struct nfct_handle *cth);
+extern int nfct_flush_expectation_table(struct nfct_handle *cth, int family);
 
 /*
  * expectation printing functions
