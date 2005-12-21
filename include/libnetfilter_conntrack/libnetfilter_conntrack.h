@@ -50,18 +50,16 @@ union nfct_l4 {
 	} sctp;
 };
 
+union nfct_address {
+	u_int32_t v4;
+	u_int32_t v6[4];
+};
+
 struct nfct_tuple {
-	union {
-		u_int32_t v4;
-		u_int32_t v6[4];
-	} src;
+	union nfct_address src;
+	union nfct_address dst;
 
-	union {
-		u_int32_t v4;
-		u_int32_t v6[4];
-	} dst;
-
-	u_int16_t l3protonum;
+	u_int8_t l3protonum;
 	u_int8_t protonum;
 	union nfct_l4 l4src;
 	union nfct_l4 l4dst;
