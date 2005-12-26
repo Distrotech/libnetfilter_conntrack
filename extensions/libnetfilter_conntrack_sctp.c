@@ -60,26 +60,24 @@ static int compare(struct nfct_conntrack *ct1,
 		   struct nfct_conntrack *ct2,
 		   unsigned int flags)
 {
-	int ret = 1;
-	
 	if (flags & SCTP_ORIG_SPORT)
 		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4src.sctp.port !=
 		    ct2->tuple[NFCT_DIR_ORIGINAL].l4src.sctp.port)
-			ret = 0;
+			return 0;
 	if (flags & SCTP_ORIG_DPORT)
 		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.sctp.port !=
 		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.sctp.port)
-			ret = 0;
+			return 0;
 	if (flags & SCTP_REPL_SPORT)
 		if (ct1->tuple[NFCT_DIR_REPLY].l4src.sctp.port !=
 		    ct2->tuple[NFCT_DIR_REPLY].l4src.sctp.port)
-			ret = 0;
+			return 0;
 	if (flags & SCTP_REPL_DPORT)
 		if (ct1->tuple[NFCT_DIR_REPLY].l4dst.sctp.port !=
 		    ct2->tuple[NFCT_DIR_REPLY].l4dst.sctp.port)
-			ret = 0;
+			return 0;
 
-	return ret;
+	return 1;
 }
 
 static struct nfct_proto sctp = {

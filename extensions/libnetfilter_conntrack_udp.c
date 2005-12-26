@@ -46,26 +46,24 @@ static int compare(struct nfct_conntrack *ct1,
 		   struct nfct_conntrack *ct2,
 		   unsigned int flags)
 {
-	int ret = 1;
-	
 	if (flags & UDP_ORIG_SPORT)
 		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4src.udp.port !=
 		    ct2->tuple[NFCT_DIR_ORIGINAL].l4src.udp.port)
-			ret = 0;
+			return 0;
 	if (flags & UDP_ORIG_DPORT)
 		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.udp.port !=
 		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.udp.port)
-			ret = 0;
+			return 0;
 	if (flags & UDP_REPL_SPORT)
 		if (ct1->tuple[NFCT_DIR_REPLY].l4src.udp.port !=
 		    ct2->tuple[NFCT_DIR_REPLY].l4src.udp.port)
-			ret = 0;
+			return 0;
 	if (flags & UDP_REPL_DPORT)
 		if (ct1->tuple[NFCT_DIR_REPLY].l4dst.udp.port !=
 		    ct2->tuple[NFCT_DIR_REPLY].l4dst.udp.port)
-			ret = 0;
+			return 0;
 
-	return ret;
+	return 1;
 }
 
 static struct nfct_proto udp = {

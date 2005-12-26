@@ -56,22 +56,20 @@ static int compare(struct nfct_conntrack *ct1,
 		   struct nfct_conntrack *ct2,
 		   unsigned int flags)
 {
-	int ret = 1;
-	
 	if (flags & ICMP_TYPE)
 		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.type !=
 		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.type)
-			ret = 0;
+			return 0;
 	if (flags & ICMP_CODE)
 		if (ct1->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.code !=
 		    ct2->tuple[NFCT_DIR_ORIGINAL].l4dst.icmp.code)
-			ret = 0;
+			return 0;
 	if (flags & ICMP_ID)
 		if (ct1->tuple[NFCT_DIR_REPLY].l4src.icmp.id !=
 		    ct2->tuple[NFCT_DIR_REPLY].l4src.icmp.id)
-			ret = 0;
+			return 0;
 
-	return ret;
+	return 1;
 }
 
 static struct nfct_proto icmp = {

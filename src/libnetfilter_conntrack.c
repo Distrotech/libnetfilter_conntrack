@@ -19,6 +19,7 @@
 #include "linux_list.h"
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_l3extensions.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
 #define NFCT_BUFSIZE 4096
@@ -36,13 +37,19 @@ struct nfct_handle {
 
 static char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
 static LIST_HEAD(proto_list);
+static LIST_HEAD(l3proto_list);
 static char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_TCP] = "tcp",
         [IPPROTO_UDP] = "udp",
         [IPPROTO_ICMP] = "icmp",
         [IPPROTO_SCTP] = "sctp"
 };
+static char *l3proto2str[AF_MAX] = {
+	[AF_INET] = "ipv4",
+	[AF_INET6] = "ipv6"
+};
 static struct nfct_proto *findproto(char *name);
+static struct nfct_l3proto *findl3proto(char *name);
 
 /* handler used for nfnl_listen */
 static int callback_handler(struct sockaddr_nl *nladdr,
@@ -133,14 +140,13 @@ static void nfct_build_tuple_ip(struct nfnlhdr *req, int size,
 				struct nfct_tuple *t)
 {
 	struct nfattr *nest;
+	struct nfct_l3proto *h;
 
 	nest = nfnl_nest(&req->nlh, size, CTA_TUPLE_IP);
 
-	nfnl_addattr_l(&req->nlh, size, CTA_IP_V4_SRC, &t->src.v4, 
-		       sizeof(u_int32_t));
-
-	nfnl_addattr_l(&req->nlh, size, CTA_IP_V4_DST, &t->dst.v4,
-		       sizeof(u_int32_t));
+	h = findl3proto(l3proto2str[t->l3protonum]);
+	if (h && h->build_tuple_proto)
+		h->build_tuple_proto(req, size, t);
 
 	nfnl_nest_end(&req->nlh, nest);
 }
@@ -282,6 +288,39 @@ static struct nfct_proto *findproto(char *name)
 	return handler;
 }
 
+static struct nfct_l3proto *findl3proto(char *name)
+{
+	struct list_head *i;
+	struct nfct_l3proto *cur = NULL, *handler = NULL;
+
+	if (!name) 
+		return handler;
+
+	lib_dir = getenv("LIBNETFILTER_CONNTRACK_DIR");
+	if (!lib_dir)
+		lib_dir = LIBNETFILTER_CONNTRACK_DIR;
+
+	list_for_each(i, &l3proto_list) {
+		cur = (struct nfct_l3proto *) i;
+		if (strcmp(cur->name, name) == 0) {
+			handler = cur;
+			break;
+		}
+	}
+
+	if (!handler) {
+		char path[sizeof("nfct_l3proto_.so") + strlen(VERSION)
+			 + strlen(name) + strlen(lib_dir)];
+                sprintf(path, "%s/nfct_l3proto_%s-%s.so",lib_dir,name,VERSION);
+		if (dlopen(path, RTLD_NOW))
+			handler = findl3proto(name);
+		else
+			fprintf(stderr, "%s\n", dlerror());
+	}
+
+	return handler;
+}
+
 int nfct_sprintf_status_assured(char *buf, struct nfct_conntrack *ct)
 {
 	int size = 0;
@@ -305,13 +344,12 @@ int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct)
 static void parse_ip(struct nfattr *attr, struct nfct_tuple *tuple)
 {
 	struct nfattr *tb[CTA_IP_MAX];
+	struct nfct_l3proto *h;
 
         nfnl_parse_nested(tb, CTA_IP_MAX, attr);
-	if (tb[CTA_IP_V4_SRC-1])
-		tuple->src.v4 = *(u_int32_t *)NFA_DATA(tb[CTA_IP_V4_SRC-1]);
-
-	if (tb[CTA_IP_V4_DST-1])
-		tuple->dst.v4 = *(u_int32_t *)NFA_DATA(tb[CTA_IP_V4_DST-1]);
+	h = findl3proto(l3proto2str[tuple->l3protonum]);
+	if (h && h->parse_proto)
+		h->parse_proto(tb, tuple);
 }
 
 static void parse_proto(struct nfattr *attr, struct nfct_tuple *tuple)
@@ -412,6 +450,9 @@ static int nfct_conntrack_netlink_handler(struct nfct_handle *cth,
 
 	memset(&ct, 0, sizeof(struct nfct_conntrack));
 
+	ct.tuple[NFCT_DIR_ORIGINAL].l3protonum = nfhdr->nfgen_family;
+	ct.tuple[NFCT_DIR_REPLY].l3protonum = nfhdr->nfgen_family;
+
 	nfnl_parse_attr(cda, CTA_MAX, NFA_DATA(nfhdr), len);
 
 	if (cda[CTA_TUPLE_ORIG-1])
@@ -500,11 +541,11 @@ int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct)
 int nfct_sprintf_address(char *buf, struct nfct_tuple *t)
 {
 	int size = 0;
-	struct in_addr src = { .s_addr = t->src.v4 };
-	struct in_addr dst = { .s_addr = t->dst.v4 };
+	struct nfct_l3proto *h;
 
-	size += sprintf(buf, "src=%s ", inet_ntoa(src));
-	size += sprintf(buf+size, "dst=%s ", inet_ntoa(dst));
+	h = findl3proto(l3proto2str[t->l3protonum]);
+	if (h && h->print_proto)
+		size += h->print_proto(buf, t);
 
 	return size;
 }
@@ -607,7 +648,7 @@ int nfct_default_conntrack_display(void *arg, unsigned int flags, int type,
 	int size;
 	struct nfct_conntrack_compare *cmp = data;
 
-	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, 0, cmp->protoflag))
+	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, cmp))
 		return 0;
 
 	memset(buf, 0, sizeof(buf));
@@ -625,7 +666,7 @@ int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type,
 	int size;
         struct nfct_conntrack_compare *cmp = data;
 
-	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, 0, cmp->protoflag))
+	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, cmp))
 		return 0;
 
 	memset(buf, 0, sizeof(buf));
@@ -639,8 +680,20 @@ int nfct_default_conntrack_display_id(void *arg, unsigned int flags, int type,
 int nfct_default_conntrack_event_display(void *arg, unsigned int flags, 
 					 int type, void *data)
 {
-	fprintf(stdout, "%9s ", msgtype[type]);
-	return nfct_default_conntrack_display_id(arg, flags, type, data);
+	char buf[512];
+	int size;
+	struct nfct_conntrack_compare *cmp = data;
+
+	if (cmp && !nfct_conntrack_compare(cmp->ct, arg, cmp))
+		return 0;
+
+	memset(buf, 0, sizeof(buf));
+	size = sprintf(buf, "%9s ", msgtype[type]);
+	size += nfct_sprintf_conntrack_id(buf + size, arg, flags);
+	sprintf(buf+size, "\n");
+	fprintf(stdout, buf);
+
+	return 0;
 }
 
 int nfct_sprintf_expect_proto(char *buf, struct nfct_expect *exp)
@@ -715,6 +768,8 @@ static int nfct_expect_netlink_handler(struct nfct_handle *cth,
 	
 	memset(&exp, 0, sizeof(struct nfct_expect));
 
+	exp.tuple.l3protonum = nfhdr->nfgen_family;
+
 	nfnl_parse_attr(cda, CTA_EXPECT_MAX, NFA_DATA(nfhdr), len);
 
 	if (cda[CTA_EXPECT_TUPLE-1])
@@ -770,26 +825,55 @@ void nfct_conntrack_free(struct nfct_conntrack *ct)
 	free(ct);
 }
 
+#define L3PROTONUM(ct) ct->tuple[NFCT_DIR_ORIGINAL].l3protonum
+#define L4PROTONUM(ct) ct->tuple[NFCT_DIR_ORIGINAL].protonum
+
 int nfct_conntrack_compare(struct nfct_conntrack *ct1,
 			   struct nfct_conntrack *ct2,
-			   unsigned int cmp_flag,
-			   unsigned int cmp_protoflag)
+			   struct nfct_conntrack_compare *cmp)
 {
+	struct nfct_l3proto *l3proto;
 	struct nfct_proto *proto;
+	unsigned int l3flags = cmp->l3flags;
+	unsigned int l4flags = cmp->l4flags;
+	unsigned int flags = cmp->flags;
 
-	if (ct1->tuple[NFCT_DIR_ORIGINAL].protonum !=
-	    ct2->tuple[NFCT_DIR_ORIGINAL].protonum)
+	if ((flags & NFCT_MARK) && (ct1->mark != ct2->mark))
 		return 0;
 
-	/*
-	 * TODO: implement tuple, status, mark... comparison.
-	 */
+	if (l3flags) {
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].l3protonum != AF_UNSPEC && 
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l3protonum != AF_UNSPEC &&
+		    ct1->tuple[NFCT_DIR_ORIGINAL].l3protonum !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].l3protonum)
+				return 0;
+		if (ct1->tuple[NFCT_DIR_REPLY].l3protonum != AF_UNSPEC && 
+		    ct2->tuple[NFCT_DIR_REPLY].l3protonum != AF_UNSPEC &&
+		    ct1->tuple[NFCT_DIR_REPLY].l3protonum !=
+		    ct2->tuple[NFCT_DIR_REPLY].l3protonum)
+				return 0;
+		l3proto = findl3proto(l3proto2str[L3PROTONUM(ct1)]);
+		if (l3proto && !l3proto->compare(ct1, ct2, l3flags))
+			return 0;
+	}
 
-	proto = findproto(proto2str[ct1->tuple[NFCT_DIR_ORIGINAL].protonum]);
-	if (!proto)
-		return 0;
+	if (l4flags) {
+		if (ct1->tuple[NFCT_DIR_ORIGINAL].protonum != 0 && 
+		    ct2->tuple[NFCT_DIR_ORIGINAL].protonum != 0 &&
+		    ct1->tuple[NFCT_DIR_ORIGINAL].protonum !=
+		    ct2->tuple[NFCT_DIR_ORIGINAL].protonum)
+				return 0;
+		if (ct1->tuple[NFCT_DIR_REPLY].protonum != 0 && 
+		    ct2->tuple[NFCT_DIR_REPLY].protonum != 0 &&
+		    ct1->tuple[NFCT_DIR_REPLY].protonum !=
+		    ct2->tuple[NFCT_DIR_REPLY].protonum)
+				return 0;
+		proto = findproto(proto2str[L4PROTONUM(ct1)]);
+		if (proto && !proto->compare(ct1, ct2, l4flags))
+			return 0;
+	}
 
-	return proto->compare(ct1, ct2, cmp_protoflag);
+	return 1;
 }
 
 int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
@@ -799,12 +883,13 @@ int nfct_create_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 	u_int32_t status = htonl(ct->status | IPS_CONFIRMED);
 	u_int32_t timeout = htonl(ct->timeout);
 	u_int32_t mark = htonl(ct->mark);
+	u_int8_t l3num = ct->tuple[NFCT_DIR_ORIGINAL].l3protonum;
 
 	req = (void *) buf;
 
 	memset(buf, 0, sizeof(buf));
 	
-	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_CT_NEW,
+	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, l3num, 0, IPCTNL_MSG_CT_NEW,
 		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL);
 
 	nfct_build_tuple(req, sizeof(buf), &ct->tuple[NFCT_DIR_ORIGINAL], 
@@ -838,11 +923,12 @@ int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 	u_int32_t timeout = htonl(ct->timeout);
 	u_int32_t id = htonl(ct->id);
 	u_int32_t mark = htonl(ct->mark);
+	u_int8_t l3num = ct->tuple[NFCT_DIR_ORIGINAL].l3protonum;
 
 	req = (void *) &buf;
 	memset(&buf, 0, sizeof(buf));
 
-	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_CT_NEW,
+	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, l3num, 0, IPCTNL_MSG_CT_NEW,
 		      NLM_F_REQUEST|NLM_F_ACK);	
 
 	nfct_build_tuple(req, sizeof(buf), &ct->tuple[NFCT_DIR_ORIGINAL], 
@@ -881,12 +967,13 @@ int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
+	 u_int8_t l3num = tuple->l3protonum;
 
 	req = (void *) &buf;
 	memset(&buf, 0, sizeof(buf));
 
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, 
-		      AF_INET, 0, IPCTNL_MSG_CT_DELETE, 
+		      l3num, 0, IPCTNL_MSG_CT_DELETE, 
 		      NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK);
 
 	nfct_build_tuple(req, sizeof(buf), tuple, type);
@@ -907,6 +994,7 @@ int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	int type = dir ? CTA_TUPLE_REPLY : CTA_TUPLE_ORIG;
+	u_int8_t l3num = tuple->l3protonum;
 
 	cth->handler = nfct_conntrack_netlink_handler;
 	
@@ -914,7 +1002,7 @@ int nfct_get_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	req = (void *) &buf;
 
 	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0,
-		      AF_INET, 0, IPCTNL_MSG_CT_GET,
+		      l3num, 0, IPCTNL_MSG_CT_GET,
 		      NLM_F_REQUEST|NLM_F_ACK);
 	
 	nfct_build_tuple(req, sizeof(buf), tuple, type);
@@ -989,6 +1077,16 @@ void nfct_register_proto(struct nfct_proto *h)
 	list_add(&h->head, &proto_list);
 }
 
+void nfct_register_l3proto(struct nfct_l3proto *h)
+{
+	if (strcmp(h->version, VERSION) != 0) {
+		fprintf(stderr, "plugin `%s': version %s (I'm %s)\n",
+			h->name, h->version, VERSION);
+		exit(1);
+	}
+	list_add(&h->head, &l3proto_list);
+}
+
 int nfct_dump_expect_list(struct nfct_handle *cth, int family)
 {
 	int err;
@@ -1026,11 +1124,12 @@ int nfct_get_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
+	u_int8_t l3num = tuple->l3protonum;
 
 	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
 
-	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_EXP_GET,
+	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, l3num, 0, IPCTNL_MSG_EXP_GET,
 		      NLM_F_REQUEST|NLM_F_ACK);
 
 	cth->handler = nfct_expect_netlink_handler;
@@ -1080,10 +1179,11 @@ int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *exp)
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	req = (void *) &buf;
+	u_int8_t l3num = exp->tuple.l3protonum;
 
 	memset(&buf, 0, sizeof(buf));
 
-	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 0, IPCTNL_MSG_EXP_NEW,
+	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, l3num, 0, IPCTNL_MSG_EXP_NEW,
 		      NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK);
 
 	nfct_build_tuple(req, sizeof(buf), &exp->master, CTA_EXPECT_MASTER);
@@ -1106,11 +1206,12 @@ int nfct_delete_expectation(struct nfct_handle *cth,struct nfct_tuple *tuple,
 	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
+	u_int8_t l3num = tuple->l3protonum;
 
 	memset(&buf, 0, sizeof(buf));
 	req = (void *) &buf;
 	
-	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, AF_INET, 
+	nfnl_fill_hdr(&cth->nfnlh, &req->nlh, 0, l3num, 
 		      0, IPCTNL_MSG_EXP_DELETE,
 		      NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK);
 

@@ -109,8 +109,9 @@ struct nfct_expect {
 
 struct nfct_conntrack_compare {
 	struct nfct_conntrack *ct;
-	unsigned int flag;
-	unsigned int protoflag;
+	unsigned int flags;
+	unsigned int l3flags;
+	unsigned int l4flags;
 };
 
 enum {
@@ -294,8 +295,7 @@ extern int nfct_sprintf_id(char *buf, u_int32_t id);
  */
 extern int nfct_conntrack_compare(struct nfct_conntrack *ct1, 
 				  struct nfct_conntrack *ct2,
-				  unsigned int cmp_flag,
-				  unsigned int cmp_protoflag);
+				  struct nfct_conntrack_compare *cmp);
 
 /* 
  * Expectations
