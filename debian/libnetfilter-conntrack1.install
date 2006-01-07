@@ -1,1 +1,2 @@
 usr/lib/*.so.*
+usr/lib/libnetfilter_conntrack/*.so
