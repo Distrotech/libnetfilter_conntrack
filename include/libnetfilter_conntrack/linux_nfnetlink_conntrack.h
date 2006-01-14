@@ -120,6 +120,7 @@ enum ctattr_expect {
 	CTA_EXPECT_TIMEOUT,
 	CTA_EXPECT_ID,
 	CTA_EXPECT_HELP_NAME,
+	CTA_EXPECT_QUEUENR,
 	__CTA_EXPECT_MAX
 };
 #define CTA_EXPECT_MAX (__CTA_EXPECT_MAX - 1)
@@ -130,7 +131,5 @@ enum ctattr_help {
 	__CTA_HELP_MAX
 };
 #define CTA_HELP_MAX (__CTA_HELP_MAX - 1)
-
-#define CTA_HELP_MAXNAMESIZE	32
 
 #endif /* _IPCONNTRACK_NETLINK_H */

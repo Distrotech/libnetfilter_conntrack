@@ -105,6 +105,7 @@ struct nfct_expect {
 	struct nfct_tuple mask;
 	u_int32_t timeout;
 	u_int32_t id;
+	u_int16_t expectfn_queue_id;
 };
 
 struct nfct_conntrack_compare {
@@ -225,6 +226,9 @@ extern void nfct_expect_free(struct nfct_expect *exp);
  * [Open|close] a conntrack handler
  */
 extern struct nfct_handle *nfct_open(u_int8_t, unsigned);
+extern struct nfct_handle *nfct_open_nfnl(struct nfnl_handle *nfnlh,
+					  u_int8_t subsys_id,
+					  unsigned int subscriptions);
 extern int nfct_close(struct nfct_handle *cth);
 
 extern int nfct_fd(struct nfct_handle *cth);
