@@ -731,6 +731,7 @@ int nfct_default_conntrack_event_display(void *arg, unsigned int flags,
 	size += nfct_sprintf_conntrack_id(buf + size, arg, flags);
 	sprintf(buf+size, "\n");
 	fprintf(stdout, buf);
+	fflush(stdout);
 
 	return 0;
 }
