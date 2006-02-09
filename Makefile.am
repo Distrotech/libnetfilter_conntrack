@@ -7,6 +7,9 @@ LINKOPTS = -lnfnetlink
 
 man_MANS = #nfnetlink_conntrack.3 nfnetlink_conntrack.7
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libnetfilter_conntrack.pc
+
 EXTRA_DIST = Make_global.am debian
 dist-hook:
 	rm -rf `find $(distdir)/debian -name .svn`

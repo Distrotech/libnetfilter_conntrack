@@ -63,5 +63,5 @@ fi
 
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile l3extensions/Makefile extensions/Makefile)
+AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile l3extensions/Makefile extensions/Makefile libnetfilter_conntrack.pc)
 
