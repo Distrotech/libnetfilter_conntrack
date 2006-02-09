@@ -9,6 +9,6 @@ LIBS=
 
 lib_LTLIBRARIES = libnetfilter_conntrack.la 
 
-libnetfilter_conntrack_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink 	\
+libnetfilter_conntrack_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink -ldl 	\
 				    -version-info $(LIBVERSION)
 libnetfilter_conntrack_la_SOURCES = libnetfilter_conntrack.c 
