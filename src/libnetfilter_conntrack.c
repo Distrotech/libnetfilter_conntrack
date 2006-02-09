@@ -959,7 +959,6 @@ int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 {
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
-	int err;
 	u_int32_t status = htonl(ct->status | IPS_CONFIRMED);
 	u_int32_t timeout = htonl(ct->timeout);
 	u_int32_t id = htonl(ct->id);
@@ -995,11 +994,7 @@ int nfct_update_conntrack(struct nfct_handle *cth, struct nfct_conntrack *ct)
 
 	nfct_build_protoinfo(req, sizeof(buf), ct);
 
-	err = nfnl_send(cth->nfnlh, &req->nlh);
-	if (err < 0)
-		return err;
-
-	return nfnl_listen(cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(cth->nfnlh, &req->nlh, 0, 0, NULL, NULL, NULL);
 }
 
 int nfct_delete_conntrack(struct nfct_handle *cth, struct nfct_tuple *tuple, 
@@ -1217,7 +1212,6 @@ void nfct_expect_free(struct nfct_expect *exp)
 
 int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *exp)
 {
-	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	req = (void *) &buf;
@@ -1243,18 +1237,13 @@ int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *exp)
 	if (queuenr)
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_QUEUENR,
 			       &queuenr, sizeof(u_int16_t));
-		 
-	err = nfnl_send(cth->nfnlh, &req->nlh);
-	if (err < 0)
-		return err;
 
-	return nfnl_listen(cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(cth->nfnlh, &req->nlh, 0, 0, NULL, NULL, NULL);
 }
 
 int nfct_delete_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
 			    u_int32_t id)
 {
-	int err;
 	struct nfnlhdr *req;
 	char buf[NFCT_BUFSIZE];
 	u_int8_t l3num = tuple->l3protonum;
@@ -1271,12 +1260,8 @@ int nfct_delete_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
 	if (id != NFCT_ANY_ID)
 		nfnl_addattr_l(&req->nlh, sizeof(buf), CTA_EXPECT_ID, &id,
 			       sizeof(u_int32_t));
-	
-	err = nfnl_send(cth->nfnlh, &req->nlh);
-	if (err < 0)
-		return err;
 
-	return nfnl_listen(cth->nfnlh, &callback_handler, cth);
+	return nfnl_talk(cth->nfnlh, &req->nlh, 0, 0, NULL, NULL, NULL);
 }
 
 int nfct_event_expectation(struct nfct_handle *cth)
