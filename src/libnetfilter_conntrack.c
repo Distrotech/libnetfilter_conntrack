@@ -209,8 +209,8 @@ static void nfct_build_tuple_proto(struct nfnlhdr *req, int size,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-static void nfct_build_tuple(struct nfnlhdr *req, int size, 
-			     struct nfct_tuple *t, int type)
+void nfct_build_tuple(struct nfnlhdr *req, int size, 
+		      struct nfct_tuple *t, int type)
 {
 	struct nfattr *nest;
 

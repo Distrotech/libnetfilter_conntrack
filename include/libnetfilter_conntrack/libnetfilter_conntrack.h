@@ -321,4 +321,12 @@ extern int nfct_flush_expectation_table(struct nfct_handle *cth, int family);
 extern int nfct_sprintf_expect(char *buf, struct nfct_expect *exp);
 extern int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp);
 
+/*
+ * low-level functions for libnetfilter_cthelper
+ */
+extern void nfct_build_tuple(struct nfnlhdr *req, int size, 
+			     struct nfct_tuple *t, int type);
+
+
+
 #endif	/* _LIBNETFILTER_CONNTRACK_H_ */
