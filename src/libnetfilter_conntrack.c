@@ -417,6 +417,37 @@ static void parse_tuple(struct nfattr *attr, struct nfct_tuple *tuple)
 		parse_proto(tb[CTA_TUPLE_PROTO-1], tuple);
 }
 
+static void parse_mask(struct nfattr *attr, struct nfct_tuple *tuple,
+		       u_int8_t l3protonum, u_int16_t protonum)
+{
+	struct nfattr *cda[CTA_TUPLE_MAX];
+
+	nfnl_parse_nested(cda, CTA_TUPLE_MAX, attr);
+
+	if (cda[CTA_TUPLE_IP-1]) {
+		struct nfattr *tb[CTA_IP_MAX];
+		struct nfct_l3proto *h;
+
+		nfnl_parse_nested(tb, CTA_IP_MAX, cda[CTA_TUPLE_IP-1]);
+		h = findl3proto(l3proto2str[l3protonum]);
+		if (h && h->parse_proto)
+			h->parse_proto(tb, tuple);
+	}
+	if (cda[CTA_TUPLE_PROTO-1]) {
+		struct nfattr *tb[CTA_PROTO_MAX];
+		struct nfct_proto *h;
+
+		nfnl_parse_nested(tb, CTA_PROTO_MAX, cda[CTA_TUPLE_PROTO-1]);
+		if (tb[CTA_PROTO_NUM-1])
+			tuple->protonum = 
+				*(u_int8_t *)NFA_DATA(tb[CTA_PROTO_NUM-1]);
+
+		h = findproto(proto2str[protonum]);
+		if (h && h->parse_proto)
+			h->parse_proto(tb, tuple);
+	}
+}
+
 static void parse_protoinfo(struct nfattr *attr, struct nfct_conntrack *ct)
 {
 	struct nfattr *tb[CTA_PROTOINFO_MAX];
@@ -816,7 +847,8 @@ static int nfct_expect_netlink_handler(struct nfct_handle *cth,
 		parse_tuple(cda[CTA_EXPECT_TUPLE-1], &exp.tuple);
 
 	if (cda[CTA_EXPECT_MASK-1])
-		parse_tuple(cda[CTA_EXPECT_MASK-1], &exp.mask);
+		parse_mask(cda[CTA_EXPECT_MASK-1], &exp.mask, 
+			   exp.tuple.l3protonum, exp.tuple.protonum);
 
 	if (cda[CTA_EXPECT_TIMEOUT-1])
 		exp.timeout = ntohl(*(u_int32_t *)
