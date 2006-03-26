@@ -41,6 +41,7 @@ int main(int argc, char **argv)
 	struct nfct_tuple orig = {
 		.src = { .v4 = inet_addr("1.1.1.1") },
 		.dst = { .v4 = inet_addr("2.2.2.2") },
+		.l3protonum = AF_INET,
 		.protonum = IPPROTO_TCP,
 		.l4src = { .tcp = { .port = 10 } },
 		.l4dst = { .tcp = { .port = 20 } }
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
 	struct nfct_tuple reply = {
 		.src = { .v4 = inet_addr("2.2.2.2") },
 		.dst = { .v4 = inet_addr("1.1.1.1") },
+		.l3protonum = AF_INET,
 		.protonum = IPPROTO_TCP,
 		.l4src = { .tcp = { .port = 20 } },
 		.l4dst = { .tcp = { .port = 10 } }
