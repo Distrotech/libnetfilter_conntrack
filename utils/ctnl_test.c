@@ -43,16 +43,16 @@ int main(int argc, char **argv)
 		.dst = { .v4 = inet_addr("2.2.2.2") },
 		.l3protonum = AF_INET,
 		.protonum = IPPROTO_TCP,
-		.l4src = { .tcp = { .port = 10 } },
-		.l4dst = { .tcp = { .port = 20 } }
+		.l4src = { .tcp = { .port = ntohs(10) } },
+		.l4dst = { .tcp = { .port = ntohs(20) } }
 	};
 	struct nfct_tuple reply = {
 		.src = { .v4 = inet_addr("2.2.2.2") },
 		.dst = { .v4 = inet_addr("1.1.1.1") },
 		.l3protonum = AF_INET,
 		.protonum = IPPROTO_TCP,
-		.l4src = { .tcp = { .port = 20 } },
-		.l4dst = { .tcp = { .port = 10 } }
+		.l4src = { .tcp = { .port = ntohs(20) } },
+		.l4dst = { .tcp = { .port = ntohs(10) } }
 	};
 	union nfct_protoinfo proto = {
 		.tcp = { .state = 1 },
