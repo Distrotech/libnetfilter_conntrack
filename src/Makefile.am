@@ -4,8 +4,8 @@ include $(top_srcdir)/Make_global.am
 
 #EXTRA_DIST = $(man_MANS) acinclude.m4
 
-AM_CFLAGS=-fPIC -Wall
-LIBS=
+AM_CFLAGS = -fPIC -Wall
+LIBS = @LIBNFCONNTRACK_LIBS@
 
 lib_LTLIBRARIES = libnetfilter_conntrack.la 
 
