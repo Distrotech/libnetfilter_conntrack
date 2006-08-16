@@ -1125,12 +1125,6 @@ int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth,
 
 int nfct_event_conntrack(struct nfct_handle *cth)
 {
-	/*
-	 * You need to be root to listen to conntrack events
-	 */
-	if (getuid() != 0)
-		return -EPERM;
-	
 	cth->handler = nfct_conntrack_netlink_handler;
 	return nfnl_listen(cth->nfnlh, &callback_handler, cth);
 }
@@ -1298,12 +1292,6 @@ int nfct_delete_expectation(struct nfct_handle *cth, struct nfct_tuple *tuple,
 
 int nfct_event_expectation(struct nfct_handle *cth)
 {
-	/*
-	 * You need to be root to listen to conntrack events
-	 */
-	if (getuid() != 0)
-		return -EPERM;
-
 	cth->handler = nfct_expect_netlink_handler;
 	return nfnl_listen(cth->nfnlh, &callback_handler, cth);
 }
