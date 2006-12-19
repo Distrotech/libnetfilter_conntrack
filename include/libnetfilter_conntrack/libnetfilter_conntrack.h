@@ -332,6 +332,220 @@ extern int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp);
 extern void nfct_build_tuple(struct nfnlhdr *req, int size, 
 			     struct nfct_tuple *t, int type);
 
+/* 
+ * NEW libnetfilter_conntrack API 
+ */
 
+/* high level API */
+
+#include <sys/types.h>
+
+/* conntrack object */
+struct nf_conntrack;
+
+/* conntrack attributes */
+enum nf_conntrack_attr {
+	ATTR_ORIG_IPV4_SRC = 0,		/* u32 bits */
+	ATTR_ORIG_IPV4_DST,		/* u32 bits */
+	ATTR_REPL_IPV4_SRC,		/* u32 bits */
+	ATTR_REPL_IPV4_DST,		/* u32 bits */
+	ATTR_ORIG_IPV6_SRC = 4,		/* u128 bits */
+	ATTR_ORIG_IPV6_DST,		/* u128 bits */
+	ATTR_REPL_IPV6_SRC,		/* u128 bits */
+	ATTR_REPL_IPV6_DST,		/* u128 bits */
+	ATTR_ORIG_PORT_SRC = 8,		/* u16 bits */
+	ATTR_ORIG_PORT_DST,		/* u16 bits */
+	ATTR_REPL_PORT_SRC,		/* u16 bits */
+	ATTR_REPL_PORT_DST,		/* u16 bits */
+	ATTR_ICMP_TYPE = 12,		/* u8 bits */
+	ATTR_ICMP_CODE,			/* u8 bits */
+	ATTR_ICMP_ID,			/* u8 bits */
+	ATTR_ORIG_L3PROTO,		/* u8 bits */
+	ATTR_REPL_L3PROTO = 16,		/* u8 bits */
+	ATTR_ORIG_L4PROTO,		/* u8 bits */
+	ATTR_REPL_L4PROTO,		/* u8 bits */
+	ATTR_TCP_STATE,			/* u8 bits */
+	ATTR_SNAT_IPV4 = 20,		/* u32 bits */
+	ATTR_DNAT_IPV4,			/* u32 bits */
+	ATTR_SNAT_PORT,			/* u16 bits */
+	ATTR_DNAT_PORT,			/* u16 bits */
+	ATTR_TIMEOUT = 24,		/* u32 bits */
+	ATTR_MARK,			/* u32 bits */
+	ATTR_ORIG_COUNTER_PACKETS,	/* u32 bits */
+	ATTR_REPL_COUNTER_PACKETS,	/* u32 bits */
+	ATTR_ORIG_COUNTER_BYTES = 28,	/* u32 bits */
+	ATTR_REPL_COUNTER_BYTES,	/* u32 bits */
+	ATTR_USE,			/* u32 bits */
+	ATTR_ID,			/* u32 bits */
+	ATTR_STATUS = 32,		/* u32 bits  */
+	ATTR_MAX
+};
+
+/* message type */
+enum nf_conntrack_msg_type {
+	NFCT_T_UNKNOWN = 0,
+
+	NFCT_T_NEW_BIT = 0,
+	NFCT_T_NEW = (1 << NFCT_T_NEW_BIT),
+
+	NFCT_T_UPDATE_BIT = 1,
+	NFCT_T_UPDATE = (1 << NFCT_T_UPDATE_BIT),
+
+	NFCT_T_DESTROY_BIT = 2,
+	NFCT_T_DESTROY = (1 << NFCT_T_DESTROY_BIT),
+
+	NFCT_T_ALL = NFCT_T_NEW | NFCT_T_UPDATE | NFCT_T_DESTROY,
+
+	NFCT_T_ERROR_BIT = 31,
+	NFCT_T_ERROR = (1 << NFCT_T_ERROR_BIT),
+};
+
+/* constructor / destructor */
+extern struct nf_conntrack *nfct_new(void);
+extern void nfct_destroy(struct nf_conntrack *ct);
+
+/* clone */
+struct nf_conntrack *nfct_clone(const struct nf_conntrack *ct);
+
+/* object size */
+extern size_t nfct_sizeof(const struct nf_conntrack *ct);
+
+/* set option */
+enum {
+	NFCT_SOPT_UNDO_SNAT,
+	NFCT_SOPT_UNDO_DNAT,
+	NFCT_SOPT_UNDO_SPAT,
+	NFCT_SOPT_UNDO_DPAT,
+	__NFCT_SOPT_MAX,
+};
+#define NFCT_SOPT_MAX (__NFCT_SOPT_MAX - 1)
+
+/* get option */
+enum {
+	NFCT_GOPT_IS_SNAT,
+	NFCT_GOPT_IS_DNAT,
+	NFCT_GOPT_IS_SPAT,
+	NFCT_GOPT_IS_DPAT,
+	__NFCT_GOPT_MAX,
+};
+#define NFCT_GOPT_MAX (__NFCT_GOPT_MAX - 1)
+
+extern int nfct_setobjopt(struct nf_conntrack *ct, unsigned int option);
+extern int nfct_getobjopt(const struct nf_conntrack *ct, unsigned int option);
+
+/* register / unregister callback */
+
+extern int nfct_callback_register(struct nfct_handle *h,
+				  enum nf_conntrack_msg_type type,
+				  int (*cb)(enum nf_conntrack_msg_type type,
+				  	    struct nf_conntrack *ct,
+					    void *data),
+				  void *data);
+
+extern void nfct_callback_unregister(struct nfct_handle *h);
+
+/* callback verdict */
+enum {
+	NFCT_CB_FAILURE = -1,   /* failure */
+	NFCT_CB_STOP = 0,       /* stop the query */
+	NFCT_CB_CONTINUE = 1,   /* keep iterating through data */
+	NFCT_CB_STOLEN = 2,     /* like continue, but ct is not freed */
+};
+
+/* setter */
+extern void nfct_set_attr(struct nf_conntrack *ct,
+			  const enum nf_conntrack_attr type,
+			  void *value);
+
+extern void nfct_set_attr_u8(struct nf_conntrack *ct,
+			     const enum nf_conntrack_attr type,
+			     u_int8_t value);
+
+extern void nfct_set_attr_u16(struct nf_conntrack *ct,
+			      const enum nf_conntrack_attr type,
+			      u_int16_t value);
+
+extern void nfct_set_attr_u32(struct nf_conntrack *ct,
+			      const enum nf_conntrack_attr type,
+			      u_int32_t value);
+
+/* getter */
+extern const void *nfct_get_attr(const struct nf_conntrack *ct,
+				 const enum nf_conntrack_attr type);
+
+extern u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
+				 const enum nf_conntrack_attr type);
+
+extern u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
+				   const enum nf_conntrack_attr type);
+
+extern u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
+				   const enum nf_conntrack_attr type);
+
+/* checker */
+extern int nfct_attr_is_set(const struct nf_conntrack *ct,
+			    const enum nf_conntrack_attr type);
+
+/* unsetter */
+extern int nfct_attr_unset(struct nf_conntrack *ct,
+			   const enum nf_conntrack_attr type);
+
+/* print */
+
+/* output type */
+enum {
+	NFCT_O_DEFAULT,
+	NFCT_O_XML,
+	NFCT_O_MAX
+};
+
+/* output flags */
+enum {
+	NFCT_OF_SHOW_LAYER3_BIT = 0,
+	NFCT_OF_SHOW_LAYER3 = (1 << NFCT_OF_SHOW_LAYER3_BIT),
+};
+
+extern int nfct_snprintf(char *buf, 
+			 unsigned int size,
+			 const struct nf_conntrack *ct,
+			 const unsigned int msg_type,
+			 const unsigned int out_type,
+			 const unsigned int out_flags);
+
+/* query */
+enum nf_conntrack_query {
+	NFCT_Q_CREATE,
+	NFCT_Q_UPDATE,
+	NFCT_Q_DESTROY,
+	NFCT_Q_GET,
+	NFCT_Q_FLUSH,
+	NFCT_Q_DUMP,
+	NFCT_Q_DUMP_RESET,
+};
+
+extern int nfct_query(struct nfct_handle *h,
+		      const enum nf_conntrack_query query,
+		      const void *data);
+
+extern int nfct_catch(struct nfct_handle *h);
+
+/* low level API: netlink functions */
+
+extern int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
+				void *req,
+				size_t size,
+				u_int16_t type,
+				u_int16_t flags,
+				const struct nf_conntrack *ct);
+
+extern int nfct_parse_conntrack(enum nf_conntrack_msg_type msg,
+				const struct nlmsghdr *nlh, 
+				struct nf_conntrack *ct);
+
+extern int nfct_build_query(struct nfnl_subsys_handle *ssh,
+			    const enum nf_conntrack_query query,
+			    const void *data,
+			    void *req,
+			    unsigned int size);
 
 #endif	/* _LIBNETFILTER_CONNTRACK_H_ */

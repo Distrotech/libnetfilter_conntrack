@@ -4,7 +4,7 @@ AC_INIT
 
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(libnetfilter_conntrack, 0.0.31)
+AM_INIT_AUTOMAKE(libnetfilter_conntrack, 0.0.50)
 
 AC_PROG_CC
 AM_PROG_LIBTOOL
@@ -70,5 +70,5 @@ LIBNFCONNTRACK_LIBS="$LIBNFNETLINK_LIBS"
 AC_SUBST(LIBNFCONNTRACK_LIBS)
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile l3extensions/Makefile extensions/Makefile libnetfilter_conntrack.pc)
+AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile l3extensions/Makefile extensions/Makefile src/conntrack/Makefile libnetfilter_conntrack.pc)
 

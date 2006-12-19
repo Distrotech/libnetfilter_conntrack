@@ -22,20 +22,9 @@
 #include <libnetfilter_conntrack/libnetfilter_conntrack_l3extensions.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
+#include "internal.h"
+
 #define NFCT_BUFSIZE 4096
-
-typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
-			    void *arg);
-
-/* Harald says: "better for encapsulation" ;) */
-struct nfct_handle {
-	struct nfnl_handle *nfnlh;
-	struct nfnl_subsys_handle *nfnlssh_ct;
-	struct nfnl_subsys_handle *nfnlssh_exp;
-	nfct_callback callback;		/* user callback */
-	void *callback_data;		/* user data for callback */
-	nfct_handler handler;		/* netlink handler */
-};
 
 static char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
 static LIST_HEAD(proto_list);
@@ -150,6 +139,14 @@ int nfct_close(struct nfct_handle *cth)
 		nfnl_subsys_close(cth->nfnlssh_ct);
 		cth->nfnlssh_ct = NULL;
 	}
+
+	/* required by the new API */
+	cth->cb = NULL;
+	free(cth->nfnl_cb.data);
+
+	cth->nfnl_cb.call = NULL; 
+	cth->nfnl_cb.data = NULL;
+	cth->nfnl_cb.attr_count = 0;
 
 	err = nfnl_close(cth->nfnlh);
 	free(cth);
