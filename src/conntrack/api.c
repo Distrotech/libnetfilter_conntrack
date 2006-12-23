@@ -28,9 +28,6 @@ struct nf_conntrack *nfct_new()
 
 	memset(ct, 0, sizeof(struct nf_conntrack));
 
-	/* always work with confirmed conntracks */
-//	ct->status |= IPS_CONFIRMED;
-
 	return ct;
 }
 

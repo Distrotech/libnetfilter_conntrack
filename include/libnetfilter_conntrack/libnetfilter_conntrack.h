@@ -494,7 +494,8 @@ extern int nfct_attr_unset(struct nf_conntrack *ct,
 
 /* output type */
 enum {
-	NFCT_O_DEFAULT,
+	NFCT_O_PLAIN,
+	NFCT_O_DEFAULT = NFCT_O_PLAIN,
 	NFCT_O_XML,
 	NFCT_O_MAX
 };
