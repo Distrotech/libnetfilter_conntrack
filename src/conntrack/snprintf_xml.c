@@ -321,10 +321,10 @@ int __snprintf_conntrack_xml(char *buf,
 			ret = snprintf(buf, len, "<flow type=\"new\">");
 			break;
 		case NFCT_T_UPDATE:
-			ret = snprintf(buf, len, "<flow type=\"update\"");
+			ret = snprintf(buf, len, "<flow type=\"update\">");
 			break;
 		case NFCT_T_DESTROY:
-			ret = snprintf(buf, len, "<flow type=\"destroy\"");
+			ret = snprintf(buf, len, "<flow type=\"destroy\">");
 			break;
 		default:
 			ret = snprintf(buf, len, "<flow>");
