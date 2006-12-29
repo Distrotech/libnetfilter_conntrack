@@ -193,7 +193,7 @@ static void __parse_counters(const struct nfattr *attr,
 	nfnl_parse_nested(tb, CTA_COUNTERS_MAX, attr);
 	if (tb[CTA_COUNTERS32_PACKETS-1]) {
 		ct->counters[dir].packets
-			= htonl(*(u_int32_t *)
+			= ntohl(*(u_int32_t *)
 				NFA_DATA(tb[CTA_COUNTERS32_PACKETS-1]));
 		switch(dir) {
 		case __DIR_ORIG:
@@ -206,7 +206,7 @@ static void __parse_counters(const struct nfattr *attr,
 	}
 	if (tb[CTA_COUNTERS32_BYTES-1]) {
 		ct->counters[dir].bytes
-			= htonl(*(u_int32_t *)
+			= ntohl(*(u_int32_t *)
 				NFA_DATA(tb[CTA_COUNTERS32_BYTES-1]));
 		switch(dir) {
 		case __DIR_ORIG:

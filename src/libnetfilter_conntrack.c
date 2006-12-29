@@ -476,11 +476,11 @@ static void nfct_parse_counters(struct nfattr *attr,
 					NFA_DATA(tb[CTA_COUNTERS_BYTES-1]));
 	if (tb[CTA_COUNTERS32_PACKETS-1])
 		ct->counters[dir].packets
-			= htonl(*(u_int32_t *)
+			= ntohl(*(u_int32_t *)
 				NFA_DATA(tb[CTA_COUNTERS32_PACKETS-1]));
 	if (tb[CTA_COUNTERS32_BYTES-1])
 		ct->counters[dir].bytes
-			= htonl(*(u_int32_t *)
+			= ntohl(*(u_int32_t *)
 				NFA_DATA(tb[CTA_COUNTERS32_BYTES-1]));
 }
 
