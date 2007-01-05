@@ -162,6 +162,11 @@ static const void *get_attr_status(const struct nf_conntrack *ct)
 	return &ct->status;
 }
 
+static const void *get_attr_use(const struct nf_conntrack *ct)
+{
+	return &ct->use;
+}
+
 get_attr get_attr_array[] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -193,5 +198,6 @@ get_attr get_attr_array[] = {
 	[ATTR_ORIG_COUNTER_BYTES]	= get_attr_orig_counter_bytes,
 	[ATTR_REPL_COUNTER_PACKETS]	= get_attr_repl_counter_packets,
 	[ATTR_REPL_COUNTER_BYTES]	= get_attr_repl_counter_bytes,
+	[ATTR_USE]			= get_attr_use,
 	[ATTR_STATUS]			= get_attr_status,
 };

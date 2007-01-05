@@ -185,6 +185,12 @@ void nfct_callback_unregister(struct nfct_handle *h)
  * @ct: pointer to a valid conntrack
  * @type: attribute type
  * @value: pointer to the attribute value
+ *
+ * Note that certain attributes are unsettable:
+ * 	- ATTR_USE
+ * 	- ATTR_ID
+ * 	- ATTR_*_COUNTER_*
+ * The call of this function for such attributes do nothing.
  */
 void nfct_set_attr(struct nf_conntrack *ct,
 		   const enum nf_conntrack_attr type, 
@@ -196,8 +202,10 @@ void nfct_set_attr(struct nf_conntrack *ct,
 	if (type >= ATTR_MAX)
 		return;
 
-	set_attr_array[type](ct, value);
-	set_bit(type, ct->set);
+	if (set_attr_array[type]) {
+		set_attr_array[type](ct, value);
+		set_bit(type, ct->set);
+	}
 }
 
 /**
