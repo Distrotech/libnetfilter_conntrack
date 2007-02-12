@@ -278,8 +278,9 @@ const void *nfct_get_attr(const struct nf_conntrack *ct,
  * @ct: pointer to a valid conntrack
  * @type: attribute type
  *
- * On error, -1 is returned and errno is set appropiately, otherwise
- * the value of the attribute is returned.
+ * Returns the value of the requested attribute, if the attribute is not 
+ * set, 0 is returned. In order to check if the attribute is set or not,
+ * use nfct_attr_is_set.
  */
 u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
 			  const enum nf_conntrack_attr type)
@@ -293,8 +294,9 @@ u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
  * @ct: pointer to a valid conntrack
  * @type: attribute type
  *
- * On error, -1 is returned and errno is set appropiately, otherwise
- * the value of the attribute is returned.
+ * Returns the value of the requested attribute, if the attribute is not 
+ * set, 0 is returned. In order to check if the attribute is set or not,
+ * use nfct_attr_is_set.
  */
 u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
@@ -308,8 +310,9 @@ u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
  * @ct: pointer to a valid conntrack
  * @type: attribute type
  *
- * On error, -1 is returned and errno is set appropiately, otherwise
- * the value of the attribute is returned.
+ * Returns the value of the requested attribute, if the attribute is not 
+ * set, 0 is returned. In order to check if the attribute is set or not,
+ * use nfct_attr_is_set.
  */
 u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
