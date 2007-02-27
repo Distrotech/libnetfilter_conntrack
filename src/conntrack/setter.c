@@ -139,7 +139,7 @@ static void set_attr_mark(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_status(struct nf_conntrack *ct, const void *value)
 {
-	ct->status |= *((u_int32_t *) value);
+	ct->status = *((u_int32_t *) value);
 }
 
 set_attr set_attr_array[] = {
