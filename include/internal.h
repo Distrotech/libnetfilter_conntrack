@@ -22,6 +22,10 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
+#ifndef IPPROTO_SCTP
+#define IPPROTO_SCTP 132
+#endif
+
 struct nfct_handle;
 
 typedef void (*set_attr)(struct nf_conntrack *ct, const void *value);
