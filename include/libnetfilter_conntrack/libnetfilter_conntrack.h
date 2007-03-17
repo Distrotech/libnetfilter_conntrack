@@ -359,7 +359,7 @@ enum nf_conntrack_attr {
 	ATTR_REPL_PORT_DST,		/* u16 bits */
 	ATTR_ICMP_TYPE = 12,		/* u8 bits */
 	ATTR_ICMP_CODE,			/* u8 bits */
-	ATTR_ICMP_ID,			/* u8 bits */
+	ATTR_ICMP_ID,			/* u16 bits */
 	ATTR_ORIG_L3PROTO,		/* u8 bits */
 	ATTR_REPL_L3PROTO = 16,		/* u8 bits */
 	ATTR_ORIG_L4PROTO,		/* u8 bits */

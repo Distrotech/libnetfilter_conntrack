@@ -79,7 +79,7 @@ static void set_attr_icmp_code(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_icmp_id(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].l4src.icmp.id = *((u_int8_t *) value);
+	ct->tuple[__DIR_ORIG].l4src.icmp.id = *((u_int16_t *) value);
 }
 
 static void set_attr_orig_l3proto(struct nf_conntrack *ct, const void *value)
