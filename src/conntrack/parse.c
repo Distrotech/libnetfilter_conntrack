@@ -258,10 +258,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_STATUS-1]) {
 		ct->status = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_STATUS-1]));
-		if (ct->status & IPS_ASSURED)
-			set_bit(ATTR_STATUS, ct->set);
-		if (ct->status & IPS_SEEN_REPLY)
-			set_bit(ATTR_STATUS, ct->set);
+		set_bit(ATTR_STATUS, ct->set);
 	}
 
 	if (cda[CTA_PROTOINFO-1])
