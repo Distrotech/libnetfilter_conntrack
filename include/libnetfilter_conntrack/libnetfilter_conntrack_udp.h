@@ -8,6 +8,10 @@
 #ifndef _LIBNETFILTER_CONNTRACK_UDP_H_
 #define _LIBNETFILTER_CONNTRACK_UDP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum udp_flags {
 	UDP_ORIG_SPORT_BIT = 0,
 	UDP_ORIG_SPORT = (1 << UDP_ORIG_SPORT_BIT),
@@ -33,5 +37,9 @@ enum udp_flags {
 	UDP_EXPTUPLE_DPORT_BIT = 7,
 	UDP_EXPTUPLE_DPORT = (1 << UDP_EXPTUPLE_DPORT_BIT)
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -2,6 +2,10 @@
 #define _IPCONNTRACK_NETLINK_H
 #include <libnfnetlink/linux_nfnetlink.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum cntl_msg_types {
 	IPCTNL_MSG_CT_NEW,
 	IPCTNL_MSG_CT_GET,
@@ -133,5 +137,9 @@ enum ctattr_help {
 	__CTA_HELP_MAX
 };
 #define CTA_HELP_MAX (__CTA_HELP_MAX - 1)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _IPCONNTRACK_NETLINK_H */

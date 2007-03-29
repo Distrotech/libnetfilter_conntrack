@@ -8,6 +8,10 @@
 #ifndef _LIBNETFILTER_CONNTRACK_TCP_H_
 #define _LIBNETFILTER_CONNTRACK_TCP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum tcp_state {
 	TCP_CONNTRACK_NONE,
 	TCP_CONNTRACK_SYN_SENT,
@@ -51,5 +55,9 @@ enum tcp_flags {
 	TCP_EXPTUPLE_DPORT_BIT = 8,
 	TCP_EXPTUPLE_DPORT = (1 << TCP_EXPTUPLE_DPORT_BIT)
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

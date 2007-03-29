@@ -13,6 +13,10 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/linux_nfnetlink_conntrack.h> 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum {
 	CONNTRACK = NFNL_SUBSYS_CTNETLINK,
 	EXPECT = NFNL_SUBSYS_CTNETLINK_EXP
@@ -548,5 +552,9 @@ extern int nfct_build_query(struct nfnl_subsys_handle *ssh,
 			    const void *data,
 			    void *req,
 			    unsigned int size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _LIBNETFILTER_CONNTRACK_H_ */

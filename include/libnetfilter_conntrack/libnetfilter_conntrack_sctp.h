@@ -8,6 +8,10 @@
 #ifndef _LIBNETFILTER_CONNTRACK_SCTP_H_
 #define _LIBNETFILTER_CONNTRACK_SCTP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum sctp_flags {
 	SCTP_ORIG_SPORT_BIT = 0,
 	SCTP_ORIG_SPORT = (1 << SCTP_ORIG_SPORT_BIT),
@@ -36,5 +40,9 @@ enum sctp_flags {
 	SCTP_EXPTUPLE_DPORT_BIT = 8,
 	SCTP_EXPTUPLE_DPORT = (1 << SCTP_EXPTUPLE_DPORT_BIT)
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
