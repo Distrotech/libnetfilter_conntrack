@@ -43,13 +43,32 @@ void nfct_destroy(struct nf_conntrack *ct)
 }
 
 /**
- * nf_sizeof - return the size of a certain conntrack object
+ * nf_sizeof - return the size in bytes of a certain conntrack object
  * @ct: pointer to the conntrack object
  */
 size_t nfct_sizeof(const struct nf_conntrack *ct)
 {
 	assert(ct != NULL);
 	return sizeof(*ct);
+}
+
+/**
+ * nfct_maxsize - return the maximum size in bytes of a conntrack object
+ *
+ * Use this function if you want to allocate a conntrack object in the stack
+ * instead of the heap. For example:
+ *
+ * char buf[nfct_maxsize()];
+ * struct nf_conntrack *ct = (struct nf_conntrack *) buf;
+ * memset(ct, 0, nfct_maxsize());
+ *
+ * Note: As for now this function returns the same size that nfct_sizeof(ct)
+ * does although _this could change in the future_. Therefore, do not assume
+ * that nfct_sizeof(ct) == nfct_maxsize().
+ */
+size_t nfct_maxsize()
+{
+	return sizeof(struct nf_conntrack);
 }
 
 /**
@@ -194,7 +213,7 @@ void nfct_callback_unregister(struct nfct_handle *h)
  */
 void nfct_set_attr(struct nf_conntrack *ct,
 		   const enum nf_conntrack_attr type, 
-		   void *value)
+		   const void *value)
 {
 	assert(ct != NULL);
 	assert(value != NULL);
@@ -601,4 +620,25 @@ int nfct_snprintf(char *buf,
 	assert(ct != NULL);
 
 	return __snprintf_conntrack(buf, size, ct, msg_type, out_type, flags);
+}
+
+/**
+ * nfct_compare - compare two conntrack objects
+ * @ct1: pointer to a valid conntrack object
+ * @ct2: pointer to a valid conntrack object
+ *
+ * This function only compare attribute set in both objects, ie. if a certain
+ * attribute is not set in ct1 but it is in ct2, then the value of such 
+ * attribute is not used in the comparison.
+ *
+ * If both conntrack object are equal, this function returns 1, otherwise
+ * 0 is returned.
+ */
+int nfct_compare(const struct nf_conntrack *ct1, 
+		 const struct nf_conntrack *ct2)
+{
+	assert(ct1 != NULL);
+	assert(ct2 != NULL);
+
+	return __compare(ct1, ct2);
 }

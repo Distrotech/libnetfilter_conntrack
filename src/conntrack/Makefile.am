@@ -14,4 +14,5 @@ libnetfilter_conntrack_new_api_la_SOURCES = api.c callback.c \
 					    parse.c build.c \
 					    snprintf.c \
 					    snprintf_default.c snprintf_xml.c \
-					    objopt.c
+					    objopt.c \
+					    compare.c

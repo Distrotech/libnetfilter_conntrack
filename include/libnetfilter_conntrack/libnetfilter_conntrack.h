@@ -414,6 +414,9 @@ struct nf_conntrack *nfct_clone(const struct nf_conntrack *ct);
 /* object size */
 extern size_t nfct_sizeof(const struct nf_conntrack *ct);
 
+/* maximum object size */
+extern size_t nfct_maxsize(void);
+
 /* set option */
 enum {
 	NFCT_SOPT_UNDO_SNAT,
@@ -459,7 +462,7 @@ enum {
 /* setter */
 extern void nfct_set_attr(struct nf_conntrack *ct,
 			  const enum nf_conntrack_attr type,
-			  void *value);
+			  const void *value);
 
 extern void nfct_set_attr_u8(struct nf_conntrack *ct,
 			     const enum nf_conntrack_attr type,
@@ -516,6 +519,9 @@ extern int nfct_snprintf(char *buf,
 			 const unsigned int msg_type,
 			 const unsigned int out_type,
 			 const unsigned int out_flags);
+
+extern int nfct_compare(const struct nf_conntrack *ct1,
+			const struct nf_conntrack *ct2);
 
 /* query */
 enum nf_conntrack_query {

@@ -148,11 +148,14 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_
 int __parse_message_type(const struct nlmsghdr *nlh);
 void __parse_conntrack(const struct nlmsghdr *nlh, const struct nfattr *cda[], struct nf_conntrack *ct);
 int __snprintf_conntrack(char *buf, unsigned int len, const struct nf_conntrack *ct, unsigned int type, unsigned int msg_output, unsigned int flags);
+int __snprintf_conntrack_default(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);
+int __snprintf_conntrack_xml(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);
 
 
 int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 
 int __setobjopt(struct nf_conntrack *ct, unsigned int option);
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option);
+int __compare(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2);
 
 #endif
