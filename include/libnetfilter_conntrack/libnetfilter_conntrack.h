@@ -559,6 +559,89 @@ extern int nfct_build_query(struct nfnl_subsys_handle *ssh,
 			    void *req,
 			    unsigned int size);
 
+/* expectation object */
+struct nf_expect;
+
+/* expect attributes */
+enum nf_expect_attr {
+	ATTR_EXP_MASTER = 0,	/* pointer to conntrack object */
+	ATTR_EXP_EXPECTED,	/* pointer to conntrack object */
+	ATTR_EXP_MASK,		/* pointer to conntrack object */
+	ATTR_EXP_TIMEOUT,	/* u32 bits */
+	ATTR_EXP_MAX
+};
+
+/* constructor / destructor */
+extern struct nf_expect *nfexp_new(void);
+extern void nfexp_destroy(struct nf_expect *exp);
+
+/* clone */
+extern struct nf_expect *nfexp_clone(const struct nf_expect *exp);
+
+/* register / unregister callback */
+
+extern int nfexp_callback_register(struct nfct_handle *h,
+				   enum nf_conntrack_msg_type type,
+				   int (*cb)(enum nf_conntrack_msg_type type,
+				  	     struct nf_expect *exp,
+					     void *data),
+				   void *data);
+
+extern void nfexp_callback_unregister(struct nfct_handle *h);
+
+/* setter */
+extern void nfexp_set_attr(struct nf_expect *exp,
+			   const enum nf_expect_attr type,
+			   const void *value);
+
+extern void nfexp_set_attr_u8(struct nf_expect *exp,
+			      const enum nf_expect_attr type,
+			      u_int8_t value);
+
+extern void nfexp_set_attr_u16(struct nf_expect *exp,
+			       const enum nf_expect_attr type,
+			       u_int16_t value);
+
+extern void nfexp_set_attr_u32(struct nf_expect *exp,
+			       const enum nf_expect_attr type,
+			       u_int32_t value);
+
+/* getter */
+extern const void *nfexp_get_attr(const struct nf_expect *exp,
+				  const enum nf_expect_attr type);
+
+extern u_int8_t nfexp_get_attr_u8(const struct nf_expect *exp,
+				  const enum nf_expect_attr type);
+
+extern u_int16_t nfexp_get_attr_u16(const struct nf_expect *exp,
+				    const enum nf_expect_attr type);
+
+extern u_int32_t nfexp_get_attr_u32(const struct nf_expect *exp,
+				    const enum nf_expect_attr type);
+
+/* checker */
+extern int nfexp_attr_is_set(const struct nf_expect *exp,
+			     const enum nf_expect_attr type);
+
+/* unsetter */
+extern int nfexp_attr_unset(struct nf_expect *exp,
+			    const enum nf_expect_attr type);
+
+/* query */
+extern int nfexp_query(struct nfct_handle *h,
+		       const enum nf_conntrack_query qt,
+		       const void *data);
+
+/* print */
+extern int nfexp_snprintf(char *buf, 
+			  unsigned int size,
+			  const struct nf_expect *exp,
+			  const unsigned int msg_type,
+			  const unsigned int out_type,
+			  const unsigned int out_flags);
+
+extern int nfexp_catch(struct nfct_handle *h);
+
 #ifdef __cplusplus
 }
 #endif

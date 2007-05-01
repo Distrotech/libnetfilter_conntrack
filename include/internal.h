@@ -50,6 +50,9 @@ struct nfct_handle {
 	int(*cb)(enum nf_conntrack_msg_type type, 
 		 struct nf_conntrack *ct,
 		 void *data);
+	int(*expect_cb)(enum nf_conntrack_msg_type type, 
+			struct nf_expect *exp,
+			void *data);
 };
 
 union __nfct_l4 {
@@ -122,6 +125,17 @@ struct nf_conntrack {
 	u_int32_t set[2];
 };
 
+struct nf_expect {
+	struct nf_conntrack master;
+	struct nf_conntrack expected;
+	struct nf_conntrack mask;
+	u_int32_t timeout;
+	u_int32_t id;
+	u_int16_t expectfn_queue_id;
+
+	u_int32_t set[1];
+};
+
 /* container used to pass data to nfnl callbacks */
 struct __data_container {
 	struct nfct_handle *h;
@@ -145,9 +159,13 @@ static inline int test_bit(int nr, const u_int32_t *addr)
 }
 
 int __build_conntrack(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, u_int16_t type, u_int16_t flags, const struct nf_conntrack *ct);
+void __build_tuple(struct nfnlhdr *req, size_t size, const struct __nfct_tuple *t, const int type);
 int __parse_message_type(const struct nlmsghdr *nlh);
 void __parse_conntrack(const struct nlmsghdr *nlh, const struct nfattr *cda[], struct nf_conntrack *ct);
+void __parse_tuple(const struct nfattr *attr, struct __nfct_tuple *tuple, int dir, u_int32_t *set);
 int __snprintf_conntrack(char *buf, unsigned int len, const struct nf_conntrack *ct, unsigned int type, unsigned int msg_output, unsigned int flags);
+int __snprintf_address(char *buf, unsigned int len, const struct __nfct_tuple *tuple);
+int __snprintf_protocol(char *buf, unsigned int len, const struct nf_conntrack *ct);
 int __snprintf_conntrack_default(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);
 int __snprintf_conntrack_xml(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);
 
@@ -157,5 +175,16 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 int __setobjopt(struct nf_conntrack *ct, unsigned int option);
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option);
 int __compare(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2);
+
+typedef void (*set_exp_attr)(struct nf_expect *exp, const void *value);
+typedef const void *(*get_exp_attr)(const struct nf_expect *exp);
+
+extern set_exp_attr set_exp_attr_array[];
+extern get_exp_attr get_exp_attr_array[];
+
+int __build_expect(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, u_int16_t type, u_int16_t flags, const struct nf_expect *exp);
+int __parse_expect_message_type(const struct nlmsghdr *nlh);
+void __parse_expect(const struct nlmsghdr *nlh, const struct nfattr *cda[], struct nf_expect *exp);
+int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 
 #endif

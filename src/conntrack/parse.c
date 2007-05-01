@@ -133,10 +133,10 @@ static void __parse_proto(const struct nfattr *attr,
 	}
 }
 
-static void __parse_tuple(const struct nfattr *attr,
-			  struct __nfct_tuple *tuple, 
-			  int dir,
-			  u_int32_t *set)
+void __parse_tuple(const struct nfattr *attr,
+		   struct __nfct_tuple *tuple, 
+		   int dir,
+		   u_int32_t *set)
 {
 	struct nfattr *tb[CTA_TUPLE_MAX];
 
@@ -146,15 +146,6 @@ static void __parse_tuple(const struct nfattr *attr,
 		__parse_ip(tb[CTA_TUPLE_IP-1], tuple, dir, set);
 	if (tb[CTA_TUPLE_PROTO-1])
 		__parse_proto(tb[CTA_TUPLE_PROTO-1], tuple, dir, set);
-}
-
-static void __parse_mask(const struct nfattr *attr,
-			 struct __nfct_tuple *tuple,
-			 const u_int8_t l3protonum, 
-			 const u_int16_t protonum,
-			 u_int32_t *set)
-{
-	__parse_tuple(attr, tuple, __DIR_ORIG, set);
 }
 
 static void __parse_protoinfo_tcp(const struct nfattr *attr, 

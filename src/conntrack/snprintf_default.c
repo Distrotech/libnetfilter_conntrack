@@ -42,9 +42,9 @@ static int __snprintf_l3protocol(char *buf,
 		 ct->tuple[__DIR_ORIG].l3protonum));
 }
 
-static int __snprintf_protocol(char *buf,
-			       unsigned int len,
-			       const struct nf_conntrack *ct)
+int __snprintf_protocol(char *buf,
+			unsigned int len,
+			const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "%-8s %u ", 
 		proto2str[ct->tuple[__DIR_ORIG].protonum] == NULL ?
