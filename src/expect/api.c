@@ -43,6 +43,35 @@ void nfexp_destroy(struct nf_expect *exp)
 }
 
 /**
+ * nfexp_sizeof - return the size in bytes of a certain expect object
+ * @exp: pointer to the expect object
+ */
+size_t nfexp_sizeof(const struct nf_expect *exp)
+{
+	assert(exp != NULL);
+	return sizeof(*exp);
+}
+
+/**
+ * nfexp_maxsize - return the maximum size in bytes of a expect object
+ *
+ * Use this function if you want to allocate a expect object in the stack
+ * instead of the heap. For example:
+ *
+ * char buf[nfexp_maxsize()];
+ * struct nf_expect *exp = (struct nf_expect *) buf;
+ * memset(exp, 0, nfexp_maxsize());
+ *
+ * Note: As for now this function returns the same size that nfexp_sizeof(exp)
+ * does although _this could change in the future_. Therefore, do not assume
+ * that nfexp_sizeof(exp) == nfexp_maxsize().
+ */
+size_t nfexp_maxsize()
+{
+	return sizeof(struct nf_expect);
+}
+
+/**
  * nfexp_clone - clone a expectation object
  * @exp: pointer to a valid expectation object
  *

@@ -21,35 +21,37 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 		   u_int16_t flags,
 		   const struct nf_expect *exp)
 {
-	u_int8_t l3num = exp->master.tuple[NFCT_DIR_ORIGINAL].l3protonum;
+	u_int8_t l3num;
 
-	if (!test_bit(ATTR_ORIG_L3PROTO, exp->master.set)) {
-		errno = EINVAL;
-		return -1;
-	}
+	if (test_bit(ATTR_ORIG_L3PROTO, exp->master.set))
+		l3num = exp->master.tuple[NFCT_DIR_ORIGINAL].l3protonum;
+	else if (test_bit(ATTR_ORIG_L3PROTO, exp->expected.set))
+		l3num = exp->expected.tuple[NFCT_DIR_ORIGINAL].l3protonum;
 
 	memset(req, 0, size);
 
 	nfnl_fill_hdr(ssh, &req->nlh, 0, l3num, 0, type, flags);
 
-	__build_tuple(req,
-		      size,
-		      &exp->expected.tuple[__DIR_ORIG],
-		      CTA_EXPECT_TUPLE);
+	if (test_bit(ATTR_EXP_EXPECTED, exp->set)) {
+		__build_tuple(req,
+			      size,
+			      &exp->expected.tuple[__DIR_ORIG],
+			      CTA_EXPECT_TUPLE);
+	}
 
-	/* get and delete only require the expectation tuple */
-	if (type == IPCTNL_MSG_EXP_GET || type == IPCTNL_MSG_EXP_DELETE)
-		return 0;
+	if (test_bit(ATTR_EXP_MASTER, exp->set)) {
+		__build_tuple(req,
+			      size,
+			      &exp->master.tuple[__DIR_ORIG],
+			      CTA_EXPECT_MASTER);
+	}
 
-	__build_tuple(req,
-		      size,
-		      &exp->master.tuple[__DIR_ORIG],
-		      CTA_EXPECT_MASTER);
-	
-	__build_tuple(req,
-		      size,
-		      &exp->mask.tuple[__DIR_ORIG],
-		      CTA_EXPECT_MASK);
+	if (test_bit(ATTR_EXP_MASK, exp->set)) {
+		__build_tuple(req,
+			      size,
+			      &exp->mask.tuple[__DIR_ORIG],
+			      CTA_EXPECT_MASK);
+	}
 
 	if (test_bit(ATTR_EXP_TIMEOUT, exp->set))
 		__build_timeout(req, size, exp);

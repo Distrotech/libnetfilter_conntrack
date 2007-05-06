@@ -7,6 +7,10 @@
  * (at your option) any later version.
  *
  * libnetfilter_conntrack test file: yet incomplete
+ *
+ * XXX: This is the test file for the *old* libnetfilter_conntrack API.
+ *	Please, do not use this API for new applications since the old
+ *	API will be removed soon.
  */
 
 #include <stdio.h>

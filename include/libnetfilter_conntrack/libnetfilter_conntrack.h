@@ -56,39 +56,47 @@ struct nf_conntrack;
 
 /* conntrack attributes */
 enum nf_conntrack_attr {
-	ATTR_ORIG_IPV4_SRC = 0,		/* u32 bits */
-	ATTR_ORIG_IPV4_DST,		/* u32 bits */
-	ATTR_REPL_IPV4_SRC,		/* u32 bits */
-	ATTR_REPL_IPV4_DST,		/* u32 bits */
-	ATTR_ORIG_IPV6_SRC = 4,		/* u128 bits */
-	ATTR_ORIG_IPV6_DST,		/* u128 bits */
-	ATTR_REPL_IPV6_SRC,		/* u128 bits */
-	ATTR_REPL_IPV6_DST,		/* u128 bits */
-	ATTR_ORIG_PORT_SRC = 8,		/* u16 bits */
-	ATTR_ORIG_PORT_DST,		/* u16 bits */
-	ATTR_REPL_PORT_SRC,		/* u16 bits */
-	ATTR_REPL_PORT_DST,		/* u16 bits */
-	ATTR_ICMP_TYPE = 12,		/* u8 bits */
-	ATTR_ICMP_CODE,			/* u8 bits */
-	ATTR_ICMP_ID,			/* u16 bits */
-	ATTR_ORIG_L3PROTO,		/* u8 bits */
-	ATTR_REPL_L3PROTO = 16,		/* u8 bits */
-	ATTR_ORIG_L4PROTO,		/* u8 bits */
-	ATTR_REPL_L4PROTO,		/* u8 bits */
-	ATTR_TCP_STATE,			/* u8 bits */
-	ATTR_SNAT_IPV4 = 20,		/* u32 bits */
-	ATTR_DNAT_IPV4,			/* u32 bits */
-	ATTR_SNAT_PORT,			/* u16 bits */
-	ATTR_DNAT_PORT,			/* u16 bits */
-	ATTR_TIMEOUT = 24,		/* u32 bits */
-	ATTR_MARK,			/* u32 bits */
-	ATTR_ORIG_COUNTER_PACKETS,	/* u32 bits */
-	ATTR_REPL_COUNTER_PACKETS,	/* u32 bits */
-	ATTR_ORIG_COUNTER_BYTES = 28,	/* u32 bits */
-	ATTR_REPL_COUNTER_BYTES,	/* u32 bits */
-	ATTR_USE,			/* u32 bits */
-	ATTR_ID,			/* u32 bits */
-	ATTR_STATUS = 32,		/* u32 bits  */
+	ATTR_ORIG_IPV4_SRC = 0,			/* u32 bits */
+	ATTR_IPV4_SRC = ATTR_ORIG_IPV4_SRC,	/* alias */
+	ATTR_ORIG_IPV4_DST,			/* u32 bits */
+	ATTR_IPV4_DST = ATTR_ORIG_IPV4_DST,	/* alias */
+	ATTR_REPL_IPV4_SRC,			/* u32 bits */
+	ATTR_REPL_IPV4_DST,			/* u32 bits */
+	ATTR_ORIG_IPV6_SRC = 4,			/* u128 bits */
+	ATTR_IPV6_SRC = ATTR_ORIG_IPV6_SRC,	/* alias */
+	ATTR_ORIG_IPV6_DST,			/* u128 bits */
+	ATTR_IPV6_DST = ATTR_ORIG_IPV6_DST,	/* alias */
+	ATTR_REPL_IPV6_SRC,			/* u128 bits */
+	ATTR_REPL_IPV6_DST,			/* u128 bits */
+	ATTR_ORIG_PORT_SRC = 8,			/* u16 bits */
+	ATTR_PORT_SRC = ATTR_ORIG_PORT_SRC,	/* alias */
+	ATTR_ORIG_PORT_DST,			/* u16 bits */
+	ATTR_PORT_DST = ATTR_ORIG_PORT_DST,	/* alias */
+	ATTR_REPL_PORT_SRC,			/* u16 bits */
+	ATTR_REPL_PORT_DST,			/* u16 bits */
+	ATTR_ICMP_TYPE = 12,			/* u8 bits */
+	ATTR_ICMP_CODE,				/* u8 bits */
+	ATTR_ICMP_ID,				/* u16 bits */
+	ATTR_ORIG_L3PROTO,			/* u8 bits */
+	ATTR_L3PROTO = ATTR_ORIG_L3PROTO,	/* alias */
+	ATTR_REPL_L3PROTO = 16,			/* u8 bits */
+	ATTR_ORIG_L4PROTO,			/* u8 bits */
+	ATTR_L4PROTO = ATTR_ORIG_L4PROTO,	/* alias */
+	ATTR_REPL_L4PROTO,			/* u8 bits */
+	ATTR_TCP_STATE,				/* u8 bits */
+	ATTR_SNAT_IPV4 = 20,			/* u32 bits */
+	ATTR_DNAT_IPV4,				/* u32 bits */
+	ATTR_SNAT_PORT,				/* u16 bits */
+	ATTR_DNAT_PORT,				/* u16 bits */
+	ATTR_TIMEOUT = 24,			/* u32 bits */
+	ATTR_MARK,				/* u32 bits */
+	ATTR_ORIG_COUNTER_PACKETS,		/* u32 bits */
+	ATTR_REPL_COUNTER_PACKETS,		/* u32 bits */
+	ATTR_ORIG_COUNTER_BYTES = 28,		/* u32 bits */
+	ATTR_REPL_COUNTER_BYTES,		/* u32 bits */
+	ATTR_USE,				/* u32 bits */
+	ATTR_ID,				/* u32 bits */
+	ATTR_STATUS = 32,			/* u32 bits  */
 	ATTR_MAX
 };
 
@@ -288,6 +296,12 @@ extern void nfexp_destroy(struct nf_expect *exp);
 
 /* clone */
 extern struct nf_expect *nfexp_clone(const struct nf_expect *exp);
+
+/* object size */
+extern size_t nfexp_sizeof(const struct nf_expect *exp);
+
+/* maximum object size */
+extern size_t nfexp_maxsize(void);
 
 /* register / unregister callback */
 
