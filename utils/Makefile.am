@@ -1,16 +1,47 @@
 include $(top_srcdir)/Make_global.am
 
-bin_PROGRAMS = ctnl_test new_api_test \
+bin_PROGRAMS = ctnl_test \
 	       expect_dump expect_create expect_get expect_delete \
-	       expect_flush expect_events
-
-new_api_test_SOURCES = new_api_test.c
-new_api_test_LDADD = ../src/libnetfilter_conntrack.la
-new_api_test_LDFLAGS = -dynamic -ldl
+	       expect_flush expect_events \
+	       conntrack_create conntrack_dump conntrack_update \
+	       conntrack_delete conntrack_flush conntrack_create_nat \
+	       conntrack_get conntrack_events
 
 ctnl_test_SOURCES = ctnl_test.c
 ctnl_test_LDADD = ../src/libnetfilter_conntrack.la
 ctnl_test_LDFLAGS = -dynamic -ldl
+
+conntrack_create_SOURCES = conntrack_create.c
+conntrack_create_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_create_LDFLAGS = -dynamic -ldl
+
+conntrack_get_SOURCES = conntrack_get.c
+conntrack_get_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_get_LDFLAGS = -dynamic -ldl
+
+conntrack_create_nat_SOURCES = conntrack_create_nat.c
+conntrack_create_nat_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_create_nat_LDFLAGS = -dynamic -ldl
+
+conntrack_update_SOURCES = conntrack_update.c
+conntrack_update_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_update_LDFLAGS = -dynamic -ldl
+
+conntrack_delete_SOURCES = conntrack_delete.c
+conntrack_delete_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_delete_LDFLAGS = -dynamic -ldl
+
+conntrack_dump_SOURCES = conntrack_dump.c
+conntrack_dump_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_dump_LDFLAGS = -dynamic -ldl
+
+conntrack_flush_SOURCES = conntrack_flush.c
+conntrack_flush_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_flush_LDFLAGS = -dynamic -ldl
+
+conntrack_events_SOURCES = conntrack_events.c
+conntrack_events_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_events_LDFLAGS = -dynamic -ldl
 
 expect_dump_SOURCES = expect_dump.c
 expect_dump_LDADD = ../src/libnetfilter_conntrack.la
