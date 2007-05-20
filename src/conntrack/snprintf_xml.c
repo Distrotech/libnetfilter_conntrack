@@ -182,13 +182,13 @@ static int __snprintf_proto_xml(char *buf,
 	case IPPROTO_SCTP:
 		if (type == __ADDR_SRC) {
 			ret = snprintf(buf, len, "<sport>%u</sport>", 
-				       tuple->l4src.tcp.port);
+				       ntohs(tuple->l4src.tcp.port));
 			if (ret == -1)
 				return -1;
 			buffer_size(ret, &size, &len);
 		} else {
 			ret = snprintf(buf, len, "<dport>%u</dport>",
-				       tuple->l4dst.tcp.port);
+				       ntohs(tuple->l4dst.tcp.port));
 			if (ret == -1)
 				return -1;
 			buffer_size(ret, &size, &len);

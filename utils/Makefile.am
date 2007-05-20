@@ -1,15 +1,10 @@
 include $(top_srcdir)/Make_global.am
 
-bin_PROGRAMS = ctnl_test \
-	       expect_dump expect_create expect_get expect_delete \
+bin_PROGRAMS = expect_dump expect_create expect_get expect_delete \
 	       expect_flush expect_events \
 	       conntrack_create conntrack_dump conntrack_update \
 	       conntrack_delete conntrack_flush conntrack_create_nat \
 	       conntrack_get conntrack_events
-
-ctnl_test_SOURCES = ctnl_test.c
-ctnl_test_LDADD = ../src/libnetfilter_conntrack.la
-ctnl_test_LDFLAGS = -dynamic -ldl
 
 conntrack_create_SOURCES = conntrack_create.c
 conntrack_create_LDADD = ../src/libnetfilter_conntrack.la

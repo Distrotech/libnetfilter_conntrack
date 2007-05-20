@@ -141,8 +141,8 @@ int __snprintf_proto(char *buf,
 	case IPPROTO_UDP:
 	case IPPROTO_SCTP:
 		return snprintf(buf, len, "sport=%u dport=%u ",
-			        htons(tuple->l4src.tcp.port),
-			        htons(tuple->l4dst.tcp.port));
+			        ntohs(tuple->l4src.tcp.port),
+			        ntohs(tuple->l4dst.tcp.port));
 		break;
 	case IPPROTO_ICMP:
 		/* The ID only makes sense some ICMP messages but we want to
