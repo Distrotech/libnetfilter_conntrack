@@ -182,10 +182,18 @@ static void __parse_counters(const struct nfattr *attr,
 	struct nfattr *tb[CTA_COUNTERS_MAX];
 
 	nfnl_parse_nested(tb, CTA_COUNTERS_MAX, attr);
-	if (tb[CTA_COUNTERS32_PACKETS-1]) {
-		ct->counters[dir].packets
-			= ntohl(*(u_int32_t *)
-				NFA_DATA(tb[CTA_COUNTERS32_PACKETS-1]));
+	if (tb[CTA_COUNTERS_PACKETS-1] || tb[CTA_COUNTERS32_PACKETS-1]) {
+
+		if (tb[CTA_COUNTERS32_PACKETS-1])
+			ct->counters[dir].packets
+				= ntohl(*(u_int32_t *)
+					NFA_DATA(tb[CTA_COUNTERS32_PACKETS-1]));
+
+		if (tb[CTA_COUNTERS_PACKETS-1])
+			ct->counters[dir].packets
+				= __be64_to_cpu(*(u_int64_t *)
+					NFA_DATA(tb[CTA_COUNTERS_PACKETS-1]));
+
 		switch(dir) {
 		case __DIR_ORIG:
 			set_bit(ATTR_ORIG_COUNTER_PACKETS, ct->set);
@@ -195,10 +203,18 @@ static void __parse_counters(const struct nfattr *attr,
 			break;
 		}
 	}
-	if (tb[CTA_COUNTERS32_BYTES-1]) {
-		ct->counters[dir].bytes
-			= ntohl(*(u_int32_t *)
-				NFA_DATA(tb[CTA_COUNTERS32_BYTES-1]));
+	if (tb[CTA_COUNTERS_BYTES-1] || tb[CTA_COUNTERS32_BYTES-1]) {
+
+		if (tb[CTA_COUNTERS32_BYTES-1])
+			ct->counters[dir].bytes
+				= ntohl(*(u_int32_t *)
+					NFA_DATA(tb[CTA_COUNTERS32_BYTES-1]));
+
+		if (tb[CTA_COUNTERS_BYTES-1])
+			ct->counters[dir].bytes
+				= __be64_to_cpu(*(u_int64_t *)
+					NFA_DATA(tb[CTA_COUNTERS_BYTES-1]));
+
 		switch(dir) {
 		case __DIR_ORIG:
 			set_bit(ATTR_ORIG_COUNTER_BYTES, ct->set);
