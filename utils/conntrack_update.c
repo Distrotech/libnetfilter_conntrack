@@ -17,21 +17,15 @@ int main()
 		return 0;
 	}
 
-	nfct_set_attr_u8(ct, ATTR_ORIG_L3PROTO, AF_INET);
-	nfct_set_attr_u32(ct, ATTR_ORIG_IPV4_SRC, inet_addr("1.1.1.1"));
-	nfct_set_attr_u32(ct, ATTR_ORIG_IPV4_DST, inet_addr("2.2.2.2"));
+	nfct_set_attr_u8(ct, ATTR_L3PROTO, AF_INET);
+	nfct_set_attr_u32(ct, ATTR_IPV4_SRC, inet_addr("1.1.1.1"));
+	nfct_set_attr_u32(ct, ATTR_IPV4_DST, inet_addr("2.2.2.2"));
 	
-	nfct_set_attr_u8(ct, ATTR_ORIG_L4PROTO, IPPROTO_TCP);
-	nfct_set_attr_u16(ct, ATTR_ORIG_PORT_SRC, htons(20));
-	nfct_set_attr_u16(ct, ATTR_ORIG_PORT_DST, htons(10));
+	nfct_set_attr_u8(ct, ATTR_L4PROTO, IPPROTO_TCP);
+	nfct_set_attr_u16(ct, ATTR_PORT_SRC, htons(20));
+	nfct_set_attr_u16(ct, ATTR_PORT_DST, htons(10));
 
-	nfct_set_attr_u8(ct, ATTR_REPL_L3PROTO, AF_INET);
-	nfct_set_attr_u32(ct, ATTR_REPL_IPV4_SRC, inet_addr("2.2.2.2"));
-	nfct_set_attr_u32(ct, ATTR_REPL_IPV4_DST, inet_addr("1.1.1.1"));
-	
-	nfct_set_attr_u8(ct, ATTR_REPL_L4PROTO, IPPROTO_TCP);
-	nfct_set_attr_u16(ct, ATTR_REPL_PORT_SRC, htons(10));
-	nfct_set_attr_u16(ct, ATTR_REPL_PORT_DST, htons(20));
+	nfct_setobjopt(ct, NFCT_SOPT_SETUP_REPLY);
 
 	nfct_set_attr_u8(ct, ATTR_TCP_STATE, TCP_CONNTRACK_SYN_SENT);
 	nfct_set_attr_u32(ct, ATTR_TIMEOUT, 600);

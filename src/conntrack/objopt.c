@@ -7,6 +7,24 @@
 
 #include "internal.h"
 
+static int __autocomplete(struct nf_conntrack *ct, int dir)
+{
+	int other = (dir == __DIR_ORIG) ? __DIR_REPL : __DIR_ORIG;
+
+	ct->tuple[dir].l3protonum = ct->tuple[other].l3protonum;
+	ct->tuple[dir].protonum = ct->tuple[other].protonum;
+
+	memcpy(&ct->tuple[dir].src.v6, 
+	       &ct->tuple[other].dst.v6,
+	       sizeof(union __nfct_address));
+	memcpy(&ct->tuple[dir].dst.v6, 
+	       &ct->tuple[other].src.v6,
+	       sizeof(union __nfct_address));
+
+	ct->tuple[dir].l4src.all = ct->tuple[other].l4dst.all;
+	ct->tuple[dir].l4dst.all = ct->tuple[other].l4src.all;
+}
+
 int __setobjopt(struct nf_conntrack *ct, unsigned int option)
 {
 	switch(option) {
@@ -35,6 +53,12 @@ int __setobjopt(struct nf_conntrack *ct, unsigned int option)
 		ct->tuple[__DIR_REPL].l4src.tcp.port =
 			ct->tuple[__DIR_ORIG].l4dst.tcp.port;
 		set_bit(ATTR_DNAT_PORT, ct->set);
+		break;
+	case NFCT_SOPT_SETUP_ORIGINAL:
+		__autocomplete(ct, __DIR_ORIG);
+		break;
+	case NFCT_SOPT_SETUP_REPLY:
+		__autocomplete(ct, __DIR_REPL);
 		break;
 	}
 	return 0;

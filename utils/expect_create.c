@@ -22,21 +22,15 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	nfct_set_attr_u8(master, ATTR_ORIG_L3PROTO, AF_INET);
-	nfct_set_attr_u32(master, ATTR_ORIG_IPV4_SRC, inet_addr("1.1.1.1"));
-	nfct_set_attr_u32(master, ATTR_ORIG_IPV4_DST, inet_addr("2.2.2.2"));
+	nfct_set_attr_u8(master, ATTR_L3PROTO, AF_INET);
+	nfct_set_attr_u32(master, ATTR_IPV4_SRC, inet_addr("1.1.1.1"));
+	nfct_set_attr_u32(master, ATTR_IPV4_DST, inet_addr("2.2.2.2"));
 
-	nfct_set_attr_u8(master, ATTR_ORIG_L4PROTO, IPPROTO_TCP);
-	nfct_set_attr_u16(master, ATTR_ORIG_PORT_SRC, htons(1025));
-	nfct_set_attr_u16(master, ATTR_ORIG_PORT_DST, htons(21));
+	nfct_set_attr_u8(master, ATTR_L4PROTO, IPPROTO_TCP);
+	nfct_set_attr_u16(master, ATTR_PORT_SRC, htons(1025));
+	nfct_set_attr_u16(master, ATTR_PORT_DST, htons(21));
 
-	nfct_set_attr_u8(master, ATTR_REPL_L3PROTO, AF_INET);
-	nfct_set_attr_u32(master, ATTR_REPL_IPV4_SRC, inet_addr("2.2.2.2"));
-	nfct_set_attr_u32(master, ATTR_REPL_IPV4_DST, inet_addr("1.1.1.1"));
-
-	nfct_set_attr_u8(master, ATTR_REPL_L4PROTO, IPPROTO_TCP);
-	nfct_set_attr_u16(master, ATTR_REPL_PORT_SRC, htons(21));
-	nfct_set_attr_u16(master, ATTR_REPL_PORT_DST, htons(1025));
+	nfct_setobjopt(master, NFCT_SOPT_SETUP_REPLY);
 
 	nfct_set_attr_u8(master, ATTR_TCP_STATE, TCP_CONNTRACK_LISTEN);
 	nfct_set_attr_u32(master, ATTR_TIMEOUT, 200);
