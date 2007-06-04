@@ -252,8 +252,13 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	__build_tuple(req, size, &ct->tuple[__DIR_ORIG], CTA_TUPLE_ORIG);
 	__build_tuple(req, size, &ct->tuple[__DIR_REPL], CTA_TUPLE_REPLY);
 
-	/* always build IPS_CONFIRMED */
-	__build_status(req, size, ct);
+	if (test_bit(ATTR_STATUS, ct->set))
+		__build_status(req, size, ct);
+	else {
+		/* build IPS_CONFIRMED if we're creating a new conntrack */
+		if (type == IPCTNL_MSG_CT_NEW && flags & NLM_F_CREATE)
+			__build_status(req, size, ct);
+	}
 
 	if (test_bit(ATTR_TIMEOUT, ct->set))
 		__build_timeout(req, size, ct);
