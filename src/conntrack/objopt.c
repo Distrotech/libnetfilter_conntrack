@@ -46,26 +46,26 @@ int __getobjopt(const struct nf_conntrack *ct, unsigned int option)
 
 	switch(option) {
 	case NFCT_GOPT_IS_SNAT:
-		ret = (test_bit(ATTR_STATUS, ct->set) ? 
-		       ct->status & IPS_SRC_NAT_DONE : 1 &&
+		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
+		        ct->status & IPS_SRC_NAT_DONE : 1) &&
 		       ct->tuple[__DIR_REPL].dst.v4 != 
 		       ct->tuple[__DIR_ORIG].src.v4);
 		break;
 	case NFCT_GOPT_IS_DNAT:
-		ret = (test_bit(ATTR_STATUS, ct->set) ? 
-		       ct->status & IPS_DST_NAT_DONE : 1 &&
+		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
+		        ct->status & IPS_DST_NAT_DONE : 1) &&
 		       ct->tuple[__DIR_REPL].src.v4 !=
 		       ct->tuple[__DIR_ORIG].dst.v4);
 		break;
 	case NFCT_GOPT_IS_SPAT:
-		ret = (test_bit(ATTR_STATUS, ct->set) ? 
-		       ct->status & IPS_SRC_NAT_DONE : 1 &&
+		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
+		        ct->status & IPS_SRC_NAT_DONE : 1) &&
 		       ct->tuple[__DIR_REPL].l4dst.tcp.port !=
 		       ct->tuple[__DIR_ORIG].l4src.tcp.port);
 		break;
 	case NFCT_GOPT_IS_DPAT:
-		ret = (test_bit(ATTR_STATUS, ct->set) ? 
-		       ct->status & IPS_DST_NAT_DONE : 1 &&
+		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
+		        ct->status & IPS_DST_NAT_DONE : 1) &&
 		       ct->tuple[__DIR_REPL].l4src.tcp.port !=
 		       ct->tuple[__DIR_ORIG].l4dst.tcp.port);
 		break;
