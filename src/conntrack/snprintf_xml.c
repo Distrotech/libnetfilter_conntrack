@@ -67,12 +67,6 @@ enum {
 	__ADDR_DST,
 };
 
-static void buffer_size(int ret, unsigned int *size, unsigned int *len)
-{
-	*size += ret;
-	*len -= ret;
-}
-
 static char *__proto2str(u_int8_t protonum)
 {
 	return proto2str[protonum] ? proto2str[protonum] : "unknown";
@@ -123,45 +117,33 @@ static int __snprintf_addr_xml(char *buf,
 	switch(type) {
 	case __ADDR_SRC:
 		ret = snprintf(buf, len, "<src>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 		break;
 	case __ADDR_DST:
 		ret = snprintf(buf+size, len, "<dst>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 		break;
 	}
 
 	switch (tuple->l3protonum) {
 	case AF_INET:
 		ret = __snprintf_ipv4_xml(buf+size, len, tuple, type);
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 		break;
 	case AF_INET6:
 		ret = __snprintf_ipv6_xml(buf+size, len, tuple, type);
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 		break;
 	}
 
 	switch(type) {
 	case __ADDR_SRC:
 		ret = snprintf(buf+size, len, "</src>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 		break;
 	case __ADDR_DST:
 		ret = snprintf(buf+size, len, "</dst>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 		break;
 	}
 
@@ -183,15 +165,11 @@ static int __snprintf_proto_xml(char *buf,
 		if (type == __ADDR_SRC) {
 			ret = snprintf(buf, len, "<sport>%u</sport>", 
 				       ntohs(tuple->l4src.tcp.port));
-			if (ret == -1)
-				return -1;
-			buffer_size(ret, &size, &len);
+			BUFFER_SIZE(ret, size, len);
 		} else {
 			ret = snprintf(buf, len, "<dport>%u</dport>",
 				       ntohs(tuple->l4dst.tcp.port));
-			if (ret == -1)
-				return -1;
-			buffer_size(ret, &size, &len);
+			BUFFER_SIZE(ret, size, len);
 		}
 		break;
 	}
@@ -209,15 +187,11 @@ static int __snprintf_counters_xml(char *buf,
 
 	ret = snprintf(buf, len, "<packets>%llu</packets>",
 		       ct->counters[type].packets);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = snprintf(buf+size, len, "<bytes>%llu</bytes>",
 		       ct->counters[type].bytes);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	return size;
 }
@@ -233,76 +207,50 @@ static int __snprintf_tuple_xml(char *buf,
 
 	ret = snprintf(buf, len, "<meta direction=\"%s\">",
 		       dir == __DIR_ORIG ? "original" : "reply");
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = snprintf(buf+size, len, 
 		       "<layer3 protonum=\"%d\" protoname=\"%s\">",
 		       tuple->l3protonum, __l3proto2str(tuple->l3protonum));
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = __snprintf_addr_xml(buf+size, len, tuple, __DIR_ORIG);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = __snprintf_addr_xml(buf+size, len, tuple, __DIR_REPL);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = snprintf(buf+size, len, "</layer3>");
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = snprintf(buf+size, len, 
 		       "<layer4 protonum=\"%d\" protoname=\"%s\">",
 		       tuple->protonum, __proto2str(tuple->protonum));
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = __snprintf_proto_xml(buf+size, len, tuple, __DIR_ORIG);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = __snprintf_proto_xml(buf+size, len, tuple, __DIR_REPL);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = snprintf(buf+size, len, "</layer4>");
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	if (test_bit(ATTR_ORIG_COUNTER_PACKETS, ct->set) &&
 	    test_bit(ATTR_ORIG_COUNTER_BYTES, ct->set)) {
 		ret = snprintf(buf+size, len, "<counters>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 
 		ret = __snprintf_counters_xml(buf+size, len, ct, dir);
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 
 		ret = snprintf(buf+size, len, "</counters>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	ret = snprintf(buf+size, len, "</meta>");
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	return size;
 }
@@ -331,19 +279,13 @@ int __snprintf_conntrack_xml(char *buf,
 			break;
 	}
 
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = __snprintf_tuple_xml(buf+size, len, ct, __DIR_ORIG);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	ret = __snprintf_tuple_xml(buf+size, len, ct, __DIR_REPL);
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	if (test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
@@ -351,47 +293,35 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_STATUS, ct->set)) {
 		ret = snprintf(buf+size, len, 
 			       "<meta direction=\"independent\">");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	if (test_bit(ATTR_TIMEOUT, ct->set)) {
 		ret = snprintf(buf+size, len,
 				"<timeout>%u</timeout>", ct->timeout);
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	if (test_bit(ATTR_MARK, ct->set)) {
 		ret = snprintf(buf+size, len, "<mark>%u</mark>", ct->mark);
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	if (test_bit(ATTR_USE, ct->set)) {
 		ret = snprintf(buf+size, len, "<use>%u</use>", ct->use);
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	if (test_bit(ATTR_STATUS, ct->set)
 	    && ct->status & IPS_ASSURED) {
 		ret = snprintf(buf+size, len, "<assured/>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	if (test_bit(ATTR_STATUS, ct->set) 
 	    && !(ct->status & IPS_SEEN_REPLY)) {
 		ret = snprintf(buf+size, len, "<unreplied/>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	if (test_bit(ATTR_TIMEOUT, ct->set) ||
@@ -399,15 +329,11 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set)) {
 	    	ret = snprintf(buf+size, len, "</meta>");
-		if (ret == -1)
-			return -1;
-		buffer_size(ret, &size, &len);
+		BUFFER_SIZE(ret, size, len);
 	}
 
 	ret = snprintf(buf+size, len, "</flow>");
-	if (ret == -1)
-		return -1;
-	buffer_size(ret, &size, &len);
+	BUFFER_SIZE(ret, size, len);
 
 	return size;
 }

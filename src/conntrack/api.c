@@ -605,8 +605,9 @@ int nfct_catch(struct nfct_handle *h)
  * 	- NFCT_O_LAYER: include layer 3 information in the output, this is
  * 			*only* required by NFCT_O_DEFAULT.
  *
- * On error, -1 is returned and errno is set appropiately. Otherwise,
- * 0 is returned.
+ * This function returns the size of the information that _would_ have been 
+ * written to the buffer, even if there was no room for it. Thus, the
+ * behaviour is similar to snprintf.
  */
 int nfct_snprintf(char *buf,
 		  unsigned int size,
