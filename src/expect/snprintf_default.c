@@ -17,43 +17,31 @@ static int __snprintf_expect_proto(char *buf,
 }
 
 int __snprintf_expect_default(char *buf, 
-			      unsigned int remain,
+			      unsigned int len,
 			      const struct nf_expect *exp,
 			      unsigned int msg_type,
 			      unsigned int flags) 
 {
-	int ret = 0, size = 0;
+	int ret = 0, size = 0, offset = 0;
 
 	switch(msg_type) {
 		case NFCT_T_NEW:
-			ret = snprintf(buf, remain, "%9s ", "[NEW]");
+			ret = snprintf(buf, len, "%9s ", "[NEW]");
 			break;
 		default:
 			break;
 	}
 
-	if (ret == -1)
-		return -1;
-	size += ret;
-	remain -= ret;
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_expect_proto(buf+size, remain, exp);
-	if (ret == -1)
-		return -1;
-	size += ret;
-	remain -= ret;
+	ret = __snprintf_expect_proto(buf+offset, len, exp);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_address(buf+size, remain, &exp->expected.tuple[__DIR_ORIG]);
-	if (ret == -1)
-		return -1;
-	size += ret;
-	remain -= ret;
+	ret = __snprintf_address(buf+offset, len, &exp->expected.tuple[__DIR_ORIG]);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_proto(buf+size, remain, &exp->expected.tuple[__DIR_ORIG]);
-	if (ret == -1)
-		return -1;
-	size += ret;
-	remain -= ret;
+	ret = __snprintf_proto(buf+offset, len, &exp->expected.tuple[__DIR_ORIG]);
+	BUFFER_SIZE(ret, size, len, offset);
 
 	/* Delete the last blank space */
 	size--;

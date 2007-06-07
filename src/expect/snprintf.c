@@ -26,8 +26,7 @@ int __snprintf_expect(char *buf,
 	}
 
 	/* NULL terminated string */
-	if (snprintf(buf+size, len-size, "\0") == -1)
-		return -1;
+	buf[size+1 > len ? len-1 : size] = '\0';
 
 	return size;
 }
