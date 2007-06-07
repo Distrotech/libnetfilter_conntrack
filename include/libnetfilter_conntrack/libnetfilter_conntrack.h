@@ -249,6 +249,7 @@ enum nf_conntrack_query {
 	NFCT_Q_FLUSH,
 	NFCT_Q_DUMP,
 	NFCT_Q_DUMP_RESET,
+	NFCT_Q_CREATE_UPDATE,
 };
 
 extern int nfct_query(struct nfct_handle *h,

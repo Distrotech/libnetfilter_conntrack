@@ -428,17 +428,18 @@ int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
  * depending on the request.
  *
  * For query types:
- * 	NFCT_Q_CREATE
- * 	NFCT_Q_UPDATE
- * 	NFCT_Q_DESTROY
- * 	NFCT_Q_GET
+ * 	NFCT_Q_CREATE: add a new conntrack, if it exists, fail
+ * 	NFCT_O_CREATE_UPDATE: add a new conntrack, if it exists, update it
+ * 	NFCT_Q_UPDATE: update a conntrack
+ * 	NFCT_Q_DESTROY: destroy a conntrack
+ * 	NFCT_Q_GET: get a conntrack
  *
  * Pass a valid pointer to a conntrack object.
  *
  * For query types:
- * 	NFCT_Q_FLUSH
- * 	NFCT_Q_DUMP
- * 	NFCT_Q_DUMP_RESET
+ * 	NFCT_Q_FLUSH: flush the conntrack table
+ * 	NFCT_Q_DUMP: dump the conntrack table
+ * 	NFCT_Q_DUMP_RESET: dump the conntrack table and reset counters
  *
  * Pass a valid pointer to the protocol family (u_int8_t)
  *
@@ -482,6 +483,10 @@ int nfct_build_query(struct nfnl_subsys_handle *ssh,
 	case NFCT_Q_DUMP_RESET:
 		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_GET_CTRZERO, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_DUMP);
 		break;
+	case NFCT_Q_CREATE_UPDATE:
+		nfct_build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK, data);
+		break;
+
 	default:
 		errno = ENOTSUP;
 		return -1;
