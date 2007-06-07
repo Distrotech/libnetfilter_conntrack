@@ -158,10 +158,11 @@ static inline int test_bit(int nr, const u_int32_t *addr)
 	return ((1UL << (nr & 31)) & (addr[nr >> 5])) != 0;
 }
 
-#define BUFFER_SIZE(ret, size, len)			\
+#define BUFFER_SIZE(ret, size, len, offset)		\
+	size += ret;					\
 	if (ret > len)					\
 		ret = len;				\
-	size += ret;					\
+	offset += ret;					\
 	len -= ret;
 
 int __build_conntrack(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, u_int16_t type, u_int16_t flags, const struct nf_conntrack *ct);

@@ -112,38 +112,38 @@ static int __snprintf_addr_xml(char *buf,
 			       unsigned int type)
 {
 	int ret;
-	unsigned int size = 0;
+	unsigned int size = 0, offset = 0;
 
 	switch(type) {
 	case __ADDR_SRC:
 		ret = snprintf(buf, len, "<src>");
-		BUFFER_SIZE(ret, size, len);
+		BUFFER_SIZE(ret, size, len, offset);
 		break;
 	case __ADDR_DST:
-		ret = snprintf(buf+size, len, "<dst>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "<dst>");
+		BUFFER_SIZE(ret, size, len, offset);
 		break;
 	}
 
 	switch (tuple->l3protonum) {
 	case AF_INET:
-		ret = __snprintf_ipv4_xml(buf+size, len, tuple, type);
-		BUFFER_SIZE(ret, size, len);
+		ret = __snprintf_ipv4_xml(buf+offset, len, tuple, type);
+		BUFFER_SIZE(ret, size, len, offset);
 		break;
 	case AF_INET6:
-		ret = __snprintf_ipv6_xml(buf+size, len, tuple, type);
-		BUFFER_SIZE(ret, size, len);
+		ret = __snprintf_ipv6_xml(buf+offset, len, tuple, type);
+		BUFFER_SIZE(ret, size, len, offset);
 		break;
 	}
 
 	switch(type) {
 	case __ADDR_SRC:
-		ret = snprintf(buf+size, len, "</src>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "</src>");
+		BUFFER_SIZE(ret, size, len, offset);
 		break;
 	case __ADDR_DST:
-		ret = snprintf(buf+size, len, "</dst>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "</dst>");
+		BUFFER_SIZE(ret, size, len, offset);
 		break;
 	}
 
@@ -156,7 +156,7 @@ static int __snprintf_proto_xml(char *buf,
 				unsigned int type)
 {
 	int ret = 0;
-	unsigned int size = 0;
+	unsigned int size = 0, offset = 0;
 
 	switch(tuple->protonum) {
 	case IPPROTO_TCP:
@@ -165,11 +165,11 @@ static int __snprintf_proto_xml(char *buf,
 		if (type == __ADDR_SRC) {
 			ret = snprintf(buf, len, "<sport>%u</sport>", 
 				       ntohs(tuple->l4src.tcp.port));
-			BUFFER_SIZE(ret, size, len);
+			BUFFER_SIZE(ret, size, len, offset);
 		} else {
 			ret = snprintf(buf, len, "<dport>%u</dport>",
 				       ntohs(tuple->l4dst.tcp.port));
-			BUFFER_SIZE(ret, size, len);
+			BUFFER_SIZE(ret, size, len, offset);
 		}
 		break;
 	}
@@ -183,15 +183,15 @@ static int __snprintf_counters_xml(char *buf,
 				   unsigned int type)
 {
 	int ret;
-	unsigned int size = 0;
+	unsigned int size = 0, offset = 0;
 
 	ret = snprintf(buf, len, "<packets>%llu</packets>",
 		       ct->counters[type].packets);
-	BUFFER_SIZE(ret, size, len);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = snprintf(buf+size, len, "<bytes>%llu</bytes>",
+	ret = snprintf(buf+offset, len, "<bytes>%llu</bytes>",
 		       ct->counters[type].bytes);
-	BUFFER_SIZE(ret, size, len);
+	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
 }
@@ -202,55 +202,55 @@ static int __snprintf_tuple_xml(char *buf,
 				unsigned int dir)
 {
 	int ret;
-	unsigned int size = 0;
+	unsigned int size = 0, offset = 0;
 	const struct __nfct_tuple *tuple = &ct->tuple[dir];
 
 	ret = snprintf(buf, len, "<meta direction=\"%s\">",
 		       dir == __DIR_ORIG ? "original" : "reply");
-	BUFFER_SIZE(ret, size, len);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = snprintf(buf+size, len, 
+	ret = snprintf(buf+offset, len, 
 		       "<layer3 protonum=\"%d\" protoname=\"%s\">",
 		       tuple->l3protonum, __l3proto2str(tuple->l3protonum));
-	BUFFER_SIZE(ret, size, len);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_addr_xml(buf+size, len, tuple, __DIR_ORIG);
-	BUFFER_SIZE(ret, size, len);
+	ret = __snprintf_addr_xml(buf+offset, len, tuple, __DIR_ORIG);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_addr_xml(buf+size, len, tuple, __DIR_REPL);
-	BUFFER_SIZE(ret, size, len);
+	ret = __snprintf_addr_xml(buf+offset, len, tuple, __DIR_REPL);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = snprintf(buf+size, len, "</layer3>");
-	BUFFER_SIZE(ret, size, len);
+	ret = snprintf(buf+offset, len, "</layer3>");
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = snprintf(buf+size, len, 
+	ret = snprintf(buf+offset, len, 
 		       "<layer4 protonum=\"%d\" protoname=\"%s\">",
 		       tuple->protonum, __proto2str(tuple->protonum));
-	BUFFER_SIZE(ret, size, len);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_proto_xml(buf+size, len, tuple, __DIR_ORIG);
-	BUFFER_SIZE(ret, size, len);
+	ret = __snprintf_proto_xml(buf+offset, len, tuple, __DIR_ORIG);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_proto_xml(buf+size, len, tuple, __DIR_REPL);
-	BUFFER_SIZE(ret, size, len);
+	ret = __snprintf_proto_xml(buf+offset, len, tuple, __DIR_REPL);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = snprintf(buf+size, len, "</layer4>");
-	BUFFER_SIZE(ret, size, len);
+	ret = snprintf(buf+offset, len, "</layer4>");
+	BUFFER_SIZE(ret, size, len, offset);
 
 	if (test_bit(ATTR_ORIG_COUNTER_PACKETS, ct->set) &&
 	    test_bit(ATTR_ORIG_COUNTER_BYTES, ct->set)) {
-		ret = snprintf(buf+size, len, "<counters>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "<counters>");
+		BUFFER_SIZE(ret, size, len, offset);
 
-		ret = __snprintf_counters_xml(buf+size, len, ct, dir);
-		BUFFER_SIZE(ret, size, len);
+		ret = __snprintf_counters_xml(buf+offset, len, ct, dir);
+		BUFFER_SIZE(ret, size, len, offset);
 
-		ret = snprintf(buf+size, len, "</counters>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "</counters>");
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	ret = snprintf(buf+size, len, "</meta>");
-	BUFFER_SIZE(ret, size, len);
+	ret = snprintf(buf+offset, len, "</meta>");
+	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
 }
@@ -262,7 +262,7 @@ int __snprintf_conntrack_xml(char *buf,
 			     const unsigned int flags) 
 {
 	int ret = 0;
-	unsigned int size = 0;
+	unsigned int size = 0, offset = 0;
 
 	switch(msg_type) {
 		case NFCT_T_NEW:
@@ -279,61 +279,61 @@ int __snprintf_conntrack_xml(char *buf,
 			break;
 	}
 
-	BUFFER_SIZE(ret, size, len);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_tuple_xml(buf+size, len, ct, __DIR_ORIG);
-	BUFFER_SIZE(ret, size, len);
+	ret = __snprintf_tuple_xml(buf+offset, len, ct, __DIR_ORIG);
+	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_tuple_xml(buf+size, len, ct, __DIR_REPL);
-	BUFFER_SIZE(ret, size, len);
+	ret = __snprintf_tuple_xml(buf+offset, len, ct, __DIR_REPL);
+	BUFFER_SIZE(ret, size, len, offset);
 
 	if (test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set)) {
-		ret = snprintf(buf+size, len, 
+		ret = snprintf(buf+offset, len, 
 			       "<meta direction=\"independent\">");
-		BUFFER_SIZE(ret, size, len);
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_TIMEOUT, ct->set)) {
-		ret = snprintf(buf+size, len,
+		ret = snprintf(buf+offset, len,
 				"<timeout>%u</timeout>", ct->timeout);
-		BUFFER_SIZE(ret, size, len);
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_MARK, ct->set)) {
-		ret = snprintf(buf+size, len, "<mark>%u</mark>", ct->mark);
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "<mark>%u</mark>", ct->mark);
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_USE, ct->set)) {
-		ret = snprintf(buf+size, len, "<use>%u</use>", ct->use);
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "<use>%u</use>", ct->use);
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_STATUS, ct->set)
 	    && ct->status & IPS_ASSURED) {
-		ret = snprintf(buf+size, len, "<assured/>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "<assured/>");
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_STATUS, ct->set) 
 	    && !(ct->status & IPS_SEEN_REPLY)) {
-		ret = snprintf(buf+size, len, "<unreplied/>");
-		BUFFER_SIZE(ret, size, len);
+		ret = snprintf(buf+offset, len, "<unreplied/>");
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set)) {
-	    	ret = snprintf(buf+size, len, "</meta>");
-		BUFFER_SIZE(ret, size, len);
+	    	ret = snprintf(buf+offset, len, "</meta>");
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	ret = snprintf(buf+size, len, "</flow>");
-	BUFFER_SIZE(ret, size, len);
+	ret = snprintf(buf+offset, len, "</flow>");
+	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
 }
