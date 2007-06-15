@@ -121,7 +121,7 @@ int __snprintf_address(char *buf,
 		size = __snprintf_address_ipv4(buf, len, tuple);
 		break;
 	case AF_INET6:
-		size = __snprintf_address_ipv4(buf, len, tuple);
+		size = __snprintf_address_ipv6(buf, len, tuple);
 		break;
 	}
 
