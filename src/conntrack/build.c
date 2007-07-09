@@ -1,5 +1,5 @@
 /*
- * (C) 2006 by Pablo Neira Ayuso <pablo@netfilter.org>
+ * (C) 2006-2007 by Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
@@ -222,13 +222,6 @@ void __build_mark(struct nfnlhdr *req,
 		  const struct nf_conntrack *ct)
 {
 	nfnl_addattr32(&req->nlh, size, CTA_MARK, htonl(ct->mark));
-}
-
-void __build_id(struct nfnlhdr *req,
-		size_t size,
-		const const struct nf_conntrack *ct)
-{
-	nfnl_addattr32(&req->nlh, size, CTA_ID, htonl(ct->id));
 }
 
 int __build_conntrack(struct nfnl_subsys_handle *ssh,

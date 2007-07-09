@@ -42,6 +42,7 @@ extern struct nfct_handle *nfct_open_nfnl(struct nfnl_handle *nfnlh,
 extern int nfct_close(struct nfct_handle *cth);
 
 extern int nfct_fd(struct nfct_handle *cth);
+extern const struct nfnl_handle *nfct_nfnlh(struct nfct_handle *cth);
 
 /* 
  * NEW libnetfilter_conntrack API 
