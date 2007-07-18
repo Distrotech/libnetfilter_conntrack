@@ -46,6 +46,18 @@ int __compare(const struct nf_conntrack *ct1,
 	    ct2->tuple[__DIR_REPL].l3protonum)
 		return 0;
 
+	if (test_bit(ATTR_ORIG_L4PROTO, ct1->set) &&
+	    test_bit(ATTR_ORIG_L4PROTO, ct2->set) &&
+	    ct1->tuple[__DIR_ORIG].protonum !=
+	    ct2->tuple[__DIR_ORIG].protonum)
+		return 0;
+
+	if (test_bit(ATTR_REPL_L4PROTO, ct1->set) &&
+	    test_bit(ATTR_REPL_L4PROTO, ct2->set) &&
+	    ct1->tuple[__DIR_REPL].protonum !=
+	    ct2->tuple[__DIR_REPL].protonum)
+		return 0;
+
 	if (test_bit(ATTR_ORIG_IPV4_SRC, ct1->set) &&
 	    test_bit(ATTR_ORIG_IPV4_SRC, ct2->set) &&
 	    ct1->tuple[__DIR_ORIG].src.v4 !=
