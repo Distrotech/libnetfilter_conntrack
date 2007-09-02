@@ -264,7 +264,7 @@ const void *nfexp_get_attr(const struct nf_expect *exp,
 u_int8_t nfexp_get_attr_u8(const struct nf_expect *exp,
 			   const enum nf_expect_attr type)
 {
-	const int *ret = nfexp_get_attr(exp, type);
+	const u_int8_t *ret = nfexp_get_attr(exp, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -280,7 +280,7 @@ u_int8_t nfexp_get_attr_u8(const struct nf_expect *exp,
 u_int16_t nfexp_get_attr_u16(const struct nf_expect *exp,
 			     const enum nf_expect_attr type)
 {
-	const int *ret = nfexp_get_attr(exp, type);
+	const u_int16_t *ret = nfexp_get_attr(exp, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -296,7 +296,7 @@ u_int16_t nfexp_get_attr_u16(const struct nf_expect *exp,
 u_int32_t nfexp_get_attr_u32(const struct nf_expect *exp,
 			    const enum nf_expect_attr type)
 {
-	const int *ret = nfexp_get_attr(exp, type);
+	const u_int32_t *ret = nfexp_get_attr(exp, type);
 	return ret == NULL ? 0 : *ret;
 }
 

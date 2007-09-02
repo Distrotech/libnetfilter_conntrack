@@ -304,7 +304,7 @@ const void *nfct_get_attr(const struct nf_conntrack *ct,
 u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
 			  const enum nf_conntrack_attr type)
 {
-	const int *ret = nfct_get_attr(ct, type);
+	const u_int8_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -320,7 +320,7 @@ u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
 u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
 {
-	const int *ret = nfct_get_attr(ct, type);
+	const u_int16_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -336,7 +336,7 @@ u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
 u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
 {
-	const int *ret = nfct_get_attr(ct, type);
+	const u_int32_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
