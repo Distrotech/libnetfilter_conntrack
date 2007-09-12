@@ -160,6 +160,22 @@ static void __parse_protoinfo_tcp(const struct nfattr *attr,
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_TCP_STATE-1]);
 		set_bit(ATTR_TCP_STATE, ct->set);
 	}
+
+	if (tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]) {
+		memcpy(&ct->protoinfo.tcp.flags[0], 
+		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]),
+		       sizeof(u_int16_t));
+		set_bit(ATTR_TCP_FLAGS_ORIG, ct->set);
+		set_bit(ATTR_TCP_MASK_ORIG, ct->set);
+	}
+
+	if (tb[CTA_PROTOINFO_TCP_FLAGS_REPLY-1]) {
+		memcpy(&ct->protoinfo.tcp.flags[1], 
+		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_REPLY-1]),
+		       sizeof(u_int16_t));
+		set_bit(ATTR_TCP_FLAGS_REPL, ct->set);
+		set_bit(ATTR_TCP_MASK_REPL, ct->set);
+	}
 }
 
 static void __parse_protoinfo(const struct nfattr *attr,

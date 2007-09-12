@@ -98,6 +98,10 @@ enum nf_conntrack_attr {
 	ATTR_USE,				/* u32 bits */
 	ATTR_ID,				/* u32 bits */
 	ATTR_STATUS = 32,			/* u32 bits  */
+	ATTR_TCP_FLAGS_ORIG,			/* u8 bits */
+	ATTR_TCP_FLAGS_REPL,			/* u8 bits */
+	ATTR_TCP_MASK_ORIG,			/* u8 bits */
+	ATTR_TCP_MASK_REPL,			/* u8 bits */
 	ATTR_MAX
 };
 
@@ -426,6 +430,22 @@ enum ip_conntrack_status {
 	IPS_FIXED_TIMEOUT_BIT = 10,
 	IPS_FIXED_TIMEOUT = (1 << IPS_FIXED_TIMEOUT_BIT),
 };
+
+/*
+ * TCP flags
+ */
+
+/* Window scaling is advertised by the sender */
+#define IP_CT_TCP_FLAG_WINDOW_SCALE             0x01
+
+/* SACK is permitted by the sender */
+#define IP_CT_TCP_FLAG_SACK_PERM                0x02
+
+/* This sender sent FIN first */
+#define IP_CT_TCP_FLAG_CLOSE_INIT               0x04
+
+/* Be liberal in window checking */
+#define IP_CT_TCP_FLAG_BE_LIBERAL               0x08
 
 /* 
  * Old deprecated API, its use for new applications is *strongly discouraged* 

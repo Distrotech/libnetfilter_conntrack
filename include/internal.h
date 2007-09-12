@@ -88,9 +88,17 @@ struct __nfct_tuple {
 	union __nfct_l4 l4dst;
 };
 
+#define __DIR_ORIG 0
+#define __DIR_REPL 1
+#define __DIR_MAX __DIR_REPL+1
+
 union __nfct_protoinfo {
 	struct {
 		u_int8_t state;
+		struct {
+			u_int8_t value;
+			u_int8_t mask;
+		} flags[__DIR_MAX];
 	} tcp;
 };
 
@@ -103,10 +111,6 @@ struct __nfct_nat {
 	u_int32_t min_ip, max_ip;
 	union __nfct_l4 l4min, l4max;
 };
-
-#define __DIR_ORIG 0
-#define __DIR_REPL 1
-#define __DIR_MAX __DIR_REPL+1
 
 struct nf_conntrack {
 	struct __nfct_tuple tuple[__DIR_MAX];

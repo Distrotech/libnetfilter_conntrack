@@ -107,6 +107,26 @@ static void set_attr_tcp_state(struct nf_conntrack *ct, const void *value)
 	ct->protoinfo.tcp.state = *((u_int8_t *) value);
 }
 
+static void set_attr_tcp_flags_orig(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.tcp.flags[__DIR_ORIG].value = *((u_int8_t *) value);
+}
+
+static void set_attr_tcp_mask_orig(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.tcp.flags[__DIR_ORIG].mask = *((u_int8_t *) value);
+}
+
+static void set_attr_tcp_flags_repl(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.tcp.flags[__DIR_REPL].value = *((u_int8_t *) value);
+}
+
+static void set_attr_tcp_mask_repl(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.tcp.flags[__DIR_REPL].mask = *((u_int8_t *) value);
+}
+
 static void set_attr_snat_ipv4(struct nf_conntrack *ct, const void *value)
 {
 	ct->snat.min_ip = ct->snat.max_ip = *((u_int32_t *) value);
@@ -170,4 +190,8 @@ set_attr set_attr_array[] = {
 	[ATTR_TIMEOUT]		= set_attr_timeout,
 	[ATTR_MARK]		= set_attr_mark,
 	[ATTR_STATUS]		= set_attr_status,
+	[ATTR_TCP_FLAGS_ORIG]	= set_attr_tcp_flags_orig,
+	[ATTR_TCP_FLAGS_REPL]	= set_attr_tcp_flags_repl,
+	[ATTR_TCP_MASK_ORIG]	= set_attr_tcp_mask_orig,
+	[ATTR_TCP_MASK_REPL]	= set_attr_tcp_mask_repl,
 };

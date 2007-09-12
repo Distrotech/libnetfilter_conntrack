@@ -97,6 +97,12 @@ void __build_protoinfo(struct nfnlhdr *req,
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTOINFO_TCP_STATE,
 			       &ct->protoinfo.tcp.state, sizeof(u_int8_t));
+		nfnl_addattr_l(&req->nlh, size,
+			       CTA_PROTOINFO_TCP_FLAGS_ORIGINAL,
+			       &ct->protoinfo.tcp.flags[0], sizeof(u_int16_t));
+		nfnl_addattr_l(&req->nlh, size,
+			       CTA_PROTOINFO_TCP_FLAGS_REPLY,
+			       &ct->protoinfo.tcp.flags[1], sizeof(u_int16_t));
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 		break;
