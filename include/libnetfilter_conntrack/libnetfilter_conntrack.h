@@ -101,7 +101,15 @@ enum nf_conntrack_attr {
 	ATTR_TCP_FLAGS_ORIG,			/* u8 bits */
 	ATTR_TCP_FLAGS_REPL,			/* u8 bits */
 	ATTR_TCP_MASK_ORIG,			/* u8 bits */
-	ATTR_TCP_MASK_REPL,			/* u8 bits */
+	ATTR_TCP_MASK_REPL = 36,		/* u8 bits */
+	ATTR_MASTER_IPV4_SRC,			/* u32 bits */
+	ATTR_MASTER_IPV4_DST,			/* u32 bits */
+	ATTR_MASTER_IPV6_SRC,			/* u128 bits */
+	ATTR_MASTER_IPV6_DST = 40,		/* u128 bits */
+	ATTR_MASTER_PORT_SRC,			/* u16 bits */
+	ATTR_MASTER_PORT_DST,			/* u16 bits */
+	ATTR_MASTER_L3PROTO,			/* u8 bits */
+	ATTR_MASTER_L4PROTO = 44,		/* u8 bits */
 	ATTR_MAX
 };
 

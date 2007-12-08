@@ -251,6 +251,17 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	__build_tuple(req, size, &ct->tuple[__DIR_ORIG], CTA_TUPLE_ORIG);
 	__build_tuple(req, size, &ct->tuple[__DIR_REPL], CTA_TUPLE_REPLY);
 
+	if (test_bit(ATTR_MASTER_IPV4_SRC, ct->set) ||
+	    test_bit(ATTR_MASTER_IPV4_DST, ct->set) ||
+	    test_bit(ATTR_MASTER_IPV6_SRC, ct->set) ||
+	    test_bit(ATTR_MASTER_IPV6_DST, ct->set) ||
+	    test_bit(ATTR_MASTER_PORT_SRC, ct->set) ||
+	    test_bit(ATTR_MASTER_PORT_DST, ct->set) ||
+	    test_bit(ATTR_MASTER_L3PROTO, ct->set) ||
+	    test_bit(ATTR_MASTER_L4PROTO, ct->set))
+	    	__build_tuple(req, size, 
+			      &ct->tuple[__DIR_MASTER], CTA_TUPLE_MASTER);
+
 	if (test_bit(ATTR_STATUS, ct->set))
 		__build_status(req, size, ct);
 	else {

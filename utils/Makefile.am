@@ -4,7 +4,8 @@ noinst_PROGRAMS = expect_dump expect_create expect_get expect_delete \
 	       expect_flush expect_events \
 	       conntrack_create conntrack_dump conntrack_update \
 	       conntrack_delete conntrack_flush conntrack_create_nat \
-	       conntrack_get conntrack_events
+	       conntrack_get conntrack_events \
+	       conntrack_master
 
 conntrack_create_SOURCES = conntrack_create.c
 conntrack_create_LDADD = ../src/libnetfilter_conntrack.la
@@ -37,6 +38,10 @@ conntrack_flush_LDFLAGS = -dynamic -ldl
 conntrack_events_SOURCES = conntrack_events.c
 conntrack_events_LDADD = ../src/libnetfilter_conntrack.la
 conntrack_events_LDFLAGS = -dynamic -ldl
+
+conntrack_master_SOURCES = conntrack_master.c
+conntrack_master_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_master_LDFLAGS = -dynamic -ldl
 
 expect_dump_SOURCES = expect_dump.c
 expect_dump_LDADD = ../src/libnetfilter_conntrack.la

@@ -162,6 +162,46 @@ static void set_attr_status(struct nf_conntrack *ct, const void *value)
 	ct->status = *((u_int32_t *) value);
 }
 
+static void set_attr_master_ipv4_src(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_MASTER].src.v4 = *((u_int32_t *) value);
+}
+
+static void set_attr_master_ipv4_dst(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_MASTER].dst.v4 = *((u_int32_t *) value);
+}
+
+static void set_attr_master_ipv6_src(struct nf_conntrack *ct, const void *value)
+{
+	memcpy(&ct->tuple[__DIR_MASTER].dst.v6, value, sizeof(u_int32_t)*4);
+}
+
+static void set_attr_master_ipv6_dst(struct nf_conntrack *ct, const void *value)
+{
+	memcpy(&ct->tuple[__DIR_MASTER].src.v6, value, sizeof(u_int32_t)*4);
+}
+
+static void set_attr_master_port_src(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_MASTER].l4src.all = *((u_int16_t *) value);
+}
+
+static void set_attr_master_port_dst(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_MASTER].l4dst.all = *((u_int16_t *) value);
+}
+
+static void set_attr_master_l3proto(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_MASTER].l3protonum = *((u_int8_t *) value);
+}
+
+static void set_attr_master_l4proto(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_MASTER].protonum = *((u_int8_t *) value);
+}
+
 set_attr set_attr_array[] = {
 	[ATTR_ORIG_IPV4_SRC]	= set_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 	= set_attr_orig_ipv4_dst,
@@ -194,4 +234,12 @@ set_attr set_attr_array[] = {
 	[ATTR_TCP_FLAGS_REPL]	= set_attr_tcp_flags_repl,
 	[ATTR_TCP_MASK_ORIG]	= set_attr_tcp_mask_orig,
 	[ATTR_TCP_MASK_REPL]	= set_attr_tcp_mask_repl,
+	[ATTR_MASTER_IPV4_SRC]	= set_attr_master_ipv4_src,
+	[ATTR_MASTER_IPV4_DST]	= set_attr_master_ipv4_dst,
+	[ATTR_MASTER_IPV6_SRC]	= set_attr_master_ipv6_src,
+	[ATTR_MASTER_IPV6_DST]	= set_attr_master_ipv6_dst,
+	[ATTR_MASTER_PORT_SRC]	= set_attr_master_port_src,
+	[ATTR_MASTER_PORT_DST]	= set_attr_master_port_dst,
+	[ATTR_MASTER_L3PROTO]	= set_attr_master_l3proto,
+	[ATTR_MASTER_L4PROTO]	= set_attr_master_l4proto,
 };

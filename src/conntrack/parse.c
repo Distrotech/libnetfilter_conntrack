@@ -25,6 +25,9 @@ static void __parse_ip(const struct nfattr *attr,
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_IPV4_SRC, set);
 			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_IPV4_SRC, set);
+			break;
 		}
 	}
 
@@ -36,6 +39,9 @@ static void __parse_ip(const struct nfattr *attr,
 			break;
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_IPV4_DST, set);
+			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_IPV4_DST, set);
 			break;
 		}
 	}
@@ -50,6 +56,9 @@ static void __parse_ip(const struct nfattr *attr,
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_IPV6_SRC, set);
 			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_IPV6_SRC, set);
+			break;
 		}
 	}
 
@@ -62,6 +71,9 @@ static void __parse_ip(const struct nfattr *attr,
 			break;
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_IPV6_DST, set);
+			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_IPV6_DST, set);
 			break;
 		}
 	}
@@ -85,6 +97,9 @@ static void __parse_proto(const struct nfattr *attr,
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_L4PROTO, set);
 			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_L4PROTO, set);
+			break;
 		}
 	}
 
@@ -98,6 +113,9 @@ static void __parse_proto(const struct nfattr *attr,
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_PORT_SRC, set);
 			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_PORT_SRC, set);
+			break;
 		}
 	}
 	
@@ -110,6 +128,9 @@ static void __parse_proto(const struct nfattr *attr,
 			break;
 		case __DIR_REPL:
 			set_bit(ATTR_REPL_PORT_DST, set);
+			break;
+		case __DIR_MASTER:
+			set_bit(ATTR_MASTER_PORT_DST, set);
 			break;
 		}
 	}
@@ -278,6 +299,10 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 	if (cda[CTA_TUPLE_REPLY-1])
 		__parse_tuple(cda[CTA_TUPLE_REPLY-1], 
 			      &ct->tuple[__DIR_REPL], __DIR_REPL, ct->set);
+
+	if (cda[CTA_TUPLE_MASTER-1])
+		__parse_tuple(cda[CTA_TUPLE_MASTER-1], 
+			      &ct->tuple[__DIR_MASTER], __DIR_MASTER, ct->set);
 
 	if (cda[CTA_STATUS-1]) {
 		ct->status = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_STATUS-1]));

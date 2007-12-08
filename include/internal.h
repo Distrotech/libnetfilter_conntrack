@@ -90,7 +90,8 @@ struct __nfct_tuple {
 
 #define __DIR_ORIG 0
 #define __DIR_REPL 1
-#define __DIR_MAX __DIR_REPL+1
+#define __DIR_MASTER 2
+#define __DIR_MAX __DIR_MASTER+1
 
 union __nfct_protoinfo {
 	struct {
