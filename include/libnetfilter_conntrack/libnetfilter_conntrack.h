@@ -578,116 +578,159 @@ typedef int (*nfct_callback)(void *arg, unsigned int flags, int, void *data);
 /*
  * [Allocate|free] a conntrack
  */
-extern struct nfct_conntrack *
+extern __attribute__((deprecated))
+struct nfct_conntrack *
 nfct_conntrack_alloc(struct nfct_tuple *orig, struct nfct_tuple *reply,
 		     u_int32_t timeout, union nfct_protoinfo *proto,
 		     u_int32_t status, u_int32_t mark,
 		     u_int32_t id, struct nfct_nat *range);
-extern void nfct_conntrack_free(struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+void nfct_conntrack_free(struct nfct_conntrack *ct);
 
 /*
  * [Allocate|free] an expectation
  */
-extern struct nfct_expect *
+extern __attribute__((deprecated))
+struct nfct_expect *
 nfct_expect_alloc(struct nfct_tuple *master, struct nfct_tuple *tuple,
 		  struct nfct_tuple *mask, u_int32_t timeout, 
 		  u_int32_t id);
-extern void nfct_expect_free(struct nfct_expect *exp);
+
+extern __attribute__((deprecated))
+void nfct_expect_free(struct nfct_expect *exp);
 
 
 /*
  * [Register|unregister] callbacks
  */
-extern void nfct_register_callback(struct nfct_handle *cth,
-				   nfct_callback callback, void *data);
-extern void nfct_unregister_callback(struct nfct_handle *cth);
+extern __attribute__((deprecated)) 
+void nfct_register_callback(struct nfct_handle *cth,
+			    nfct_callback callback, void *data);
+
+extern __attribute__((deprecated))
+void nfct_unregister_callback(struct nfct_handle *cth);
 
 /*
  * callback displayers
  */
-extern int nfct_default_conntrack_display(void *, unsigned int, int, void *); 
-extern int nfct_default_conntrack_display_id(void *, unsigned int, int, void *);
-extern int nfct_default_expect_display(void *, unsigned int, int, void *);
-extern int nfct_default_expect_display_id(void *, unsigned int, int, void *);
-extern int nfct_default_conntrack_event_display(void *, unsigned int, int, 
-						void *);
+extern __attribute__((deprecated)) 
+int nfct_default_conntrack_display(void *, unsigned int, int, void *); 
+extern __attribute__((deprecated))
+int nfct_default_conntrack_display_id(void *, unsigned int, int, void *);
+extern __attribute__((deprecated))
+int nfct_default_expect_display(void *, unsigned int, int, void *);
+extern __attribute__((deprecated))
+int nfct_default_expect_display_id(void *, unsigned int, int, void *);
+extern __attribute__((deprecated))
+int nfct_default_conntrack_event_display(void *, unsigned int, int, void *);
 
 /*
  * [Create|update|get|destroy] conntracks
  */
-extern int nfct_create_conntrack(struct nfct_handle *cth, 
-				 struct nfct_conntrack *ct);
-extern int nfct_update_conntrack(struct nfct_handle *cth,
-				 struct nfct_conntrack *ct);
-extern int nfct_delete_conntrack(struct nfct_handle *cth, 
-				 struct nfct_tuple *tuple, int dir, 
-				 u_int32_t id);
-extern int nfct_get_conntrack(struct nfct_handle *cth, 
-			      struct nfct_tuple *tuple, int dir,
-			      u_int32_t id); 
+extern __attribute__((deprecated))
+int nfct_create_conntrack(struct nfct_handle *cth, 
+			  struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_update_conntrack(struct nfct_handle *cth,
+			  struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_delete_conntrack(struct nfct_handle *cth, 
+			  struct nfct_tuple *tuple, int dir, 
+			  u_int32_t id);
+extern __attribute__((deprecated))
+int nfct_get_conntrack(struct nfct_handle *cth, 
+		       struct nfct_tuple *tuple, int dir,
+		       u_int32_t id); 
 /*
  * Conntrack table dumping & zeroing
  */
-extern int nfct_dump_conntrack_table(struct nfct_handle *cth, int family);
-extern int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth, 
-						    int family);
+extern __attribute__((deprecated))
+int nfct_dump_conntrack_table(struct nfct_handle *cth, int family);
+extern __attribute__((deprecated))
+int nfct_dump_conntrack_table_reset_counters(struct nfct_handle *cth, 
+					     int family);
 
 /*
  * Conntrack event notification
  */
-extern int nfct_event_conntrack(struct nfct_handle *cth); 
+extern __attribute__((deprecated))
+int nfct_event_conntrack(struct nfct_handle *cth); 
 
 /*
  * Conntrack printing functions
  */
-extern int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct, 
-				  unsigned int flags);
-extern int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
-				     unsigned int flags);
-extern int nfct_sprintf_address(char *buf, struct nfct_tuple *t);
-extern int nfct_sprintf_proto(char *buf, struct nfct_tuple *t);
-extern int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_timeout(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_protocol(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_status_assured(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir);
-extern int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct);
-extern int nfct_sprintf_id(char *buf, u_int32_t id);
+extern __attribute__((deprecated))
+int nfct_sprintf_conntrack(char *buf, struct nfct_conntrack *ct, 
+			   unsigned int flags);
+extern __attribute__((deprecated))
+int nfct_sprintf_conntrack_id(char *buf, struct nfct_conntrack *ct,
+			      unsigned int flags);
+extern __attribute__((deprecated))
+int nfct_sprintf_address(char *buf, struct nfct_tuple *t);
+extern __attribute__((deprecated))
+int nfct_sprintf_proto(char *buf, struct nfct_tuple *t);
+extern __attribute__((deprecated))
+int nfct_sprintf_protoinfo(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_timeout(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_protocol(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_status_assured(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_status_seen_reply(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_counters(char *buf, struct nfct_conntrack *ct, int dir);
+extern __attribute__((deprecated))
+int nfct_sprintf_mark(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_use(char *buf, struct nfct_conntrack *ct);
+extern __attribute__((deprecated))
+int nfct_sprintf_id(char *buf, u_int32_t id);
 
 /*
  * Conntrack comparison
  */
-extern int nfct_conntrack_compare(struct nfct_conntrack *ct1, 
-				  struct nfct_conntrack *ct2,
-				  struct nfct_conntrack_compare *cmp);
+extern __attribute__((deprecated))
+int nfct_conntrack_compare(struct nfct_conntrack *ct1, 
+			   struct nfct_conntrack *ct2,
+			   struct nfct_conntrack_compare *cmp);
 
 /* 
  * Expectations
  */
-extern int nfct_dump_expect_list(struct nfct_handle *cth, int family);
-extern int nfct_flush_conntrack_table(struct nfct_handle *cth, int family);
-extern int nfct_get_expectation(struct nfct_handle *cth, 
-				struct nfct_tuple *tuple,
-				u_int32_t id);
-extern int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *);
-extern int nfct_delete_expectation(struct nfct_handle *cth,
-				   struct nfct_tuple *tuple, u_int32_t id);
-extern int nfct_event_expectation(struct nfct_handle *cth);
-extern int nfct_flush_expectation_table(struct nfct_handle *cth, int family);
+extern __attribute__((deprecated))
+int nfct_dump_expect_list(struct nfct_handle *cth, int family);
+extern __attribute__((deprecated))
+int nfct_flush_conntrack_table(struct nfct_handle *cth, int family);
+extern __attribute__((deprecated))
+int nfct_get_expectation(struct nfct_handle *cth, 
+			 struct nfct_tuple *tuple,
+			 u_int32_t id);
+extern __attribute__((deprecated))
+int nfct_create_expectation(struct nfct_handle *cth, struct nfct_expect *);
+extern __attribute__((deprecated))
+int nfct_delete_expectation(struct nfct_handle *cth,
+			    struct nfct_tuple *tuple, u_int32_t id);
+extern __attribute__((deprecated))
+int nfct_event_expectation(struct nfct_handle *cth);
+extern __attribute__((deprecated))
+int nfct_flush_expectation_table(struct nfct_handle *cth, int family);
 
 /*
  * expectation printing functions
  */
-extern int nfct_sprintf_expect(char *buf, struct nfct_expect *exp);
-extern int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp);
+extern __attribute__((deprecated))
+int nfct_sprintf_expect(char *buf, struct nfct_expect *exp);
+extern __attribute__((deprecated))
+int nfct_sprintf_expect_id(char *buf, struct nfct_expect *exp);
 
 /*
  * low-level functions for libnetfilter_cthelper
  */
-extern void nfct_build_tuple(struct nfnlhdr *req, int size, 
-			     struct nfct_tuple *t, int type);
+extern __attribute__((deprecated))
+void nfct_build_tuple(struct nfnlhdr *req, int size, 
+		      struct nfct_tuple *t, int type);
 
 #ifdef __cplusplus
 }
