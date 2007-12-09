@@ -7,7 +7,7 @@
 
 #include "internal.h"
 
-static int __autocomplete(struct nf_conntrack *ct, int dir)
+static void __autocomplete(struct nf_conntrack *ct, int dir)
 {
 	int other = (dir == __DIR_ORIG) ? __DIR_REPL : __DIR_ORIG;
 

@@ -27,6 +27,8 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 		l3num = exp->master.tuple[NFCT_DIR_ORIGINAL].l3protonum;
 	else if (test_bit(ATTR_ORIG_L3PROTO, exp->expected.set))
 		l3num = exp->expected.tuple[NFCT_DIR_ORIGINAL].l3protonum;
+	else
+		return -1;
 
 	memset(req, 0, size);
 
