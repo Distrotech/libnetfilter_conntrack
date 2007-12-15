@@ -97,12 +97,18 @@ void __build_protoinfo(struct nfnlhdr *req,
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTOINFO_TCP_STATE,
 			       &ct->protoinfo.tcp.state, sizeof(u_int8_t));
-		nfnl_addattr_l(&req->nlh, size,
-			       CTA_PROTOINFO_TCP_FLAGS_ORIGINAL,
-			       &ct->protoinfo.tcp.flags[0], sizeof(u_int16_t));
-		nfnl_addattr_l(&req->nlh, size,
-			       CTA_PROTOINFO_TCP_FLAGS_REPLY,
-			       &ct->protoinfo.tcp.flags[1], sizeof(u_int16_t));
+		if (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
+		    test_bit(ATTR_TCP_MASK_ORIG, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_TCP_FLAGS_ORIGINAL,
+				       &ct->protoinfo.tcp.flags[0], 
+				       sizeof(u_int16_t));
+		if (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
+		    test_bit(ATTR_TCP_MASK_REPL, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_TCP_FLAGS_REPLY,
+				       &ct->protoinfo.tcp.flags[1], 
+				       sizeof(u_int16_t));
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 		break;
@@ -276,7 +282,11 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	if (test_bit(ATTR_MARK, ct->set))
 		__build_mark(req, size, ct);
 
-	if (test_bit(ATTR_TCP_STATE, ct->set))
+	if (test_bit(ATTR_TCP_STATE, ct->set) ||
+	    (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
+	     test_bit(ATTR_TCP_MASK_ORIG, ct->set)) ||
+	    (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
+	     test_but(ATTR_TCP_MASK_REPL, ct->set)))
 		__build_protoinfo(req, size, ct);
 
 	if (test_bit(ATTR_SNAT_IPV4, ct->set) && 

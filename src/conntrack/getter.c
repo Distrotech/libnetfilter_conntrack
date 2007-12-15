@@ -107,6 +107,26 @@ static const void *get_attr_tcp_state(const struct nf_conntrack *ct)
 	return &ct->protoinfo.tcp.state;
 }
 
+static const void *get_attr_tcp_flags_orig(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.tcp.flags[__DIR_ORIG].value;
+}
+
+static const void *get_attr_tcp_mask_orig(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.tcp.flags[__DIR_ORIG].mask;
+}
+
+static const void *get_attr_tcp_flags_repl(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.tcp.flags[__DIR_REPL].value;
+}
+
+static const void *get_attr_tcp_mask_repl(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.tcp.flags[__DIR_REPL].mask;
+}
+
 static const void *get_attr_snat_ipv4(const struct nf_conntrack *ct)
 {
 	return &ct->snat.min_ip;
@@ -200,4 +220,8 @@ get_attr get_attr_array[] = {
 	[ATTR_REPL_COUNTER_BYTES]	= get_attr_repl_counter_bytes,
 	[ATTR_USE]			= get_attr_use,
 	[ATTR_STATUS]			= get_attr_status,
+	[ATTR_TCP_FLAGS_ORIG]		= get_attr_tcp_flags_orig,
+	[ATTR_TCP_FLAGS_REPL]		= get_attr_tcp_flags_repl,
+	[ATTR_TCP_MASK_ORIG]		= get_attr_tcp_mask_orig,
+	[ATTR_TCP_MASK_REPL]		= get_attr_tcp_mask_repl,
 };
