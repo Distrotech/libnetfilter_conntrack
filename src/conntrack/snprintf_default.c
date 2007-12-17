@@ -10,6 +10,7 @@
 static char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_TCP] = "tcp",
         [IPPROTO_UDP] = "udp",
+        [IPPROTO_UDPLITE] = "udplite",
         [IPPROTO_ICMP] = "icmp",
         [IPPROTO_SCTP] = "sctp"
 };
@@ -137,6 +138,7 @@ int __snprintf_proto(char *buf,
 	switch(tuple->protonum) {
 	case IPPROTO_TCP:
 	case IPPROTO_UDP:
+	case IPPROTO_UDPLITE:
 	case IPPROTO_SCTP:
 		return snprintf(buf, len, "sport=%u dport=%u ",
 			        ntohs(tuple->l4src.tcp.port),
