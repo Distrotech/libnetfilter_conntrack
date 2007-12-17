@@ -9,7 +9,7 @@ int main()
 {
 	int ret;
 	struct nfct_handle *h;
-	struct nf_conntrack *ct, *master, *expected;
+	struct nf_conntrack *ct, *expected;
 
 	/* create master conntrack */
 	ct = nfct_new();
@@ -66,12 +66,6 @@ int main()
 	nfct_set_attr_u32(ct, ATTR_TIMEOUT, 100);
 
 	/* my conntrack master is ... */
-
-	master = nfct_new();
-	if (!master) {
-		perror("nfct_new");
-		return 0;
-	}
 
 	nfct_set_attr_u8(ct, ATTR_MASTER_L3PROTO, AF_INET);
 	nfct_set_attr_u32(ct, ATTR_MASTER_IPV4_SRC, inet_addr("1.1.1.1"));
