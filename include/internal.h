@@ -26,6 +26,10 @@
 #define IPPROTO_SCTP 132
 #endif
 
+#ifndef IPPROTO_UDPLITE
+#define IPPROTO_UDPLITE 136
+#endif
+
 struct nfct_handle;
 
 typedef void (*set_attr)(struct nf_conntrack *ct, const void *value);
