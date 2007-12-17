@@ -110,6 +110,7 @@ enum nf_conntrack_attr {
 	ATTR_MASTER_PORT_DST,			/* u16 bits */
 	ATTR_MASTER_L3PROTO,			/* u8 bits */
 	ATTR_MASTER_L4PROTO = 44,		/* u8 bits */
+	ATTR_SECMARK,				/* u32 bits */
 	ATTR_MAX
 };
 

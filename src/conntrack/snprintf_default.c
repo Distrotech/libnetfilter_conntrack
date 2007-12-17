@@ -194,6 +194,13 @@ int __snprintf_mark(char *buf, unsigned int len, const struct nf_conntrack *ct)
 	return (snprintf(buf, len, "mark=%u ", ct->mark));
 }
 
+int __snprintf_secmark(char *buf, 
+		       unsigned int len, 
+		       const struct nf_conntrack *ct)
+{
+	return (snprintf(buf, len, "secmark=%u ", ct->secmark));
+}
+
 int __snprintf_use(char *buf, unsigned int len, const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "use=%u ", ct->use));
@@ -282,6 +289,11 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (test_bit(ATTR_MARK, ct->set)) {
 		ret = __snprintf_mark(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_SECMARK, ct->set)) {
+		ret = __snprintf_secmark(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

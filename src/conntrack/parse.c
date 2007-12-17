@@ -322,6 +322,11 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 		set_bit(ATTR_MARK, ct->set);
 	}
 
+	if (cda[CTA_SECMARK-1]) {
+		ct->secmark = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_MARK-1]));
+		set_bit(ATTR_SECMARK, ct->set);
+	}
+
 	if (cda[CTA_COUNTERS_ORIG-1])
 		__parse_counters(cda[CTA_COUNTERS_ORIG-1], ct, __DIR_ORIG);
 

@@ -45,6 +45,7 @@
  * 		</layer4>
  * 		<timeout>100</timeout>
  * 		<mark>1</mark>
+ * 		<secmark>0</secmark>
  * 		<use>1</use>
  * 		<assured/>
  * 	</meta>
@@ -304,6 +305,12 @@ int __snprintf_conntrack_xml(char *buf,
 
 	if (test_bit(ATTR_MARK, ct->set)) {
 		ret = snprintf(buf+offset, len, "<mark>%u</mark>", ct->mark);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_SECMARK, ct->set)) {
+		ret = snprintf(buf+offset, len, 
+				"<secmark>%u</secmark>", ct->secmark);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

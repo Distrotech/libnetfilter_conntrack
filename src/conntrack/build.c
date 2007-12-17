@@ -236,6 +236,13 @@ void __build_mark(struct nfnlhdr *req,
 	nfnl_addattr32(&req->nlh, size, CTA_MARK, htonl(ct->mark));
 }
 
+void __build_secmark(struct nfnlhdr *req,
+		     size_t size,
+		     const struct nf_conntrack *ct)
+{
+	nfnl_addattr32(&req->nlh, size, CTA_SECMARK, htonl(ct->secmark));
+}
+
 int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      struct nfnlhdr *req,
 		      size_t size,
@@ -282,11 +289,14 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	if (test_bit(ATTR_MARK, ct->set))
 		__build_mark(req, size, ct);
 
+	if (test_bit(ATTR_SECMARK, ct->set))
+		__build_secmark(req, size, ct);
+
 	if (test_bit(ATTR_TCP_STATE, ct->set) ||
 	    (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
 	     test_bit(ATTR_TCP_MASK_ORIG, ct->set)) ||
 	    (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
-	     test_but(ATTR_TCP_MASK_REPL, ct->set)))
+	     test_bit(ATTR_TCP_MASK_REPL, ct->set)))
 		__build_protoinfo(req, size, ct);
 
 	if (test_bit(ATTR_SNAT_IPV4, ct->set) && 

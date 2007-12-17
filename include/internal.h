@@ -118,6 +118,7 @@ struct nf_conntrack {
 	
 	u_int32_t 	timeout;
 	u_int32_t	mark;
+	u_int32_t	secmark;
 	u_int32_t 	status;
 	u_int32_t	use;
 	u_int32_t	id;
