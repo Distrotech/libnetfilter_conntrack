@@ -157,6 +157,11 @@ static const void *get_attr_mark(const struct nf_conntrack *ct)
 	return &ct->mark;
 }
 
+static const void *get_attr_secmark(const struct nf_conntrack *ct)
+{
+	return &ct->secmark;
+}
+
 static const void *get_attr_orig_counter_packets(const struct nf_conntrack *ct)
 {
 	return &ct->counters[__DIR_ORIG].packets;
@@ -224,4 +229,5 @@ get_attr get_attr_array[] = {
 	[ATTR_TCP_FLAGS_REPL]		= get_attr_tcp_flags_repl,
 	[ATTR_TCP_MASK_ORIG]		= get_attr_tcp_mask_orig,
 	[ATTR_TCP_MASK_REPL]		= get_attr_tcp_mask_repl,
+	[ATTR_SECMARK]			= get_attr_secmark,
 };

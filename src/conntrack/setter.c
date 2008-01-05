@@ -157,6 +157,11 @@ static void set_attr_mark(struct nf_conntrack *ct, const void *value)
 	ct->mark = *((u_int32_t *) value);
 }
 
+static void set_attr_secmark(struct nf_conntrack *ct, const void *value)
+{
+	ct->secmark = *((u_int32_t *) value);
+}
+
 static void set_attr_status(struct nf_conntrack *ct, const void *value)
 {
 	ct->status = *((u_int32_t *) value);
@@ -242,4 +247,5 @@ set_attr set_attr_array[] = {
 	[ATTR_MASTER_PORT_DST]	= set_attr_master_port_dst,
 	[ATTR_MASTER_L3PROTO]	= set_attr_master_l3proto,
 	[ATTR_MASTER_L4PROTO]	= set_attr_master_l4proto,
+	[ATTR_SECMARK]		= set_attr_secmark,
 };
