@@ -242,6 +242,9 @@ enum {
 enum {
 	NFCT_OF_SHOW_LAYER3_BIT = 0,
 	NFCT_OF_SHOW_LAYER3 = (1 << NFCT_OF_SHOW_LAYER3_BIT),
+
+	NFCT_OF_TIME_BIT = 1,
+	NFCT_OF_TIME = (1 << NFCT_OF_TIME_BIT),
 };
 
 extern int nfct_snprintf(char *buf, 

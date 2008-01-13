@@ -11,7 +11,7 @@ static int event_cb(enum nf_conntrack_msg_type type,
 	static int n = 0;
 	char buf[1024];
 
-	nfct_snprintf(buf, 1024, ct, type, NFCT_O_XML, 0);
+	nfct_snprintf(buf, 1024, ct, type, NFCT_O_XML, NFCT_OF_TIME);
 	printf("%s\n", buf);
 
 	if (++n == 10)

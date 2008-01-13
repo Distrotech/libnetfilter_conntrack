@@ -341,6 +341,46 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
+	if (flags & NFCT_OF_TIME) {
+		time_t t;
+		struct tm tm;
+
+		t = time(NULL);
+		if (localtime_r(&t, &tm) == NULL)
+			goto err_out;
+
+		ret = snprintf(buf+offset, len, "<when>");
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<hour>%d</hour>", tm.tm_hour);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<min>%02d</min>", tm.tm_min);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<sec>%02d</sec>", tm.tm_sec);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<wday>%d</wday>", 
+			       tm.tm_wday + 1);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<day>%d</day>", tm.tm_mday);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<month>%d</month>", 
+			       tm.tm_mon + 1);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "<year>%d</year>", 
+			       1900 + tm.tm_year);
+		BUFFER_SIZE(ret, size, len, offset);
+
+		ret = snprintf(buf+offset, len, "</when>");
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+err_out:
 	ret = snprintf(buf+offset, len, "</flow>");
 	BUFFER_SIZE(ret, size, len, offset);
 

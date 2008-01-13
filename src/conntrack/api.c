@@ -607,8 +607,9 @@ int nfct_catch(struct nfct_handle *h)
  * 	- NFCT_O_XML: XML output
  *
  * The output flags are:
- * 	- NFCT_O_LAYER: include layer 3 information in the output, this is
- * 			*only* required by NFCT_O_DEFAULT.
+ * 	- NFCT_OF_SHOW_LAYER3: include layer 3 information in the output, 
+ * 	   this is *only* required by NFCT_O_DEFAULT.
+ * 	- NFCT_OF_TIME: display time.
  *
  * This function returns the size of the information that _would_ have been 
  * written to the buffer, even if there was no room for it. Thus, the
