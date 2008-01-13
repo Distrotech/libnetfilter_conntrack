@@ -70,5 +70,5 @@ LIBNFCONNTRACK_LIBS="$LIBNFNETLINK_LIBS"
 AC_SUBST(LIBNFCONNTRACK_LIBS)
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile l3extensions/Makefile extensions/Makefile src/conntrack/Makefile src/expect/Makefile libnetfilter_conntrack.pc)
+AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile include/libnetfilter_conntrack/Makefile src/conntrack/Makefile src/expect/Makefile src/deprecated/Makefile src/deprecated/l3extensions/Makefile src/deprecated/extensions/Makefile libnetfilter_conntrack.pc)
 
