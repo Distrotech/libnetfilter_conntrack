@@ -263,6 +263,53 @@ static void __parse_counters(const struct nfattr *attr,
 	}
 }
 
+static void 
+__parse_nat_seq(const struct nfattr *attr, struct nf_conntrack *ct, int dir)
+{
+	struct nfattr *tb[CTA_NAT_SEQ_MAX];
+
+	nfnl_parse_nested(tb, CTA_NAT_SEQ_MAX, attr);
+
+	if (tb[CTA_NAT_SEQ_CORRECTION_POS-1]) {
+		ct->tuple[dir].natseq.correction_pos =
+		ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_CORRECTION_POS-1]));
+		switch(dir) {
+		case __DIR_ORIG:
+			set_bit(ATTR_ORIG_NAT_SEQ_CORRECTION_POS, ct->set);
+			break;
+		case __DIR_REPL:
+			set_bit(ATTR_REPL_NAT_SEQ_CORRECTION_POS, ct->set);
+			break;
+		}
+	}
+					
+	if (tb[CTA_NAT_SEQ_OFFSET_BEFORE-1]) {
+		ct->tuple[dir].natseq.offset_before =
+		ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_OFFSET_BEFORE-1]));
+		switch(dir) {
+		case __DIR_ORIG:
+			set_bit(ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE, ct->set);
+			break;
+		case __DIR_REPL:
+			set_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->set);
+			break;
+		}
+	}
+
+	if (tb[CTA_NAT_SEQ_OFFSET_AFTER-1]) {
+		ct->tuple[dir].natseq.offset_after =
+		ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_OFFSET_AFTER-1]));
+		switch(dir) {
+		case __DIR_ORIG:
+			set_bit(ATTR_ORIG_NAT_SEQ_OFFSET_AFTER, ct->set);
+			break;
+		case __DIR_REPL:
+			set_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->set);
+			break;
+		}
+	}
+}
+
 int __parse_message_type(const struct nlmsghdr *nlh)
 {
 	u_int16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
@@ -303,6 +350,12 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 	if (cda[CTA_TUPLE_MASTER-1])
 		__parse_tuple(cda[CTA_TUPLE_MASTER-1], 
 			      &ct->tuple[__DIR_MASTER], __DIR_MASTER, ct->set);
+
+	if (cda[CTA_NAT_SEQ_ADJ_ORIG-1])
+		__parse_nat_seq(cda[CTA_NAT_SEQ_ADJ_ORIG-1], ct, __DIR_ORIG);
+
+	if (cda[CTA_NAT_SEQ_ADJ_REPLY-1])
+		__parse_nat_seq(cda[CTA_NAT_SEQ_ADJ_REPLY-1], ct, __DIR_REPL);
 
 	if (cda[CTA_STATUS-1]) {
 		ct->status = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_STATUS-1]));

@@ -91,6 +91,12 @@ struct __nfct_tuple {
 	u_int8_t protonum;
 	union __nfct_l4 l4src;
 	union __nfct_l4 l4dst;
+
+	struct {
+		u_int32_t correction_pos;
+		u_int32_t offset_before;
+		u_int32_t offset_after;
+	} natseq;
 };
 
 #define __DIR_ORIG 0

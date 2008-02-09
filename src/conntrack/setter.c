@@ -207,6 +207,36 @@ static void set_attr_master_l4proto(struct nf_conntrack *ct, const void *value)
 	ct->tuple[__DIR_MASTER].protonum = *((u_int8_t *) value);
 }
 
+static void set_attr_orig_cor_pos(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_ORIG].natseq.correction_pos = *((u_int32_t *) value);
+}
+
+static void set_attr_orig_off_bfr(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_ORIG].natseq.offset_before = *((u_int32_t *) value);
+}
+
+static void set_attr_orig_off_aft(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_ORIG].natseq.offset_after = *((u_int32_t *) value);
+}
+
+static void set_attr_repl_cor_pos(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_REPL].natseq.correction_pos = *((u_int32_t *) value);
+}
+
+static void set_attr_repl_off_bfr(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_REPL].natseq.offset_before = *((u_int32_t *) value);
+}
+
+static void set_attr_repl_off_aft(struct nf_conntrack *ct, const void *value)
+{
+	ct->tuple[__DIR_REPL].natseq.offset_after = *((u_int32_t *) value);
+}
+
 set_attr set_attr_array[] = {
 	[ATTR_ORIG_IPV4_SRC]	= set_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 	= set_attr_orig_ipv4_dst,
@@ -248,4 +278,10 @@ set_attr set_attr_array[] = {
 	[ATTR_MASTER_L3PROTO]	= set_attr_master_l3proto,
 	[ATTR_MASTER_L4PROTO]	= set_attr_master_l4proto,
 	[ATTR_SECMARK]		= set_attr_secmark,
+	[ATTR_ORIG_NAT_SEQ_CORRECTION_POS] 	= set_attr_orig_cor_pos,
+	[ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE] 	= set_attr_orig_off_aft,
+	[ATTR_ORIG_NAT_SEQ_OFFSET_AFTER] 	= set_attr_orig_off_bfr,
+	[ATTR_REPL_NAT_SEQ_CORRECTION_POS] 	= set_attr_repl_cor_pos,
+	[ATTR_REPL_NAT_SEQ_OFFSET_BEFORE] 	= set_attr_repl_off_aft,
+	[ATTR_REPL_NAT_SEQ_OFFSET_AFTER] 	= set_attr_repl_off_bfr,
 };

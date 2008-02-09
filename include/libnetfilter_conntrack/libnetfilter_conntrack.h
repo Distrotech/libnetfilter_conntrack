@@ -111,6 +111,12 @@ enum nf_conntrack_attr {
 	ATTR_MASTER_L3PROTO,			/* u8 bits */
 	ATTR_MASTER_L4PROTO = 44,		/* u8 bits */
 	ATTR_SECMARK,				/* u32 bits */
+	ATTR_ORIG_NAT_SEQ_CORRECTION_POS,	/* u32 bits */
+	ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE,	/* u32 bits */
+	ATTR_ORIG_NAT_SEQ_OFFSET_AFTER = 48,	/* u32 bits */
+	ATTR_REPL_NAT_SEQ_CORRECTION_POS,	/* u32 bits */
+	ATTR_REPL_NAT_SEQ_OFFSET_BEFORE,	/* u32 bits */
+	ATTR_REPL_NAT_SEQ_OFFSET_AFTER,		/* u32 bits */
 	ATTR_MAX
 };
 

@@ -192,6 +192,36 @@ static const void *get_attr_use(const struct nf_conntrack *ct)
 	return &ct->use;
 }
 
+static const void *get_attr_orig_cor_pos(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_ORIG].natseq.correction_pos;
+}
+
+static const void *get_attr_orig_off_bfr(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_ORIG].natseq.offset_before;
+}
+
+static const void *get_attr_orig_off_aft(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_ORIG].natseq.offset_after;
+}
+
+static const void *get_attr_repl_cor_pos(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_REPL].natseq.correction_pos;
+}
+
+static const void *get_attr_repl_off_bfr(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_REPL].natseq.offset_before;
+}
+
+static const void *get_attr_repl_off_aft(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_REPL].natseq.offset_after;
+}
+
 get_attr get_attr_array[] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -230,4 +260,10 @@ get_attr get_attr_array[] = {
 	[ATTR_TCP_MASK_ORIG]		= get_attr_tcp_mask_orig,
 	[ATTR_TCP_MASK_REPL]		= get_attr_tcp_mask_repl,
 	[ATTR_SECMARK]			= get_attr_secmark,
+	[ATTR_ORIG_NAT_SEQ_CORRECTION_POS]	= get_attr_orig_cor_pos,
+	[ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE]	= get_attr_orig_off_bfr,
+	[ATTR_ORIG_NAT_SEQ_OFFSET_AFTER]	= get_attr_orig_off_aft,
+	[ATTR_REPL_NAT_SEQ_CORRECTION_POS]	= get_attr_repl_cor_pos,
+	[ATTR_REPL_NAT_SEQ_OFFSET_BEFORE]	= get_attr_repl_off_bfr,
+	[ATTR_REPL_NAT_SEQ_OFFSET_AFTER]	= get_attr_repl_off_aft,
 };

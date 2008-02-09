@@ -117,6 +117,41 @@ void __build_protoinfo(struct nfnlhdr *req,
 	}
 }
 
+static inline void 
+__nat_seq_adj(struct nfnlhdr *req,
+	      size_t size,
+	      const struct nf_conntrack *ct,
+	      int dir)
+{
+	nfnl_addattr32(&req->nlh, 
+		       size, 
+		       CTA_NAT_SEQ_CORRECTION_POS,
+		       htonl(ct->tuple[dir].natseq.correction_pos));
+	nfnl_addattr32(&req->nlh, 
+		       size, 
+		       CTA_NAT_SEQ_OFFSET_BEFORE,
+		       htonl(ct->tuple[dir].natseq.offset_before));
+	nfnl_addattr32(&req->nlh, 
+		       size, 
+		       CTA_NAT_SEQ_OFFSET_AFTER,
+		       htonl(ct->tuple[dir].natseq.offset_after));
+}
+
+static void 
+__build_nat_seq_adj(struct nfnlhdr *req, 
+		    size_t size,
+		    const struct nf_conntrack *ct,
+		    int dir)
+{
+	struct nfattr *nest;
+	int type = (dir == __DIR_ORIG) ? CTA_NAT_SEQ_ADJ_ORIG : 
+					 CTA_NAT_SEQ_ADJ_REPLY;
+
+	nest = nfnl_nest(&req->nlh, size, type);
+	__nat_seq_adj(req, size, ct, dir);
+	nfnl_nest_end(&req->nlh, nest);
+}
+
 void __build_protonat(struct nfnlhdr *req,
 		      size_t size,
 		      const struct nf_conntrack *ct,
@@ -314,6 +349,16 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		__build_dnat_ipv4(req, size, ct);
 	else if (test_bit(ATTR_DNAT_PORT, ct->set))
 		__build_dnat_port(req, size, ct);
+
+	if (test_bit(ATTR_ORIG_NAT_SEQ_CORRECTION_POS, ct->set) &&
+	    test_bit(ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE, ct->set) &&
+	    test_bit(ATTR_ORIG_NAT_SEQ_OFFSET_AFTER, ct->set))
+	    	__build_nat_seq_adj(req, size, ct, __DIR_ORIG);
+
+	if (test_bit(ATTR_REPL_NAT_SEQ_CORRECTION_POS, ct->set) &&
+	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->set) &&
+	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->set))
+	    	__build_nat_seq_adj(req, size, ct, __DIR_REPL);
 
 	return 0;
 }
