@@ -76,7 +76,7 @@ static int compare(struct nfct_conntrack *ct1,
 	return 1;
 }
 
-static struct nfct_l3proto ipv4 = {
+struct nfct_l3proto ipv4 = {
 	.name			= "ipv4",
 	.protonum		= AF_INET,
 	.parse_proto		= parse_proto,
@@ -85,10 +85,3 @@ static struct nfct_l3proto ipv4 = {
 	.compare		= compare,
 	.version		= VERSION
 };
-
-static void __attribute__ ((constructor)) init(void);
-
-static void init(void)
-{
-        nfct_register_l3proto(&ipv4);
-}

@@ -43,6 +43,17 @@ static char *l3proto2str[AF_MAX] = {
 static struct nfct_proto *findproto(char *name);
 static struct nfct_l3proto *findl3proto(char *name);
 
+void deprecated_backward_support()
+{
+	nfct_register_l3proto(&ipv4);
+	nfct_register_l3proto(&ipv6);
+
+	nfct_register_proto(&tcp);
+	nfct_register_proto(&udp);
+	nfct_register_proto(&icmp);
+	nfct_register_proto(&sctp);
+}
+
 /* handler used for nfnl_listen */
 static int callback_handler(struct sockaddr_nl *nladdr,
 			    struct nlmsghdr *n, void *arg)
@@ -207,10 +218,6 @@ static struct nfct_proto *findproto(char *name)
 	if (!name) 
 		return handler;
 
-	lib_dir = getenv("LIBNETFILTER_CONNTRACK_DIR");
-	if (!lib_dir)
-		lib_dir = LIBNETFILTER_CONNTRACK_DIR;
-
 	list_for_each(i, &proto_list) {
 		cur = (struct nfct_proto *) i;
 		if (strcmp(cur->name, name) == 0) {
@@ -219,15 +226,9 @@ static struct nfct_proto *findproto(char *name)
 		}
 	}
 
-	if (!handler) {
-		char path[sizeof("nfct_proto_.so") + strlen(VERSION)
-			 + strlen(name) + strlen(lib_dir)];
-                sprintf(path, "%s/nfct_proto_%s-%s.so", lib_dir, name, VERSION);
-		if (dlopen(path, RTLD_NOW))
-			handler = findproto(name);
-		else
-			fprintf(stderr, "%s\n", dlerror());
-	}
+	if (!handler)
+		fprintf(stderr, "libnetfilter_conntrack: "
+				"cannot find %s handler\n", name);
 
 	return handler;
 }
@@ -240,10 +241,6 @@ static struct nfct_l3proto *findl3proto(char *name)
 	if (!name) 
 		return handler;
 
-	lib_dir = getenv("LIBNETFILTER_CONNTRACK_DIR");
-	if (!lib_dir)
-		lib_dir = LIBNETFILTER_CONNTRACK_DIR;
-
 	list_for_each(i, &l3proto_list) {
 		cur = (struct nfct_l3proto *) i;
 		if (strcmp(cur->name, name) == 0) {
@@ -252,15 +249,9 @@ static struct nfct_l3proto *findl3proto(char *name)
 		}
 	}
 
-	if (!handler) {
-		char path[sizeof("nfct_l3proto_.so") + strlen(VERSION)
-			 + strlen(name) + strlen(lib_dir)];
-                sprintf(path, "%s/nfct_l3proto_%s-%s.so",lib_dir,name,VERSION);
-		if (dlopen(path, RTLD_NOW))
-			handler = findl3proto(name);
-		else
-			fprintf(stderr, "%s\n", dlerror());
-	}
+	if (!handler)
+		fprintf(stderr, "libnetfilter_conntrack: "
+				"cannot find %s handler\n", name);
 
 	return handler;
 }

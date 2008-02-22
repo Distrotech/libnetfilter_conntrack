@@ -72,7 +72,7 @@ static int compare(struct nfct_conntrack *ct1,
 	return 1;
 }
 
-static struct nfct_proto icmp = {
+struct nfct_proto icmp = {
 	.name 			= "icmp",
 	.protonum		= IPPROTO_ICMP,
 	.parse_proto		= parse_proto,
@@ -81,10 +81,3 @@ static struct nfct_proto icmp = {
 	.compare		= compare,
 	.version		= VERSION
 };
-
-static void __attribute__ ((constructor)) init(void);
-
-static void init(void)
-{
-	nfct_register_proto(&icmp);
-}

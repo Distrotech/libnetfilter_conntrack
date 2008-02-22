@@ -100,7 +100,7 @@ static int __snprintf_ipv6_xml(char *buf,
 	static char tmp[INET6_ADDRSTRLEN];
 	const void *p = (type == __ADDR_SRC) ? &tuple->src.v6 : &tuple->dst.v6;
 
-	memcpy(&addr.in6_u, p, sizeof(struct in6_addr));
+	memcpy(&addr, p, sizeof(struct in6_addr));
 
 	if (!inet_ntop(AF_INET6, &addr, tmp, sizeof(tmp)))
 		return -1;

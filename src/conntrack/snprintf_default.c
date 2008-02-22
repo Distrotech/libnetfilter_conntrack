@@ -93,8 +93,8 @@ int __snprintf_address_ipv6(char *buf,
 	struct in6_addr dst;
 	char tmp[INET6_ADDRSTRLEN];
 
-	memcpy(&src.in6_u, &tuple->src.v6, sizeof(struct in6_addr));
-	memcpy(&dst.in6_u, &tuple->dst.v6, sizeof(struct in6_addr));
+	memcpy(&src, &tuple->src.v6, sizeof(struct in6_addr));
+	memcpy(&dst, &tuple->dst.v6, sizeof(struct in6_addr));
 
 	if (!inet_ntop(AF_INET6, &src, tmp, sizeof(tmp)))
 		return -1;

@@ -48,8 +48,8 @@ static int print_proto(char *buf, struct nfct_tuple *tuple)
 	char tmp[INET6_ADDRSTRLEN];
 	int size;
 
-	memcpy(&src.in6_u, tuple->src.v6, sizeof(struct in6_addr));
-	memcpy(&dst.in6_u, tuple->dst.v6, sizeof(struct in6_addr));
+	memcpy(&src, tuple->src.v6, sizeof(struct in6_addr));
+	memcpy(&dst, tuple->dst.v6, sizeof(struct in6_addr));
 
 	if (!inet_ntop(AF_INET6, &src, tmp, sizeof(tmp)))
 		return 0;
@@ -97,7 +97,7 @@ static int compare(struct nfct_conntrack *ct1,
 	return 1;
 }
 
-static struct nfct_l3proto ipv6 = {
+struct nfct_l3proto ipv6 = {
 	.name			= "ipv6",
 	.protonum		= AF_INET6,
 	.parse_proto		= parse_proto,
@@ -106,10 +106,3 @@ static struct nfct_l3proto ipv6 = {
 	.compare		= compare,
 	.version		= VERSION
 };
-
-static void __attribute__ ((constructor)) init(void);
-
-static void init(void)
-{
-        nfct_register_l3proto(&ipv6);
-}

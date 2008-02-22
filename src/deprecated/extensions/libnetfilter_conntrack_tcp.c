@@ -121,7 +121,7 @@ static int compare(struct nfct_conntrack *ct1,
 	return 1;
 }
 
-static struct nfct_proto tcp = {
+struct nfct_proto tcp = {
 	.name 			= "tcp",
 	.protonum		= IPPROTO_TCP,
 	.parse_protoinfo	= parse_protoinfo,
@@ -133,10 +133,3 @@ static struct nfct_proto tcp = {
 	.compare		= compare,
 	.version		= VERSION
 };
-
-static void __attribute__ ((constructor)) init(void);
-
-static void init(void)
-{
-	nfct_register_proto(&tcp);
-}

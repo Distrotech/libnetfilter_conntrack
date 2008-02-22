@@ -13,7 +13,6 @@ lib_LTLIBRARIES = libnetfilter_conntrack.la
 
 libnetfilter_conntrack_la_LIBADD = conntrack/libnfconntrack.la \
 				   expect/libnfexpect.la \
-			# deprecated extensions: scheduled to be removed
 			deprecated/l3extensions/libnfct_l3proto_ipv4.la \
 			deprecated/l3extensions/libnfct_l3proto_ipv6.la \
 			deprecated/extensions/libnfct_proto_tcp.la \

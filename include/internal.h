@@ -214,4 +214,13 @@ int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 int __snprintf_expect(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int type, unsigned int msg_output, unsigned int flags);
 int __snprintf_expect_default(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int msg_type, unsigned int flags);
 
+/* backward compatibility of the deprecated API */
+extern struct nfct_l3proto ipv4;
+extern struct nfct_l3proto ipv6;
+
+extern struct nfct_proto tcp;
+extern struct nfct_proto udp;
+extern struct nfct_proto sctp;
+extern struct nfct_proto icmp;
+
 #endif
