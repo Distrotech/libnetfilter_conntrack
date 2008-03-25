@@ -55,6 +55,7 @@ void __build_tuple_proto(struct nfnlhdr *req,
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,
 			       &t->l4dst.tcp.port, sizeof(u_int16_t));
 		break;
+
 	case IPPROTO_ICMP:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_CODE,
 			       &t->l4dst.icmp.code, sizeof(u_int8_t));
@@ -63,6 +64,16 @@ void __build_tuple_proto(struct nfnlhdr *req,
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
 			       &t->l4src.icmp.id, sizeof(u_int16_t));
 		break;
+
+	case IPPROTO_ICMPV6:
+		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMPV6_CODE,
+			       &t->l4dst.icmp.code, sizeof(u_int8_t));
+		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMPV6_TYPE,
+			       &t->l4dst.icmp.type, sizeof(u_int8_t));
+		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMPV6_ID,
+			       &t->l4src.icmp.id, sizeof(u_int16_t));
+		break;
+
 	default:
 		break;
 	}

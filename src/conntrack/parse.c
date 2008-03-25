@@ -152,6 +152,24 @@ static void __parse_proto(const struct nfattr *attr,
 			*(u_int16_t *)NFA_DATA(tb[CTA_PROTO_ICMP_ID-1]);
 		set_bit(ATTR_ICMP_ID, set);
 	}
+
+	if (tb[CTA_PROTO_ICMPV6_TYPE-1]) {
+		tuple->l4dst.icmp.type =
+			*(u_int8_t *)NFA_DATA(tb[CTA_PROTO_ICMPV6_TYPE-1]);
+		set_bit(ATTR_ICMP_TYPE, set);
+	}
+	
+	if (tb[CTA_PROTO_ICMPV6_CODE-1]) {
+		tuple->l4dst.icmp.code =
+			*(u_int8_t *)NFA_DATA(tb[CTA_PROTO_ICMPV6_CODE-1]);
+		set_bit(ATTR_ICMP_CODE, set);
+	}
+	
+	if (tb[CTA_PROTO_ICMPV6_ID-1]) {
+		tuple->l4src.icmp.id =
+			*(u_int16_t *)NFA_DATA(tb[CTA_PROTO_ICMPV6_ID-1]);
+		set_bit(ATTR_ICMP_ID, set);
+	}
 }
 
 void __parse_tuple(const struct nfattr *attr,

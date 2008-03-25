@@ -12,6 +12,7 @@ static char *proto2str[IPPROTO_MAX] = {
         [IPPROTO_UDP] = "udp",
         [IPPROTO_UDPLITE] = "udplite",
         [IPPROTO_ICMP] = "icmp",
+        [IPPROTO_ICMPV6] = "icmpv6",
         [IPPROTO_SCTP] = "sctp"
 };
 
@@ -144,7 +145,9 @@ int __snprintf_proto(char *buf,
 			        ntohs(tuple->l4src.tcp.port),
 			        ntohs(tuple->l4dst.tcp.port));
 		break;
+
 	case IPPROTO_ICMP:
+	case IPPROTO_ICMPV6:
 		/* The ID only makes sense some ICMP messages but we want to
 		 * display the same output that /proc/net/ip_conntrack does */
 		return (snprintf(buf, len, "type=%d code=%d id=%d ",
