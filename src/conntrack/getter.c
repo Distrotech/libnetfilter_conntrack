@@ -192,6 +192,11 @@ static const void *get_attr_use(const struct nf_conntrack *ct)
 	return &ct->use;
 }
 
+static const void *get_attr_id(const struct nf_conntrack *ct)
+{
+	return &ct->id;
+}
+
 static const void *get_attr_orig_cor_pos(const struct nf_conntrack *ct)
 {
 	return &ct->tuple[__DIR_ORIG].natseq.correction_pos;
@@ -254,6 +259,7 @@ get_attr get_attr_array[] = {
 	[ATTR_REPL_COUNTER_PACKETS]	= get_attr_repl_counter_packets,
 	[ATTR_REPL_COUNTER_BYTES]	= get_attr_repl_counter_bytes,
 	[ATTR_USE]			= get_attr_use,
+	[ATTR_ID]			= get_attr_id,
 	[ATTR_STATUS]			= get_attr_status,
 	[ATTR_TCP_FLAGS_ORIG]		= get_attr_tcp_flags_orig,
 	[ATTR_TCP_FLAGS_REPL]		= get_attr_tcp_flags_repl,
