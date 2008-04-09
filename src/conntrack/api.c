@@ -548,7 +548,7 @@ int nfct_parse_conntrack(enum nf_conntrack_msg_type type,
 }
 
 /**
- * nfct_query - send a query to ctnetlin
+ * nfct_query - send a query to ctnetlink and handle the reply
  * @h: library handler
  * @qt: query type
  * @data: data required to send the query
@@ -572,6 +572,37 @@ int nfct_query(struct nfct_handle *h,
 
 	return nfnl_query(h->nfnlh, &req->nlh);
 }
+
+/**
+ * nfct_send - send a query to ctnetlink
+ * @h: library handler
+ * @qt: query type
+ * @data: data required to send the query
+ *
+ * Like nfct_query but we do not wait for the reply from ctnetlink. 
+ * You can use nfct_send() and nfct_catch() to emulate nfct_query().
+ * This is particularly useful when the socket is non-blocking.
+ *
+ * On error, -1 is returned and errno is explicitely set. On success, 0
+ * is returned.
+ */
+int nfct_send(struct nfct_handle *h,
+	      const enum nf_conntrack_query qt,
+	      const void *data)
+{
+	size_t size = 4096;	/* enough for now */
+	char buffer[4096];
+	struct nfnlhdr *req = (struct nfnlhdr *) buffer;
+
+	assert(h != NULL);
+	assert(data != NULL);
+
+	if (nfct_build_query(h->nfnlssh_ct, qt, data, req, size) == -1)
+		return -1;
+
+	return nfnl_send(h->nfnlh, &req->nlh);
+}
+
 
 /**
  * nfct_catch - catch events

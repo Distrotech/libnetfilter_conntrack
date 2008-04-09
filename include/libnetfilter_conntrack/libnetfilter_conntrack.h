@@ -279,6 +279,10 @@ extern int nfct_query(struct nfct_handle *h,
 		      const enum nf_conntrack_query query,
 		      const void *data);
 
+extern int nfct_send(struct nfct_handle *h,
+		     const enum nf_conntrack_query query,
+		     const void *data);
+
 extern int nfct_catch(struct nfct_handle *h);
 
 /* low level API: netlink functions */
