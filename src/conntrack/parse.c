@@ -394,7 +394,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 	}
 
 	if (cda[CTA_SECMARK-1]) {
-		ct->secmark = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_MARK-1]));
+		ct->secmark = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_SECMARK-1]));
 		set_bit(ATTR_SECMARK, ct->set);
 	}
 

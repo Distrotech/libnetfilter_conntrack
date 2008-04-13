@@ -307,8 +307,35 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 
 	nfnl_fill_hdr(ssh, &req->nlh, 0, l3num, 0, type, flags);
 
-	__build_tuple(req, size, &ct->tuple[__DIR_ORIG], CTA_TUPLE_ORIG);
-	__build_tuple(req, size, &ct->tuple[__DIR_REPL], CTA_TUPLE_REPLY);
+	if (test_bit(ATTR_ORIG_IPV4_SRC, ct->set) ||
+	    test_bit(ATTR_ORIG_IPV4_DST, ct->set) ||
+	    test_bit(ATTR_ORIG_IPV6_SRC, ct->set) ||
+	    test_bit(ATTR_ORIG_IPV6_DST, ct->set) ||
+	    test_bit(ATTR_ORIG_PORT_SRC, ct->set) ||
+	    test_bit(ATTR_ORIG_PORT_DST, ct->set) ||
+	    test_bit(ATTR_ORIG_L3PROTO, ct->set)  ||
+	    test_bit(ATTR_ORIG_L4PROTO, ct->set)  ||
+	    test_bit(ATTR_ICMP_TYPE, ct->set) 	  ||
+	    test_bit(ATTR_ICMP_CODE, ct->set)	  ||
+	    test_bit(ATTR_ICMP_ID, ct->set))
+		__build_tuple(req, size,
+			      &ct->tuple[__DIR_ORIG], 
+			      CTA_TUPLE_ORIG);
+
+	if (test_bit(ATTR_REPL_IPV4_SRC, ct->set) ||
+	    test_bit(ATTR_REPL_IPV4_DST, ct->set) ||
+	    test_bit(ATTR_REPL_IPV6_SRC, ct->set) ||
+	    test_bit(ATTR_REPL_IPV6_DST, ct->set) ||
+	    test_bit(ATTR_REPL_PORT_SRC, ct->set) ||
+	    test_bit(ATTR_REPL_PORT_DST, ct->set) ||
+	    test_bit(ATTR_REPL_L3PROTO, ct->set)  ||
+	    test_bit(ATTR_REPL_L4PROTO, ct->set)  ||
+	    test_bit(ATTR_ICMP_TYPE, ct->set) 	  ||
+	    test_bit(ATTR_ICMP_CODE, ct->set)	  ||
+	    test_bit(ATTR_ICMP_ID, ct->set))
+		__build_tuple(req, size, 
+			      &ct->tuple[__DIR_REPL],
+			      CTA_TUPLE_REPLY);
 
 	if (test_bit(ATTR_MASTER_IPV4_SRC, ct->set) ||
 	    test_bit(ATTR_MASTER_IPV4_DST, ct->set) ||

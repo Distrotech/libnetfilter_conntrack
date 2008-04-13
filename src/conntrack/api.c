@@ -671,6 +671,8 @@ int nfct_snprintf(char *buf,
  *
  * If both conntrack object are equal, this function returns 1, otherwise
  * 0 is returned.
+ *
+ * NOTICE: The use nfct_cmp is preferred.
  */
 int nfct_compare(const struct nf_conntrack *ct1, 
 		 const struct nf_conntrack *ct2)
@@ -678,5 +680,68 @@ int nfct_compare(const struct nf_conntrack *ct1,
 	assert(ct1 != NULL);
 	assert(ct2 != NULL);
 
-	return __compare(ct1, ct2);
+	return __compare(ct1, ct2, NFCT_CMP_ALL);
+}
+
+/**
+ * nfct_cmp - compare two conntrack objects
+ * @ct1: pointer to a valid conntrack object
+ * @ct2: pointer to a valid conntrack object
+ * @flags: flags
+ *
+ * This function only compare attribute set in both objects, ie. if a certain
+ * attribute is not set in ct1 but it is in ct2, then the value of such 
+ * attribute is not used in the comparison.
+ *
+ * The available flags are:
+ *
+ * 	- NFCT_CMP_ALL: full comparison of both objects
+ * 	- NFCT_CMP_ORIG: it only compares the source and destination address;
+ * 	source and destination ports; and the layer 3 and 4 protocol numbers
+ * 	of the original direction.
+ * 	- NFCT_CMP_REPL: like NFCT_CMP_REPL but it compares the flow
+ * 	information that goes in the reply direction.
+ *
+ * If both conntrack object are equal, this function returns 1, otherwise
+ * 0 is returned.
+ */
+int nfct_cmp(const struct nf_conntrack *ct1, 
+	     const struct nf_conntrack *ct2,
+	     unsigned int flags)
+{
+	assert(ct1 != NULL);
+	assert(ct2 != NULL);
+
+	return __compare(ct1, ct2, flags);
+}
+
+/**
+ * nfct_copy - copy part of one source object to another
+ * @ct1: destination object
+ * @ct2: source object
+ * @flags: flags
+ *
+ * This function copies one part of the source object to the target.
+ * It behaves like clone but:
+ *
+ * 1) You have to pass an already allocated space for the target object
+ * 2) You can copy only a part of the source object to the target
+ *
+ * The current supported flags are NFCT_CP_ORIG and NFCT_CP_REPL that
+ * can be used to copy the information that identifies a flow in the
+ * original and the reply direction. This information is usually composed
+ * of: source and destination IP address; source and destination ports;
+ * layer 3 and 4 protocol number.
+ */
+void nfct_copy(struct nf_conntrack *ct1,
+	       const struct nf_conntrack *ct2,
+	       unsigned int flags)
+{
+	assert(ct1 != NULL);
+	assert(ct2 != NULL);
+
+	if (flags & NFCT_CP_ORIG)
+		__copy_tuple(ct1, ct2, __DIR_ORIG);
+	if (flags & NFCT_CP_REPL)
+		__copy_tuple(ct1, ct2, __DIR_REPL);
 }

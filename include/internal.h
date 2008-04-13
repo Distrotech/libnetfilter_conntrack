@@ -199,7 +199,7 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 
 int __setobjopt(struct nf_conntrack *ct, unsigned int option);
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option);
-int __compare(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2);
+int __compare(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2, unsigned int flags);
 
 typedef void (*set_exp_attr)(struct nf_expect *exp, const void *value);
 typedef const void *(*get_exp_attr)(const struct nf_expect *exp);

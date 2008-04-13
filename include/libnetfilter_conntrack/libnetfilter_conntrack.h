@@ -260,8 +260,20 @@ extern int nfct_snprintf(char *buf,
 			 const unsigned int out_type,
 			 const unsigned int out_flags);
 
+/* comparison */
 extern int nfct_compare(const struct nf_conntrack *ct1,
 			const struct nf_conntrack *ct2);
+
+enum {
+	NFCT_CMP_ALL = 0,
+	NFCT_CMP_ORIG = (1 << 0),
+	NFCT_CMP_REPL = (1 << 1),
+};
+
+extern int nfct_cmp(const struct nf_conntrack *ct1,
+		    const struct nf_conntrack *ct2,
+		    unsigned int flags);
+
 
 /* query */
 enum nf_conntrack_query {
@@ -284,6 +296,16 @@ extern int nfct_send(struct nfct_handle *h,
 		     const void *data);
 
 extern int nfct_catch(struct nfct_handle *h);
+
+/* copy */
+enum {
+	NFCT_CP_ORIG = (1 << 0),
+	NFCT_CP_REPL = (1 << 1)
+};
+
+extern void nfct_copy(struct nf_conntrack *dest,
+		      const struct nf_conntrack *source,
+		      unsigned int flags);
 
 /* low level API: netlink functions */
 
