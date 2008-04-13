@@ -223,4 +223,26 @@ extern struct nfct_proto udp;
 extern struct nfct_proto sctp;
 extern struct nfct_proto icmp;
 
+#define TS_ORIG								\
+({									\
+	((1 << ATTR_ORIG_IPV4_SRC) | (1 << ATTR_ORIG_IPV4_DST) |	\
+	 (1 << ATTR_ORIG_IPV6_SRC) | (1 << ATTR_ORIG_IPV6_DST) |	\
+	 (1 << ATTR_ORIG_PORT_SRC) | (1 << ATTR_ORIG_PORT_DST) | 	\
+	 (1 << ATTR_ORIG_L3PROTO)  | (1 << ATTR_ORIG_L4PROTO)  | 	\
+	 (1 << ATTR_ICMP_TYPE)	   | (1 << ATTR_ICMP_CODE)     | 	\
+	 (1 << ATTR_ICMP_ID));						\
+})
+
+#define TS_REPL								\
+({									\
+	((1 << ATTR_REPL_IPV4_SRC) | (1 << ATTR_REPL_IPV4_DST) | 	\
+	 (1 << ATTR_REPL_IPV6_SRC) | (1 << ATTR_REPL_IPV6_DST) | 	\
+	 (1 << ATTR_REPL_PORT_SRC) | (1 << ATTR_REPL_PORT_DST) | 	\
+	 (1 << ATTR_REPL_L3PROTO)  | (1 << ATTR_REPL_L4PROTO)  |	\
+	 (1 << ATTR_ICMP_TYPE)	   | (1 << ATTR_ICMP_CODE)     | 	\
+	 (1 << ATTR_ICMP_ID));						\
+})
+
+#define TUPLE_SET(dir) (dir == __DIR_ORIG ? TS_ORIG : TS_REPL)
+
 #endif

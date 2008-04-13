@@ -23,6 +23,9 @@ static void __autocomplete(struct nf_conntrack *ct, int dir)
 
 	ct->tuple[dir].l4src.all = ct->tuple[other].l4dst.all;
 	ct->tuple[dir].l4dst.all = ct->tuple[other].l4src.all;
+
+	/* XXX: this is safe but better convert bitset to uint64_t */
+        ct->set[0] |= TS_ORIG | TS_REPL;
 }
 
 int __setobjopt(struct nf_conntrack *ct, unsigned int option)
