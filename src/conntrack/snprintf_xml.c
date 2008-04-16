@@ -46,6 +46,7 @@
  * 		<timeout>100</timeout>
  * 		<mark>1</mark>
  * 		<secmark>0</secmark>
+ * 		<id>453281439</id>
  * 		<use>1</use>
  * 		<assured/>
  * 	</meta>
@@ -319,6 +320,11 @@ int __snprintf_conntrack_xml(char *buf,
 
 	if (test_bit(ATTR_USE, ct->set)) {
 		ret = snprintf(buf+offset, len, "<use>%u</use>", ct->use);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_ID, ct->set)) {
+		ret = snprintf(buf+offset, len, "<id>%u</id>", ct->id);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

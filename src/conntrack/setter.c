@@ -1,5 +1,5 @@
 /*
- * (C) 2006 by Pablo Neira Ayuso <pablo@netfilter.org>
+ * (C) 2006-2008 by Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
@@ -210,6 +210,11 @@ static void set_attr_status(struct nf_conntrack *ct, const void *value)
 	ct->status = *((u_int32_t *) value);
 }
 
+static void set_attr_id(struct nf_conntrack *ct, const void *value)
+{
+	ct->id = *((u_int32_t *) value);
+}
+
 static void set_attr_master_ipv4_src(struct nf_conntrack *ct, const void *value)
 {
 	ct->tuple[__DIR_MASTER].src.v4 = *((u_int32_t *) value);
@@ -280,6 +285,8 @@ static void set_attr_repl_off_aft(struct nf_conntrack *ct, const void *value)
 	ct->tuple[__DIR_REPL].natseq.offset_after = *((u_int32_t *) value);
 }
 
+static void set_attr_do_nothing(struct nf_conntrack *ct, const void *value) {}
+
 set_attr set_attr_array[] = {
 	[ATTR_ORIG_IPV4_SRC]	= set_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 	= set_attr_orig_ipv4_dst,
@@ -307,6 +314,12 @@ set_attr set_attr_array[] = {
 	[ATTR_DNAT_PORT]	= set_attr_dnat_port,
 	[ATTR_TIMEOUT]		= set_attr_timeout,
 	[ATTR_MARK]		= set_attr_mark,
+	[ATTR_ORIG_COUNTER_PACKETS]	= set_attr_do_nothing,
+	[ATTR_REPL_COUNTER_PACKETS]	= set_attr_do_nothing,
+	[ATTR_ORIG_COUNTER_BYTES]	= set_attr_do_nothing,
+	[ATTR_REPL_COUNTER_BYTES]	= set_attr_do_nothing,
+	[ATTR_USE]		= set_attr_do_nothing,
+	[ATTR_ID]		= set_attr_id,
 	[ATTR_STATUS]		= set_attr_status,
 	[ATTR_TCP_FLAGS_ORIG]	= set_attr_tcp_flags_orig,
 	[ATTR_TCP_FLAGS_REPL]	= set_attr_tcp_flags_repl,

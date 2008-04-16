@@ -1,5 +1,5 @@
 /*
- * (C) 2005-2007 by Pablo Neira Ayuso <pablo@netfilter.org>
+ * (C) 2005-2008 by Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
@@ -251,6 +251,9 @@ enum {
 
 	NFCT_OF_TIME_BIT = 1,
 	NFCT_OF_TIME = (1 << NFCT_OF_TIME_BIT),
+
+	NFCT_OF_ID_BIT = 2,
+	NFCT_OF_ID = (1 << NFCT_OF_ID_BIT),
 };
 
 extern int nfct_snprintf(char *buf, 
@@ -268,6 +271,11 @@ enum {
 	NFCT_CMP_ALL = 0,
 	NFCT_CMP_ORIG = (1 << 0),
 	NFCT_CMP_REPL = (1 << 1),
+	NFCT_CMP_TIMEOUT_EQ = (1 << 2),
+	NFCT_CMP_TIMEOUT_GT = (1 << 3),
+	NFCT_CMP_TIMEOUT_GE = (NFCT_CMP_TIMEOUT_EQ | NFCT_CMP_TIMEOUT_GT),
+	NFCT_CMP_TIMEOUT_LT = (1 << 4),
+	NFCT_CMP_TIMEOUT_LE = (NFCT_CMP_TIMEOUT_EQ | NFCT_CMP_TIMEOUT_LT),
 };
 
 extern int nfct_cmp(const struct nf_conntrack *ct1,

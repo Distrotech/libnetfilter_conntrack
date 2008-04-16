@@ -697,10 +697,18 @@ int nfct_compare(const struct nf_conntrack *ct1,
  *
  * 	- NFCT_CMP_ALL: full comparison of both objects
  * 	- NFCT_CMP_ORIG: it only compares the source and destination address;
- * 	source and destination ports; and the layer 3 and 4 protocol numbers
- * 	of the original direction.
+ * 	source and destination ports; the layer 3 and 4 protocol numbers
+ * 	of the original direction; and the id (if present).
  * 	- NFCT_CMP_REPL: like NFCT_CMP_REPL but it compares the flow
  * 	information that goes in the reply direction.
+ * 	- NFCT_CMP_TIMEOUT_EQ: timeout(ct1) == timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_GT: timeout(ct1) > timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_LT: timeout(ct1) < timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_GE: timeout(ct1) >= timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_LE: timeout(ct1) <= timeout(ct2)
+ *
+ * The default status bits comparison consists of the following operation:
+ * status(ct1) & status(ct2) == status(ct1).
  *
  * If both conntrack object are equal, this function returns 1, otherwise
  * 0 is returned.

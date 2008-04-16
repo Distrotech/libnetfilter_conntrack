@@ -1,5 +1,5 @@
 /*
- * (C) 2006 by Pablo Neira Ayuso <pablo@netfilter.org>
+ * (C) 2006-2008 by Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
@@ -194,26 +194,28 @@ int __snprintf_counters(char *buf,
 			 (unsigned long long) ct->counters[dir].bytes));
 }
 
-int __snprintf_mark(char *buf, unsigned int len, const struct nf_conntrack *ct)
+static int
+__snprintf_mark(char *buf, unsigned int len, const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "mark=%u ", ct->mark));
 }
 
-int __snprintf_secmark(char *buf, 
-		       unsigned int len, 
-		       const struct nf_conntrack *ct)
+static int
+__snprintf_secmark(char *buf, unsigned int len, const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "secmark=%u ", ct->secmark));
 }
 
-int __snprintf_use(char *buf, unsigned int len, const struct nf_conntrack *ct)
+static int
+__snprintf_use(char *buf, unsigned int len, const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "use=%u ", ct->use));
 }
 
-int __snprintf_id(char *buf, unsigned int len, u_int32_t id)
+static int
+__snprintf_id(char *buf, unsigned int len, const struct nf_conntrack *ct)
 {
-	return (snprintf(buf, len, "id=%u ", id));
+	return (snprintf(buf, len, "id=%u ", ct->id));
 }
 
 int __snprintf_conntrack_default(char *buf, 
@@ -304,6 +306,11 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (test_bit(ATTR_USE, ct->set)) {
 		ret = __snprintf_use(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (flags & NFCT_OF_ID && test_bit(ATTR_ID, ct->set)) {
+		ret = __snprintf_id(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
