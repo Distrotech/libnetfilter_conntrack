@@ -102,6 +102,46 @@ static const void *get_attr_repl_l4proto(const struct nf_conntrack *ct)
 	return &ct->tuple[__DIR_REPL].protonum;
 }
 
+static const void *get_attr_master_ipv4_src(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].src.v4;
+}
+
+static const void *get_attr_master_ipv4_dst(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].dst.v4;
+}
+
+static const void *get_attr_master_ipv6_src(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].src.v6;
+}
+
+static const void *get_attr_master_ipv6_dst(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].dst.v6;
+}
+
+static const void *get_attr_master_port_src(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].l4src.all; 
+}
+
+static const void *get_attr_master_port_dst(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].l4dst.all; 
+}
+
+static const void *get_attr_master_l3proto(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].l3protonum;
+}
+
+static const void *get_attr_master_l4proto(const struct nf_conntrack *ct)
+{
+	return &ct->tuple[__DIR_MASTER].protonum;
+}
+
 static const void *get_attr_tcp_state(const struct nf_conntrack *ct)
 {
 	return &ct->protoinfo.tcp.state;
@@ -265,6 +305,14 @@ get_attr get_attr_array[] = {
 	[ATTR_TCP_FLAGS_REPL]		= get_attr_tcp_flags_repl,
 	[ATTR_TCP_MASK_ORIG]		= get_attr_tcp_mask_orig,
 	[ATTR_TCP_MASK_REPL]		= get_attr_tcp_mask_repl,
+	[ATTR_MASTER_IPV4_SRC]		= get_attr_master_ipv4_src,
+	[ATTR_MASTER_IPV4_DST] 		= get_attr_master_ipv4_dst,
+	[ATTR_MASTER_IPV6_SRC]		= get_attr_master_ipv6_src,
+	[ATTR_MASTER_IPV6_DST]		= get_attr_master_ipv6_dst,
+	[ATTR_MASTER_PORT_SRC]		= get_attr_master_port_src,
+	[ATTR_MASTER_PORT_DST]		= get_attr_master_port_dst,
+	[ATTR_MASTER_L3PROTO]		= get_attr_master_l3proto,
+	[ATTR_MASTER_L4PROTO]		= get_attr_master_l4proto,
 	[ATTR_SECMARK]			= get_attr_secmark,
 	[ATTR_ORIG_NAT_SEQ_CORRECTION_POS]	= get_attr_orig_cor_pos,
 	[ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE]	= get_attr_orig_off_bfr,

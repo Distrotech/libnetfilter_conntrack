@@ -289,6 +289,8 @@ const void *nfct_get_attr(const struct nf_conntrack *ct,
 		return NULL;
 	}
 
+	assert(get_attr_array[type]);
+
 	return get_attr_array[type](ct);
 }
 
