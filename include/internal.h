@@ -35,9 +35,11 @@ struct nfct_handle;
 
 typedef void (*set_attr)(struct nf_conntrack *ct, const void *value);
 typedef const void *(*get_attr)(const struct nf_conntrack *ct);
+typedef void (*copy_attr)(struct nf_conntrack *d, const struct nf_conntrack *o);
 
 extern set_attr set_attr_array[];
 extern get_attr get_attr_array[];
+extern copy_attr copy_attr_array[];
 
 typedef int (*nfct_handler)(struct nfct_handle *cth, struct nlmsghdr *nlh,
 			    void *arg);

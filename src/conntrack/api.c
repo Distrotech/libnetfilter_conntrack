@@ -737,21 +737,97 @@ int nfct_cmp(const struct nf_conntrack *ct1,
  * 1) You have to pass an already allocated space for the target object
  * 2) You can copy only a part of the source object to the target
  *
- * The current supported flags are NFCT_CP_ORIG and NFCT_CP_REPL that
- * can be used to copy the information that identifies a flow in the
- * original and the reply direction. This information is usually composed
- * of: source and destination IP address; source and destination ports;
- * layer 3 and 4 protocol number.
+ * The current supported flags are:
+ * 	- NFCT_CP_ALL that copies the object entirely.
+ * 	- NFCT_CP_ORIG and NFCT_CP_REPL that can be used to copy the
+ * 	information that identifies a flow in the original and the reply
+ * 	direction. This information is usually composed of: source and
+ * 	destination IP address; source and destination ports; layer 3
+ * 	and 4 protocol number.
+ * 	- NFCT_CP_META that copies the metainformation 
+ * 	  (all the attributes >= ATTR_TCP_STATE)
  */
 void nfct_copy(struct nf_conntrack *ct1,
 	       const struct nf_conntrack *ct2,
 	       unsigned int flags)
 {
+	int i;
+
 	assert(ct1 != NULL);
 	assert(ct2 != NULL);
 
-	if (flags & NFCT_CP_ORIG)
-		__copy_tuple(ct1, ct2, __DIR_ORIG);
-	if (flags & NFCT_CP_REPL)
-		__copy_tuple(ct1, ct2, __DIR_REPL);
+	if (flags == NFCT_CP_ALL) {
+		for (i=0; i<ATTR_MAX; i++) {
+			if (test_bit(i, ct2->set)) {
+				copy_attr_array[i](ct1, ct2);
+				set_bit(i, ct1->set);
+			}
+		}
+		return;
+	}
+
+	static int cp_orig_mask[] = {
+		ATTR_ORIG_IPV6_SRC,	/* this also copies IPv4 */
+		ATTR_ORIG_IPV6_DST,
+		ATTR_ORIG_PORT_SRC,	/* this also copies ICMP */
+		ATTR_ORIG_PORT_DST,
+		ATTR_ORIG_L3PROTO,
+		ATTR_ORIG_L4PROTO,
+	};
+	#define __CP_ORIG_MAX sizeof(cp_orig_mask)/sizeof(int)
+
+	if (flags & NFCT_CP_ORIG) {
+		for (i=0; i<__CP_ORIG_MAX; i++) {
+			if (test_bit(i, ct2->set)) {
+				copy_attr_array[cp_orig_mask[i]](ct1, ct2);
+				set_bit(i, ct1->set);
+			}
+		}
+	}
+
+	static int cp_repl_mask[] = {
+		ATTR_REPL_IPV6_SRC,	/* this also copies IPv4 */
+		ATTR_REPL_IPV6_DST,
+		ATTR_REPL_PORT_SRC,	/* this also copies ICMP */
+		ATTR_REPL_PORT_DST,
+		ATTR_REPL_L3PROTO,
+		ATTR_REPL_L4PROTO,
+	};
+	#define __CP_REPL_MAX sizeof(cp_repl_mask)/sizeof(int)
+
+	if (flags & NFCT_CP_REPL) {
+		for (i=0; i<__CP_REPL_MAX; i++) {
+			if (test_bit(i, ct2->set)) {
+				copy_attr_array[cp_repl_mask[i]](ct1, ct2);
+				set_bit(i, ct1->set);
+			}
+		}
+	}
+
+	if (flags & NFCT_CP_META) {
+		for (i=ATTR_TCP_STATE; i<ATTR_MAX; i++) {
+			if (test_bit(i, ct2->set)) {
+				copy_attr_array[i](ct1, ct2);
+				set_bit(i, ct1->set);
+			}
+		}
+	}
+}
+
+/**
+ * nfct_copy_attr - copy an attribute of one source object to another
+ * @ct1: destination object
+ * @ct2: source object
+ * @flags: flags
+ *
+ * This function copies one attribute (if present) to another object.
+ */
+void nfct_copy_attr(struct nf_conntrack *ct1,
+		    const struct nf_conntrack *ct2,
+		    const enum nf_conntrack_attr type)
+{
+	if (test_bit(type, ct2->set)) {
+		copy_attr_array[type](ct1, ct2);
+		set_bit(type, ct1->set);
+	}
 }

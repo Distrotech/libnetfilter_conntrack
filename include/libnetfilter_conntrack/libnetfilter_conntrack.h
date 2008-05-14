@@ -307,13 +307,19 @@ extern int nfct_catch(struct nfct_handle *h);
 
 /* copy */
 enum {
+	NFCT_CP_ALL = 0,
 	NFCT_CP_ORIG = (1 << 0),
-	NFCT_CP_REPL = (1 << 1)
+	NFCT_CP_REPL = (1 << 1),
+	NFCT_CP_META = (1 << 2),
 };
 
 extern void nfct_copy(struct nf_conntrack *dest,
 		      const struct nf_conntrack *source,
 		      unsigned int flags);
+
+extern void nfct_copy_attr(struct nf_conntrack *ct1,
+			   const struct nf_conntrack *ct2,
+			   const enum nf_conntrack_attr type);
 
 /* low level API: netlink functions */
 
