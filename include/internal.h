@@ -62,7 +62,24 @@ struct nfct_handle {
 			void *data);
 };
 
-union __nfct_l4 {
+union __nfct_l4_src {
+	/* Add other protocols here. */
+	u_int16_t all;
+	struct {
+		u_int16_t port;
+	} tcp;
+	struct {
+		u_int16_t port;
+	} udp;
+	struct {
+		u_int16_t id;
+	} icmp;
+	struct {
+		u_int16_t port;
+	} sctp;
+};
+
+union __nfct_l4_dst {
 	/* Add other protocols here. */
 	u_int16_t all;
 	struct {
@@ -73,7 +90,6 @@ union __nfct_l4 {
 	} udp;
 	struct {
 		u_int8_t type, code;
-		u_int16_t id;
 	} icmp;
 	struct {
 		u_int16_t port;
@@ -91,8 +107,8 @@ struct __nfct_tuple {
 
 	u_int8_t l3protonum;
 	u_int8_t protonum;
-	union __nfct_l4 l4src;
-	union __nfct_l4 l4dst;
+	union __nfct_l4_src l4src;
+	union __nfct_l4_dst l4dst;
 
 	struct {
 		u_int32_t correction_pos;
@@ -123,7 +139,7 @@ struct __nfct_counters {
 
 struct __nfct_nat {
 	u_int32_t min_ip, max_ip;
-	union __nfct_l4 l4min, l4max;
+	union __nfct_l4_src l4min, l4max;
 };
 
 struct nf_conntrack {

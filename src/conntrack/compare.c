@@ -19,10 +19,47 @@ static int cmp_orig(const struct nf_conntrack *ct1,
  	   	return 0;
 
 	if (test_bit(ATTR_ORIG_L4PROTO, ct1->set) &&
-	    test_bit(ATTR_ORIG_L4PROTO, ct2->set) &&
-	    ct1->tuple[__DIR_ORIG].protonum !=
-	    ct2->tuple[__DIR_ORIG].protonum)
-		return 0;
+	    test_bit(ATTR_ORIG_L4PROTO, ct2->set)) {
+
+		if (ct1->tuple[__DIR_ORIG].protonum !=
+		    ct2->tuple[__DIR_ORIG].protonum)
+		    return 0;
+
+		switch(ct1->tuple[__DIR_ORIG].protonum) {
+		case IPPROTO_ICMP:
+		case IPPROTO_ICMPV6:
+			if (test_bit(ATTR_ICMP_ID, ct1->set) &&
+			    test_bit(ATTR_ICMP_ID, ct2->set) &&
+			    ct1->tuple[__DIR_ORIG].l4src.icmp.id !=
+			    ct2->tuple[__DIR_ORIG].l4src.icmp.id)
+			    	return 0;
+
+			if (test_bit(ATTR_ICMP_TYPE, ct1->set) &&
+			    test_bit(ATTR_ICMP_TYPE, ct2->set) &&
+			    ct1->tuple[__DIR_ORIG].l4dst.icmp.type !=
+			    ct2->tuple[__DIR_ORIG].l4dst.icmp.type)
+			    	return 0;
+
+			if (test_bit(ATTR_ICMP_CODE, ct1->set) &&
+			    test_bit(ATTR_ICMP_CODE, ct2->set) &&
+			    ct1->tuple[__DIR_ORIG].l4dst.icmp.code !=
+			    ct2->tuple[__DIR_ORIG].l4dst.icmp.code)
+			    	return 0;
+			break;
+		default:
+			if (test_bit(ATTR_ORIG_PORT_SRC, ct1->set) &&
+			    test_bit(ATTR_ORIG_PORT_SRC, ct2->set) &&
+			    ct1->tuple[__DIR_ORIG].l4src.all !=
+			    ct2->tuple[__DIR_ORIG].l4src.all)
+			    	return 0;
+
+			if (test_bit(ATTR_ORIG_PORT_DST, ct1->set) &&
+			    test_bit(ATTR_ORIG_PORT_DST, ct2->set) &&
+			    ct1->tuple[__DIR_ORIG].l4dst.all !=
+			    ct2->tuple[__DIR_ORIG].l4dst.all)
+			    	return 0;
+		}
+	}
 
 	if (test_bit(ATTR_ORIG_IPV4_SRC, ct1->set) &&
 	    test_bit(ATTR_ORIG_IPV4_SRC, ct2->set) &&
@@ -65,10 +102,47 @@ static int cmp_repl(const struct nf_conntrack *ct1,
 		return 0;
 
 	if (test_bit(ATTR_REPL_L4PROTO, ct1->set) &&
-	    test_bit(ATTR_REPL_L4PROTO, ct2->set) &&
-	    ct1->tuple[__DIR_REPL].protonum !=
-	    ct2->tuple[__DIR_REPL].protonum)
-		return 0;
+	    test_bit(ATTR_REPL_L4PROTO, ct2->set)) {
+
+		if (ct1->tuple[__DIR_REPL].protonum !=
+		    ct2->tuple[__DIR_REPL].protonum)
+		    return 0;
+
+		switch(ct1->tuple[__DIR_REPL].protonum) {
+		case IPPROTO_ICMP:
+		case IPPROTO_ICMPV6:
+			if (test_bit(ATTR_ICMP_ID, ct1->set) &&
+			    test_bit(ATTR_ICMP_ID, ct2->set) &&
+			    ct1->tuple[__DIR_REPL].l4src.icmp.id !=
+			    ct2->tuple[__DIR_REPL].l4src.icmp.id)
+			    	return 0;
+
+			if (test_bit(ATTR_ICMP_TYPE, ct1->set) &&
+			    test_bit(ATTR_ICMP_TYPE, ct2->set) &&
+			    ct1->tuple[__DIR_REPL].l4dst.icmp.type !=
+			    ct2->tuple[__DIR_REPL].l4dst.icmp.type)
+			    	return 0;
+
+			if (test_bit(ATTR_ICMP_CODE, ct1->set) &&
+			    test_bit(ATTR_ICMP_CODE, ct2->set) &&
+			    ct1->tuple[__DIR_REPL].l4dst.icmp.code !=
+			    ct2->tuple[__DIR_REPL].l4dst.icmp.code)
+			    	return 0;
+			break;
+		default:
+			if (test_bit(ATTR_REPL_PORT_SRC, ct1->set) &&
+			    test_bit(ATTR_REPL_PORT_SRC, ct2->set) &&
+			    ct1->tuple[__DIR_REPL].l4src.all !=
+			    ct2->tuple[__DIR_REPL].l4src.all)
+			    	return 0;
+
+			if (test_bit(ATTR_REPL_PORT_DST, ct1->set) &&
+			    test_bit(ATTR_REPL_PORT_DST, ct2->set) &&
+			    ct1->tuple[__DIR_REPL].l4dst.all !=
+			    ct2->tuple[__DIR_REPL].l4dst.all)
+			    	return 0;
+		}
+	}
 
 	if (test_bit(ATTR_REPL_IPV4_SRC, ct1->set) &&
 	    test_bit(ATTR_REPL_IPV4_SRC, ct2->set) &&
