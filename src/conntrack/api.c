@@ -767,10 +767,15 @@ void nfct_copy(struct nf_conntrack *ct1,
 	}
 
 	static int cp_orig_mask[] = {
-		ATTR_ORIG_IPV6_SRC,	/* this also copies IPv4 */
+		ATTR_ORIG_IPV4_SRC,
+		ATTR_ORIG_IPV4_DST,
+		ATTR_ORIG_IPV6_SRC,
 		ATTR_ORIG_IPV6_DST,
-		ATTR_ORIG_PORT_SRC,	/* this also copies ICMP */
+		ATTR_ORIG_PORT_SRC,
 		ATTR_ORIG_PORT_DST,
+		ATTR_ICMP_TYPE,
+		ATTR_ICMP_CODE,
+		ATTR_ICMP_ID,
 		ATTR_ORIG_L3PROTO,
 		ATTR_ORIG_L4PROTO,
 	};
@@ -778,17 +783,19 @@ void nfct_copy(struct nf_conntrack *ct1,
 
 	if (flags & NFCT_CP_ORIG) {
 		for (i=0; i<__CP_ORIG_MAX; i++) {
-			if (test_bit(i, ct2->set)) {
+			if (test_bit(cp_orig_mask[i], ct2->set)) {
 				copy_attr_array[cp_orig_mask[i]](ct1, ct2);
-				set_bit(i, ct1->set);
+				set_bit(cp_orig_mask[i], ct1->set);
 			}
 		}
 	}
 
 	static int cp_repl_mask[] = {
-		ATTR_REPL_IPV6_SRC,	/* this also copies IPv4 */
+		ATTR_REPL_IPV4_SRC,
+		ATTR_REPL_IPV4_DST,
+		ATTR_REPL_IPV6_SRC,
 		ATTR_REPL_IPV6_DST,
-		ATTR_REPL_PORT_SRC,	/* this also copies ICMP */
+		ATTR_REPL_PORT_SRC,
 		ATTR_REPL_PORT_DST,
 		ATTR_REPL_L3PROTO,
 		ATTR_REPL_L4PROTO,
@@ -797,9 +804,9 @@ void nfct_copy(struct nf_conntrack *ct1,
 
 	if (flags & NFCT_CP_REPL) {
 		for (i=0; i<__CP_REPL_MAX; i++) {
-			if (test_bit(i, ct2->set)) {
+			if (test_bit(cp_repl_mask[i], ct2->set)) {
 				copy_attr_array[cp_repl_mask[i]](ct1, ct2);
-				set_bit(i, ct1->set);
+				set_bit(cp_repl_mask[i], ct1->set);
 			}
 		}
 	}
