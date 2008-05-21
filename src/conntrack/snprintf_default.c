@@ -34,6 +34,17 @@ static const char *states[] = {
 	"LISTEN"
 };
 
+static const char *sctp_states[] = {
+	"NONE",
+	"CLOSED",
+	"COOKIE_WAIT",
+	"COOKIE_ECHOED",
+	"ESTABLISHED",
+	"SHUTDOWN_SENT",
+	"SHUTDOWN_RECD",
+	"SHUTDOWN_ACK_SENT",
+};
+
 static int __snprintf_l3protocol(char *buf,
 				 unsigned int len,
 				 const struct nf_conntrack *ct)
@@ -66,6 +77,12 @@ int __snprintf_protoinfo(char *buf,
 			 const struct nf_conntrack *ct)
 {
 	return snprintf(buf, len, "%s ", states[ct->protoinfo.tcp.state]);
+}
+int __snprintf_protoinfo_sctp(char *buf, 
+			      unsigned int len,
+			      const struct nf_conntrack *ct)
+{
+	return snprintf(buf, len, "%s ", sctp_states[ct->protoinfo.sctp.state]);
 }
 
 int __snprintf_address_ipv4(char *buf,
@@ -257,6 +274,11 @@ int __snprintf_conntrack_default(char *buf,
 
         if (test_bit(ATTR_TCP_STATE, ct->set)) {
 		ret = __snprintf_protoinfo(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_SCTP_STATE, ct->set)) {
+		ret = __snprintf_protoinfo_sctp(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

@@ -170,6 +170,21 @@ static void set_attr_tcp_mask_repl(struct nf_conntrack *ct, const void *value)
 	ct->protoinfo.tcp.flags[__DIR_REPL].mask = *((u_int8_t *) value);
 }
 
+static void set_attr_sctp_state(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.sctp.state = *((u_int8_t *) value);
+}
+
+static void set_attr_sctp_vtag_orig(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.sctp.vtag[__DIR_ORIG] = *((u_int32_t *) value);
+}
+
+static void set_attr_sctp_vtag_repl(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.sctp.vtag[__DIR_REPL] = *((u_int32_t *) value);
+}
+
 static void set_attr_snat_ipv4(struct nf_conntrack *ct, const void *value)
 {
 	ct->snat.min_ip = ct->snat.max_ip = *((u_int32_t *) value);
@@ -340,4 +355,7 @@ set_attr set_attr_array[] = {
 	[ATTR_REPL_NAT_SEQ_CORRECTION_POS] 	= set_attr_repl_cor_pos,
 	[ATTR_REPL_NAT_SEQ_OFFSET_BEFORE] 	= set_attr_repl_off_aft,
 	[ATTR_REPL_NAT_SEQ_OFFSET_AFTER] 	= set_attr_repl_off_bfr,
+	[ATTR_SCTP_STATE]	= set_attr_sctp_state,
+	[ATTR_SCTP_VTAG_ORIG]	= set_attr_sctp_vtag_orig,
+	[ATTR_SCTP_VTAG_REPL]	= set_attr_sctp_vtag_repl,
 };

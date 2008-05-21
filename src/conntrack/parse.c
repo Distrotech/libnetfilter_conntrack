@@ -217,6 +217,33 @@ static void __parse_protoinfo_tcp(const struct nfattr *attr,
 	}
 }
 
+static void __parse_protoinfo_sctp(const struct nfattr *attr, 
+				   struct nf_conntrack *ct)
+{
+	struct nfattr *tb[CTA_PROTOINFO_SCTP_MAX];
+
+	nfnl_parse_nested(tb, CTA_PROTOINFO_SCTP_MAX, attr);
+
+	if (tb[CTA_PROTOINFO_SCTP_STATE-1]) {
+                ct->protoinfo.sctp.state =
+                        *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_STATE-1]);
+		set_bit(ATTR_SCTP_STATE, ct->set);
+	}
+
+	if (tb[CTA_PROTOINFO_SCTP_VTAG_ORIGINAL-1]) {
+		ct->protoinfo.sctp.vtag[__DIR_ORIG] = 
+			ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_VTAG_ORIGINAL-1]));
+		set_bit(ATTR_SCTP_VTAG_ORIG, ct->set);
+	}
+
+	if (tb[CTA_PROTOINFO_SCTP_VTAG_REPLY-1]) {
+		ct->protoinfo.sctp.vtag[__DIR_ORIG] = 
+			ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_VTAG_REPLY-1]));
+		set_bit(ATTR_SCTP_VTAG_ORIG, ct->set);
+	}
+
+}
+
 static void __parse_protoinfo(const struct nfattr *attr,
 			      struct nf_conntrack *ct)
 {
@@ -224,10 +251,11 @@ static void __parse_protoinfo(const struct nfattr *attr,
 
 	nfnl_parse_nested(tb, CTA_PROTOINFO_MAX, attr);
 
-	if (!tb[CTA_PROTOINFO_TCP-1])
-		return;
+	if (tb[CTA_PROTOINFO_TCP-1])
+		__parse_protoinfo_tcp(tb[CTA_PROTOINFO_TCP-1], ct);
 
-	__parse_protoinfo_tcp(tb[CTA_PROTOINFO_TCP-1], ct);
+	if (tb[CTA_PROTOINFO_SCTP-1])
+		__parse_protoinfo_sctp(tb[CTA_PROTOINFO_SCTP-1], ct);
 }
 
 static void __parse_counters(const struct nfattr *attr,

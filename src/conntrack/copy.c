@@ -224,6 +224,26 @@ static void copy_attr_tcp_mask_repl(struct nf_conntrack *dest,
 		orig->protoinfo.tcp.flags[__DIR_REPL].mask;
 }
 
+static void copy_attr_sctp_state(struct nf_conntrack *dest,
+				 const struct nf_conntrack *orig)
+{
+	dest->protoinfo.sctp.state = orig->protoinfo.sctp.state;
+}
+
+static void copy_attr_sctp_vtag_orig(struct nf_conntrack *dest,
+				     const struct nf_conntrack *orig)
+{
+	dest->protoinfo.sctp.vtag[__DIR_ORIG] =
+		orig->protoinfo.sctp.vtag[__DIR_ORIG];
+}
+
+static void copy_attr_sctp_vtag_repl(struct nf_conntrack *dest,
+				     const struct nf_conntrack *orig)
+{
+	dest->protoinfo.sctp.vtag[__DIR_REPL] =
+		orig->protoinfo.sctp.vtag[__DIR_REPL];
+}
+
 static void copy_attr_snat_ipv4(struct nf_conntrack *dest,
 				const struct nf_conntrack *orig)
 {
@@ -403,4 +423,7 @@ copy_attr copy_attr_array[] = {
 	[ATTR_REPL_NAT_SEQ_CORRECTION_POS]	= copy_attr_repl_cor_pos,
 	[ATTR_REPL_NAT_SEQ_OFFSET_BEFORE]	= copy_attr_repl_off_bfr,
 	[ATTR_REPL_NAT_SEQ_OFFSET_AFTER]	= copy_attr_repl_off_aft,
+	[ATTR_SCTP_STATE]		= copy_attr_sctp_state,
+	[ATTR_SCTP_VTAG_ORIG]		= copy_attr_sctp_vtag_orig,
+	[ATTR_SCTP_VTAG_REPL]		= copy_attr_sctp_vtag_repl,
 };

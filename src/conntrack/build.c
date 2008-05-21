@@ -123,6 +123,25 @@ void __build_protoinfo(struct nfnlhdr *req,
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 		break;
+	case IPPROTO_SCTP:
+		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
+		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_SCTP);
+		if (test_bit(ATTR_SCTP_STATE, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_SCTP_STATE,
+				       &ct->protoinfo.sctp.state,
+				       sizeof(u_int8_t));
+		if (test_bit(ATTR_SCTP_VTAG_ORIG, ct->set))
+			nfnl_addattr32(&req->nlh, size,
+				    CTA_PROTOINFO_SCTP_VTAG_ORIGINAL,
+				    htonl(ct->protoinfo.sctp.vtag[__DIR_ORIG]));
+		if (test_bit(ATTR_SCTP_VTAG_REPL, ct->set))
+			nfnl_addattr32(&req->nlh, size,
+				    CTA_PROTOINFO_SCTP_VTAG_REPLY,
+				    htonl(ct->protoinfo.sctp.vtag[__DIR_REPL]));
+		nfnl_nest_end(&req->nlh, nest_proto);
+		nfnl_nest_end(&req->nlh, nest);
+		break;
 	default:
 		break;
 	}

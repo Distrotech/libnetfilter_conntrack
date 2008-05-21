@@ -130,6 +130,11 @@ union __nfct_protoinfo {
 			u_int8_t mask;
 		} flags[__DIR_MAX];
 	} tcp;
+	struct {
+		u_int8_t state;
+		u_int32_t vtag[__DIR_MAX];
+	} sctp;
+
 };
 
 struct __nfct_counters {

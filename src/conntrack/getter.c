@@ -167,6 +167,21 @@ static const void *get_attr_tcp_mask_repl(const struct nf_conntrack *ct)
 	return &ct->protoinfo.tcp.flags[__DIR_REPL].mask;
 }
 
+static const void *get_attr_sctp_state(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.sctp.state;
+}
+
+static const void *get_attr_sctp_vtag_orig(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.sctp.vtag[__DIR_ORIG];
+}
+
+static const void *get_attr_sctp_vtag_repl(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.sctp.vtag[__DIR_REPL];
+}
+
 static const void *get_attr_snat_ipv4(const struct nf_conntrack *ct)
 {
 	return &ct->snat.min_ip;
@@ -320,4 +335,7 @@ get_attr get_attr_array[] = {
 	[ATTR_REPL_NAT_SEQ_CORRECTION_POS]	= get_attr_repl_cor_pos,
 	[ATTR_REPL_NAT_SEQ_OFFSET_BEFORE]	= get_attr_repl_off_bfr,
 	[ATTR_REPL_NAT_SEQ_OFFSET_AFTER]	= get_attr_repl_off_aft,
+	[ATTR_SCTP_STATE]		= get_attr_sctp_state,
+	[ATTR_SCTP_VTAG_ORIG]		= get_attr_sctp_vtag_orig,
+	[ATTR_SCTP_VTAG_REPL]		= get_attr_sctp_vtag_repl,
 };

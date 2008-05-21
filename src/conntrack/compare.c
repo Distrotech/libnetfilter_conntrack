@@ -222,6 +222,11 @@ static int cmp_meta(const struct nf_conntrack *ct1,
 	    ct1->protoinfo.tcp.state != ct2->protoinfo.tcp.state)
 	    	return 0;
 
+	if (test_bit(ATTR_SCTP_STATE, ct1->set) &&
+	    test_bit(ATTR_SCTP_STATE, ct2->set) &&
+	    ct1->protoinfo.sctp.state != ct2->protoinfo.sctp.state)
+	    	return 0;
+
 	return 1;
 }
 

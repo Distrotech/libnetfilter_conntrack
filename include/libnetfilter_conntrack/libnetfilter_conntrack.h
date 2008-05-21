@@ -117,6 +117,9 @@ enum nf_conntrack_attr {
 	ATTR_REPL_NAT_SEQ_CORRECTION_POS,	/* u32 bits */
 	ATTR_REPL_NAT_SEQ_OFFSET_BEFORE,	/* u32 bits */
 	ATTR_REPL_NAT_SEQ_OFFSET_AFTER,		/* u32 bits */
+	ATTR_SCTP_STATE = 52,			/* u8 bits */
+	ATTR_SCTP_VTAG_ORIG,			/* u32 bits */
+	ATTR_SCTP_VTAG_REPL,			/* u32 bits */
 	ATTR_MAX
 };
 
