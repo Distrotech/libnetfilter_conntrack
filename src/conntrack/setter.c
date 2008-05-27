@@ -20,6 +20,14 @@ static const u_int8_t invmap_icmp[] = {
 	[ICMP_ADDRESSREPLY]	= ICMP_ADDRESS + 1
 };
 
+#ifndef ICMPV6_NI_QUERY
+#define ICMPV6_NI_QUERY 139
+#endif
+
+#ifndef ICMPV6_NI_REPLY
+#define ICMPV6_NI_REPLY 140
+#endif
+
 static u_int8_t invmap_icmpv6[] = {
 	[ICMPV6_ECHO_REQUEST - 128]	= ICMPV6_ECHO_REPLY + 1,
 	[ICMPV6_ECHO_REPLY - 128]	= ICMPV6_ECHO_REQUEST + 1,
