@@ -77,14 +77,14 @@ static int cmp_orig(const struct nf_conntrack *ct1,
 	    test_bit(ATTR_ORIG_IPV6_SRC, ct2->set) &&
 	    memcmp(&ct1->tuple[__DIR_ORIG].src.v6,
 	    	   &ct2->tuple[__DIR_ORIG].src.v6,
-		   sizeof(u_int32_t)*4) == 0)
+		   sizeof(struct in6_addr)) != 0)
 		return 0;
 
 	if (test_bit(ATTR_ORIG_IPV6_DST, ct1->set) &&
 	    test_bit(ATTR_ORIG_IPV6_DST, ct2->set) &&
 	    memcmp(&ct1->tuple[__DIR_ORIG].dst.v6,
 	    	   &ct2->tuple[__DIR_ORIG].dst.v6,
-		   sizeof(u_int32_t)*4) == 0)
+		   sizeof(struct in6_addr)) != 0)
 		return 0;
 
 	return 1;
@@ -160,14 +160,14 @@ static int cmp_repl(const struct nf_conntrack *ct1,
 	    test_bit(ATTR_REPL_IPV6_SRC, ct2->set) &&
 	    memcmp(&ct1->tuple[__DIR_REPL].src.v6,
 	    	   &ct2->tuple[__DIR_REPL].src.v6,
-		   sizeof(u_int32_t)*4) == 0)
+		   sizeof(struct in6_addr)) != 0)
 		return 0;
 
 	if (test_bit(ATTR_REPL_IPV6_DST, ct1->set) &&
 	    test_bit(ATTR_REPL_IPV6_DST, ct2->set) &&
 	    memcmp(&ct1->tuple[__DIR_REPL].dst.v6,
 	    	   &ct2->tuple[__DIR_REPL].dst.v6,
-		   sizeof(u_int32_t)*4) == 0)
+		   sizeof(struct in6_addr)) != 0)
 		return 0;
 
 	return 1;
