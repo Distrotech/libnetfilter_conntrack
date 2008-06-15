@@ -379,23 +379,29 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 {
 	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);
 
-	ct->tuple[__DIR_ORIG].l3protonum = nfhdr->nfgen_family;
-	set_bit(ATTR_ORIG_L3PROTO, ct->set);
+	if (cda[CTA_TUPLE_ORIG-1]) {
+		ct->tuple[__DIR_ORIG].l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_ORIG_L3PROTO, ct->set);
 
-	ct->tuple[__DIR_REPL].l3protonum = nfhdr->nfgen_family;
-	set_bit(ATTR_REPL_L3PROTO, ct->set);
-
-	if (cda[CTA_TUPLE_ORIG-1])
 		__parse_tuple(cda[CTA_TUPLE_ORIG-1], 
 			      &ct->tuple[__DIR_ORIG], __DIR_ORIG, ct->set);
+	}
 
-	if (cda[CTA_TUPLE_REPLY-1])
+	if (cda[CTA_TUPLE_REPLY-1]) {
+		ct->tuple[__DIR_REPL].l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_REPL_L3PROTO, ct->set);
+
 		__parse_tuple(cda[CTA_TUPLE_REPLY-1], 
 			      &ct->tuple[__DIR_REPL], __DIR_REPL, ct->set);
+	}
 
-	if (cda[CTA_TUPLE_MASTER-1])
+	if (cda[CTA_TUPLE_MASTER-1]) {
+		ct->tuple[__DIR_MASTER].l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_MASTER_L3PROTO, ct->set);
+
 		__parse_tuple(cda[CTA_TUPLE_MASTER-1], 
 			      &ct->tuple[__DIR_MASTER], __DIR_MASTER, ct->set);
+	}
 
 	if (cda[CTA_NAT_SEQ_ADJ_ORIG-1])
 		__parse_nat_seq(cda[CTA_NAT_SEQ_ADJ_ORIG-1], ct, __DIR_ORIG);
