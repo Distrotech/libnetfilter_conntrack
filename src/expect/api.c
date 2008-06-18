@@ -507,16 +507,18 @@ int nfexp_query(struct nfct_handle *h,
 	        const void *data)
 {
 	size_t size = 4096;	/* enough for now */
-	char buffer[4096];
-	struct nfnlhdr *req = (struct nfnlhdr *) buffer;
+	union {
+		char buffer[size];
+		struct nfnlhdr req;
+	} u;
 
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (nfexp_build_query(h->nfnlssh_exp, qt, data, req, size) == -1)
+	if (nfexp_build_query(h->nfnlssh_exp, qt, data, &u.req, size) == -1)
 		return -1;
 
-	return nfnl_query(h->nfnlh, &req->nlh);
+	return nfnl_query(h->nfnlh, &u.req.nlh);
 }
 
 /**

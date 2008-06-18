@@ -563,16 +563,18 @@ int nfct_query(struct nfct_handle *h,
 	       const void *data)
 {
 	size_t size = 4096;	/* enough for now */
-	char buffer[4096];
-	struct nfnlhdr *req = (struct nfnlhdr *) buffer;
+	union {
+		char buffer[size];
+		struct nfnlhdr req;
+	} u;
 
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (nfct_build_query(h->nfnlssh_ct, qt, data, req, size) == -1)
+	if (nfct_build_query(h->nfnlssh_ct, qt, data, &u.req, size) == -1)
 		return -1;
 
-	return nfnl_query(h->nfnlh, &req->nlh);
+	return nfnl_query(h->nfnlh, &u.req.nlh);
 }
 
 /**
@@ -593,16 +595,18 @@ int nfct_send(struct nfct_handle *h,
 	      const void *data)
 {
 	size_t size = 4096;	/* enough for now */
-	char buffer[4096];
-	struct nfnlhdr *req = (struct nfnlhdr *) buffer;
+	union {
+		char buffer[size];
+		struct nfnlhdr req;
+	} u;
 
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (nfct_build_query(h->nfnlssh_ct, qt, data, req, size) == -1)
+	if (nfct_build_query(h->nfnlssh_ct, qt, data, &u.req, size) == -1)
 		return -1;
 
-	return nfnl_send(h->nfnlh, &req->nlh);
+	return nfnl_send(h->nfnlh, &u.req.nlh);
 }
 
 
