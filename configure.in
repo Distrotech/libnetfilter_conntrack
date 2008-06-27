@@ -4,7 +4,7 @@ AC_INIT
 
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(libnetfilter_conntrack, 0.0.94)
+AM_INIT_AUTOMAKE(libnetfilter_conntrack, 0.0.95)
 
 AC_PROG_CC
 AM_PROG_LIBTOOL
@@ -19,7 +19,7 @@ case $target in
 esac
 
 dnl Dependencies
-LIBNFNETLINK_REQUIRED=0.0.25
+LIBNFNETLINK_REQUIRED=0.0.39
 
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
 if test "x$HAVE_PKG_CONFIG" = "x"
