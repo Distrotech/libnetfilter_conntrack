@@ -5,6 +5,11 @@
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_tcp.h>
 
+/*
+ * WARNING: This test file creates an expectation for the FTP helper.
+ * Therefore, make sure you have load nf_conntrack_ftp before executing it. 
+ */
+
 int main()
 {
 	int ret;
