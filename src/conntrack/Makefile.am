@@ -12,4 +12,5 @@ libnfconntrack_la_SOURCES = api.c callback.c \
 			    snprintf_default.c snprintf_xml.c \
 			    objopt.c \
 			    compare.c \
-			    copy.c
+			    copy.c \
+			    filter.c bsf.c

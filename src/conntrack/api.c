@@ -842,3 +842,96 @@ void nfct_copy_attr(struct nf_conntrack *ct1,
 		set_bit(type, ct1->set);
 	}
 }
+
+/**
+ * nfct_filter_create - create a filter
+ *
+ * This function returns a valid pointer on success, otherwise NULL is
+ * returned and errno is appropriately set.
+ */
+struct nfct_filter *nfct_filter_create(void)
+{
+	return calloc(sizeof(struct nfct_filter), 1);
+}
+
+/**
+ * nfct_filter_destroy - destroy a filter
+ * @filter: filter that we want to destroy
+ *
+ * This function releases the memory that is used by the filter object. 
+ * However, please note that this function does *not* detach an already
+ * attached filter.
+ */
+void nfct_filter_destroy(struct nfct_filter *filter)
+{
+	assert(filter != NULL);
+	free(filter);
+	filter = NULL;
+}
+
+/**
+ * nfct_filter_add_attr - add a filter attribute of the filter object
+ * @filter: filter object that we want to modify
+ * @type: filter attribute type
+ * @value: pointer to the value of the filter attribute
+ *
+ * Limitations: You can add up to 256 IPv4 addresses and masks for 
+ * NFCT_FILTER_SRC_IPV4 and, similarly, 256 for NFCT_FILTER_DST_IPV4.
+ */
+void nfct_filter_add_attr(struct nfct_filter *filter,
+			  const enum nfct_filter_attr type, 
+			  const void *value)
+{
+	assert(filter != NULL);
+	assert(value != NULL);
+
+	if (type >= NFCT_FILTER_MAX)
+		return;
+
+	if (filter_attr_array[type]) {
+		filter_attr_array[type](filter, value);
+		set_bit(type, filter->set);
+	}
+}
+
+/**
+ * nfct_filter_add_attr_u32 - add an u32 filter attribute of the filter object
+ * @filter: filter object that we want to modify
+ * @type: filter attribute type
+ * @value: value of the filter attribute using unsigned int (32 bits).
+ */
+void nfct_filter_add_attr_u32(struct nfct_filter *filter,
+			      const enum nfct_filter_attr type,
+			      u_int32_t value)
+{
+	nfct_filter_add_attr(filter, type, &value);
+}
+
+/**
+ * nfct_filter_attach - attach a filter to a socket descriptor
+ * @fd: socket descriptor
+ * @filter: filter that we want to attach to the socket
+ *
+ * This function returns -1 on error and set errno appropriately. If the
+ * function returns EINVAL probably you have found a bug in it. Please,
+ * report this.
+ */
+int nfct_filter_attach(int fd, struct nfct_filter *filter)
+{
+	assert(filter != NULL);
+
+	return __setup_netlink_socket_filter(fd, filter);
+}
+
+/**
+ * nfct_filter_detach - detach an existing filter
+ * @fd: socket descriptor
+ *
+ * This function returns -1 on error and set errno appropriately.
+ */
+int nfct_filter_detach(int fd)
+{
+	int val = 0;
+
+	return setsockopt(fd, SOL_SOCKET, SO_DETACH_FILTER, &val, sizeof(val));
+}

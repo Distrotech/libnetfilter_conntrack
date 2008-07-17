@@ -324,6 +324,41 @@ extern void nfct_copy_attr(struct nf_conntrack *ct1,
 			   const struct nf_conntrack *ct2,
 			   const enum nf_conntrack_attr type);
 
+/* filter */
+
+struct nfct_filter;
+
+extern struct nfct_filter *nfct_filter_create(void);
+extern void nfct_filter_destroy(struct nfct_filter *filter);
+
+struct nfct_filter_proto {
+	u_int16_t proto;
+	u_int16_t state;
+};
+struct nfct_filter_ipv4 {
+	u_int32_t addr;
+	u_int32_t mask;
+};
+
+enum nfct_filter_attr {
+	NFCT_FILTER_L4PROTO = 0,	/* u_int32_t */
+	NFCT_FILTER_L4PROTO_STATE,	/* struct nfct_filter_proto */
+	NFCT_FILTER_SRC_IPV4,		/* struct nfct_filter_ipv4 */
+	NFCT_FILTER_DST_IPV4,		/* struct nfct_filter_ipv4 */
+	NFCT_FILTER_MAX
+};
+
+extern void nfct_filter_add_attr(struct nfct_filter *filter,
+				 const enum nfct_filter_attr attr,
+				 const void *value);
+
+extern void nfct_filter_add_attr_u32(struct nfct_filter *filter,
+				     const enum nfct_filter_attr attr,
+				     const u_int32_t value);
+
+extern int nfct_filter_attach(int fd, struct nfct_filter *filter);
+extern int nfct_filter_detach(int fd);
+
 /* low level API: netlink functions */
 
 extern int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
