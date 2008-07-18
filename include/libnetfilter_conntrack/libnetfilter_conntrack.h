@@ -356,6 +356,16 @@ extern void nfct_filter_add_attr_u32(struct nfct_filter *filter,
 				     const enum nfct_filter_attr attr,
 				     const u_int32_t value);
 
+enum nfct_filter_logic {
+	NFCT_FILTER_LOGIC_POSITIVE,
+	NFCT_FILTER_LOGIC_NEGATIVE,
+	NFCT_FILTER_LOGIC_MAX
+};
+
+extern int nfct_filter_set_logic(struct nfct_filter *filter,
+				 const enum nfct_filter_attr attr,
+				 const enum nfct_filter_logic logic);
+
 extern int nfct_filter_attach(int fd, struct nfct_filter *filter);
 extern int nfct_filter_detach(int fd);
 

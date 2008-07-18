@@ -122,6 +122,7 @@ add_state_filter_cta(struct sock_filter *this,
 		     unsigned int cta_protoinfo_proto,
 		     unsigned int cta_protoinfo_state,
 		     u_int16_t state_flags,
+		     unsigned int logic,
 		     size_t remain)
 {
 	struct sock_filter filter[14 + __FILTER_PROTO_MAX];
@@ -131,7 +132,7 @@ add_state_filter_cta(struct sock_filter *this,
 		.k	= NFCT_FILTER_REJECT,
 	};
 	unsigned int i, j;
-	unsigned int label_continue;
+	unsigned int label_continue, jt;
 
 	/* calculate the number of filter lines */
 	for (i = 0, j = 0; i < sizeof(state_flags) * 8; i++) {
@@ -151,7 +152,11 @@ add_state_filter_cta(struct sock_filter *this,
 
 	memset(filter, 0, sizeof(filter));
 
-	label_continue = j + 1;
+	jt = j + 1;
+	if (logic == NFCT_FILTER_LOGIC_POSITIVE)
+		label_continue = j + 1;
+	else
+		label_continue = j + 2;
 
 	set_basic_filter(filter,
 			 CTA_PROTOINFO,
@@ -164,7 +169,7 @@ add_state_filter_cta(struct sock_filter *this,
 		struct sock_filter cmp = {
 			.code	= BPF_JMP|BPF_JEQ|BPF_K,
 			.k	= i,
-			.jt	= label_continue - j - 1,
+			.jt	= jt - j - 1,
 		};
 
 		if (state_flags & (1 << i)) {
@@ -174,15 +179,27 @@ add_state_filter_cta(struct sock_filter *this,
 	}
 
 	memcpy(this, filter, sizeof(struct sock_filter) * (j + 14));
-	memcpy(&this[j + 14], &verdict, sizeof(verdict));
 
-	return j + 14 + 1;
+	if (logic == NFCT_FILTER_LOGIC_NEGATIVE) {
+		struct sock_filter jump = {
+			.code	= BPF_JMP|BPF_JA,
+			.k	= 1,
+		};
+		memcpy(&this[j + 14], &jump, sizeof(jump));
+		j++;
+	}
+
+	memcpy(&this[j + 14], &verdict, sizeof(verdict));
+	j++;
+
+	return j + 14;
 }
 
 static int 
 add_state_filter(struct sock_filter *this, 
 		 int proto,
 		 u_int16_t flags,
+		 unsigned int logic,
 		 size_t remain)
 {
 	struct {
@@ -212,6 +229,7 @@ add_state_filter(struct sock_filter *this,
 				    cta[proto].cta_protoinfo,
 				    cta[proto].cta_state,
 				    flags,
+				    logic,
 				    remain);
 }
 
@@ -223,12 +241,13 @@ bsf_add_state_filter(const struct nfct_filter *filter,
 	unsigned int i, j;
 
 	for (i = 0, j = 0; i < IPPROTO_MAX; i++) {
-		if (test_bit(i, filter->l4proto_map) &&
-		    filter->l4proto_state[i].map) {
-			j += add_state_filter(this, 
-					      i, 
-					      filter->l4proto_state[i].map,
-					      remain);
+		if (filter->l4proto_state[i].map) {
+			j += add_state_filter(
+				      this, 
+				      i, 
+				      filter->l4proto_state[i].map,
+				      filter->logic[NFCT_FILTER_L4PROTO_STATE],
+				      remain);
 		}
 	}
 
@@ -247,7 +266,7 @@ bsf_add_proto_filter(const struct nfct_filter *f,
 		.k	= NFCT_FILTER_REJECT,
 	};
 	unsigned int i, j;
-	unsigned int label_continue;
+	unsigned int label_continue, jt;
 
 	for (i = 0, j = 0; i < IPPROTO_MAX; i++) {
 		if (test_bit(i, f->l4proto_map)) {
@@ -264,7 +283,11 @@ bsf_add_proto_filter(const struct nfct_filter *f,
 		return -1;
 	}
 
-	label_continue = j + 1;
+	jt = j + 1;
+	if (f->logic[NFCT_FILTER_L4PROTO] == NFCT_FILTER_LOGIC_POSITIVE)
+		label_continue = j + 1;
+	else
+		label_continue = j + 2;
 
 	memset(filter, 0, sizeof(filter));
 
@@ -279,7 +302,7 @@ bsf_add_proto_filter(const struct nfct_filter *f,
 		struct sock_filter cmp = {
 			.code	= BPF_JMP|BPF_JEQ|BPF_K,
 			.k	= i,
-			.jt	= label_continue - j - 1,
+			.jt	= jt - j - 1,
 		};
 
 		if (test_bit(i, f->l4proto_map)) {
@@ -289,9 +312,20 @@ bsf_add_proto_filter(const struct nfct_filter *f,
 	}
 
 	memcpy(this, filter, sizeof(struct sock_filter) * (j + 14));
-	memcpy(&this[j + 14], &verdict, sizeof(verdict));
 
-	return j + 14 + 1;
+	if (f->logic[NFCT_FILTER_L4PROTO] == NFCT_FILTER_LOGIC_NEGATIVE) {
+		struct sock_filter jump = {
+			.code	= BPF_JMP|BPF_JA,
+			.k	= 1,
+		};
+		memcpy(&this[j + 14], &jump, sizeof(jump));
+		j++;
+	}
+
+	memcpy(&this[j + 14], &verdict, sizeof(verdict));
+	j++;
+
+	return j + 14;
 }
 
 static int
@@ -306,15 +340,17 @@ bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 		.code	= BPF_RET|BPF_K,
 		.k	= NFCT_FILTER_REJECT,
 	};
-	unsigned int i, j, dir;
-	unsigned int label_continue;
+	unsigned int i, j, dir, attr;
+	unsigned int label_continue, jt;
 
 	switch(type) {
 	case CTA_IP_V4_SRC:
 		dir = __FILTER_ADDR_SRC;
+		attr = NFCT_FILTER_SRC_IPV4;
 		break;
 	case CTA_IP_V4_DST:
 		dir = __FILTER_ADDR_DST;
+		attr = NFCT_FILTER_DST_IPV4;
 		break;
 	default:
 		return 0;
@@ -330,7 +366,11 @@ bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 		return -1;
 	}
 
-	label_continue = (f->l3proto_elems[dir] * 2) + 1;
+	jt = (f->l3proto_elems[dir] * 2) + 1;
+	if (f->logic[attr] == NFCT_FILTER_LOGIC_POSITIVE)
+		label_continue = (f->l3proto_elems[dir] * 2) + 1;
+	else
+		label_continue = (f->l3proto_elems[dir] * 2) + 2;
 
 	memset(filter, 0, sizeof(filter));
 
@@ -351,7 +391,7 @@ bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 			.code	= BPF_JMP|BPF_JEQ|BPF_K,
 			.k	= f->l3proto[dir][i].addr & 
 				  f->l3proto[dir][i].mask,
-			.jt	= label_continue - j - 2,
+			.jt	= jt - j - 2,
 			},
 		};
 		memcpy(&filter[j + 14], cmp, sizeof(cmp));
@@ -359,9 +399,20 @@ bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 	}
 
 	memcpy(this, filter, sizeof(struct sock_filter) * (j + 14));
-	memcpy(&this[j + 14], &verdict, sizeof(verdict));
 
-	return j + 14 + 1;
+	if (f->logic[attr] == NFCT_FILTER_LOGIC_NEGATIVE) {
+		struct sock_filter jump = {
+			.code	= BPF_JMP|BPF_JA,
+			.k	= 1,
+		};
+		memcpy(&this[j + 14], &jump, sizeof(jump));
+		j++;
+	}
+
+	memcpy(&this[j + 14], &verdict, sizeof(verdict));
+	j++;
+
+	return j + 14;
 }
 
 static int

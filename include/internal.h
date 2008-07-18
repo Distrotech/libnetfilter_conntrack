@@ -185,6 +185,11 @@ struct nfct_filter {
 	 */
 
 	/*
+	 * filter logic: use positive or negative logic
+	 */
+	enum nfct_filter_logic logic[NFCT_FILTER_MAX];
+
+	/*
 	 * This the layer 4 protocol map for filtering.
 	 */
 	u_int32_t l4proto_map[IPPROTO_MAX/32];

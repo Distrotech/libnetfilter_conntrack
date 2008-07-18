@@ -58,6 +58,11 @@ int main()
 		.mask = 0xffffffff,
 	};
 
+	/* ignore whatever that comes from 127.0.0.1 */
+	nfct_filter_set_logic(filter,
+			      NFCT_FILTER_SRC_IPV4,
+			      NFCT_FILTER_LOGIC_NEGATIVE);
+
 	nfct_filter_add_attr(filter, NFCT_FILTER_SRC_IPV4, &filter_ipv4);
 
 	if (nfct_filter_attach(nfct_fd(h), filter) == -1) {

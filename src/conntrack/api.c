@@ -908,6 +908,40 @@ void nfct_filter_add_attr_u32(struct nfct_filter *filter,
 }
 
 /**
+ * nfct_filter_set_logic - set the filter logic for an attribute type
+ * @filter: filter object that we want to modify
+ * @type: filter attribute type
+ * @logic: filter logic that we want to use
+ *
+ * You can only use this function once to set the filtering logic for 
+ * one attribute. You can define two logics: NFCT_FILTER_POSITIVE_LOGIC
+ * that accept events that match the filter, and NFCT_FILTER_NEGATIVE_LOGIC
+ * that rejects events that match the filter. Default filtering logic is
+ * NFCT_FILTER_POSITIVE_LOGIC.
+ *
+ * On error, it returns -1 and errno is appropriately set. On success, it 
+ * returns 0.
+ */
+int nfct_filter_set_logic(struct nfct_filter *filter,
+			  const enum nfct_filter_attr type,
+			  const enum nfct_filter_logic logic)
+{
+	if (type >= NFCT_FILTER_MAX) {
+		errno = ENOTSUP;
+                return -1;
+	}
+
+	if (filter->logic[type]) {
+		errno = EBUSY;
+		return -1;
+	}
+
+	filter->logic[type] = logic;
+
+	return 0;
+}
+
+/**
  * nfct_filter_attach - attach a filter to a socket descriptor
  * @fd: socket descriptor
  * @filter: filter that we want to attach to the socket
