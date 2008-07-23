@@ -53,8 +53,9 @@ int main()
 
 	nfct_filter_add_attr(filter, NFCT_FILTER_L4PROTO_STATE, &filter_proto);
 
+	/* BSF always wants data in host-byte order */
 	struct nfct_filter_ipv4 filter_ipv4 = {
-		.addr = htonl(inet_addr("127.0.0.1")),
+		.addr = ntohl(inet_addr("127.0.0.1")),
 		.mask = 0xffffffff,
 	};
 
