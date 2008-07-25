@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static void set_exp_attr_master(struct nf_expect *exp, const void *value)
 {

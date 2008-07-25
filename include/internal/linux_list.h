@@ -1,3 +1,6 @@
+/*
+ * WARNING: Do *NOT* ever include this file, only for internal use!
+ */
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 

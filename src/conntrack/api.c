@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "internal.h"
+#include "internal/internal.h"
 
 /**
  * nfct_conntrack_new - allocate a new conntrack

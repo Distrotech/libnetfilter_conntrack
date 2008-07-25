@@ -14,8 +14,9 @@
 #include <arpa/inet.h>
 #include <libnetfilter_conntrack/linux_nfnetlink_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
-#include <libnetfilter_conntrack/libnetfilter_conntrack_l3extensions.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_ipv6.h>
+
+#include "internal/deprecated.h"
 
 #ifndef HAVE_INET_NTOP_IPV6
 #warning "inet_ntop does not support IPv6"

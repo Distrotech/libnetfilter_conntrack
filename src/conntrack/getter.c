@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static const void *get_attr_orig_ipv4_src(const struct nf_conntrack *ct)
 {

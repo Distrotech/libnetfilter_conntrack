@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static void __parse_ip(const struct nfattr *attr,
 		       struct __nfct_tuple *tuple,

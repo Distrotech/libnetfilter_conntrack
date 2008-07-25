@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 int __snprintf_conntrack(char *buf,
 			 unsigned int len,

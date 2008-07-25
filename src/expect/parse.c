@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 int __parse_expect_message_type(const struct nlmsghdr *nlh)
 {

@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data)
 {

@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static void __build_timeout(struct nfnlhdr *req,
 			    size_t size,

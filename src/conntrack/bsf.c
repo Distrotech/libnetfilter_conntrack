@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 #include <linux/filter.h>
 
 #ifndef SKF_AD_NLATTR

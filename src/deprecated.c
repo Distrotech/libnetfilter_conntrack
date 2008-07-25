@@ -17,17 +17,14 @@
 #include <errno.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "linux_list.h"
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
-#include <libnetfilter_conntrack/libnetfilter_conntrack_l3extensions.h>
-#include <libnetfilter_conntrack/libnetfilter_conntrack_extensions.h>
 
-#include "internal.h"
+#include "internal/linux_list.h"
+#include "internal/internal.h"
 
 #define NFCT_BUFSIZE 4096
 
-static char *lib_dir = LIBNETFILTER_CONNTRACK_DIR;
 static LIST_HEAD(proto_list);
 static LIST_HEAD(l3proto_list);
 static char *proto2str[IPPROTO_MAX] = {

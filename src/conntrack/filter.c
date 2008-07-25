@@ -1,4 +1,11 @@
-#include "internal.h"
+/*
+ * (C) 2008 by Pablo Neira Ayuso <pablo@netfilter.org>
+ *
+ * This software may be used and distributed according to the terms
+ * of the GNU General Public License, incorporated herein by reference.
+ */
+
+#include "internal/internal.h"
 
 static void filter_attr_l4proto(struct nfct_filter *filter, const void *value)
 {

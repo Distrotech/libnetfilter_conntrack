@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static int cmp_orig(const struct nf_conntrack *ct1,
 		    const struct nf_conntrack *ct2)

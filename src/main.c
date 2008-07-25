@@ -10,7 +10,7 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
-#include "internal.h"
+#include "internal/internal.h"
 
 struct nfct_handle *nfct_open_nfnl(struct nfnl_handle *nfnlh,
 				   u_int8_t subsys_id,

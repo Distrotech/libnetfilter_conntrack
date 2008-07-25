@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static int __snprintf_expect_proto(char *buf, 
 				   unsigned int len,

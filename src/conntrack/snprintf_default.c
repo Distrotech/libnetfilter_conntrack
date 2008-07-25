@@ -5,7 +5,7 @@
  * of the GNU General Public License, incorporated herein by reference.
  */
 
-#include "internal.h"
+#include "internal/internal.h"
 
 static char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_TCP] = "tcp",

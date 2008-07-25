@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "internal.h"
+#include "internal/internal.h"
 
 /**
  * nfexp_new - allocate a new expectation
