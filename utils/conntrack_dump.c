@@ -19,7 +19,7 @@ static int cb(enum nf_conntrack_msg_type type,
 int main()
 {
 	int ret;
-	u_int8_t family = AF_INET;
+	u_int32_t family = AF_INET;
 	struct nfct_handle *h;
 	char buf[1024];
 

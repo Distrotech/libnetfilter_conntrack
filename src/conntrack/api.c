@@ -443,7 +443,7 @@ int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
  * 	NFCT_Q_DUMP: dump the conntrack table
  * 	NFCT_Q_DUMP_RESET: dump the conntrack table and reset counters
  *
- * Pass a valid pointer to the protocol family (u_int8_t)
+ * Pass a valid pointer to the protocol family (u_int32_t)
  *
  * On success, 0 is returned. On error, -1 is returned and errno is set
  * appropiately.
@@ -455,7 +455,7 @@ int nfct_build_query(struct nfnl_subsys_handle *ssh,
 		     unsigned int size)
 {
 	struct nfnlhdr *req = buffer;
-	const u_int8_t *family = data;
+	const u_int32_t *family = data;
 
 	assert(ssh != NULL);
 	assert(data != NULL);
