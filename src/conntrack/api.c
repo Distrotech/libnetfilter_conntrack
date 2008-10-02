@@ -695,12 +695,20 @@ int nfct_compare(const struct nf_conntrack *ct1,
  * @ct2: pointer to a valid conntrack object
  * @flags: flags
  *
- * This function only compare attribute set in both objects, ie. if a certain
- * attribute is not set in ct1 but it is in ct2, then the value of such 
- * attribute is not used in the comparison.
+ * This function only compare attribute set in both objects, by default 
+ * the comparison is not strict, ie. if a certain attribute is not set in one
+ * of the objects, then such attribute is not used in the comparison.
+ * If you want more strict comparisons, you can use the appropriate flags
+ * to modify this behaviour (see NFCT_CMP_STRICT and NFCT_CMP_MASK).
  *
  * The available flags are:
  *
+ * 	- NFCT_CMP_STRICT: the compared objects must have the same attributes
+ * 	and the same values, otherwise it returns that the objects are 
+ * 	different.
+ * 	- NFCT_CMP_MASK: the first object is used as mask, this means that 
+ * 	if an attribute is present in ct1 but not in ct2, this function 
+ * 	returns that the objects are different.
  * 	- NFCT_CMP_ALL: full comparison of both objects
  * 	- NFCT_CMP_ORIG: it only compares the source and destination address;
  * 	source and destination ports; the layer 3 and 4 protocol numbers

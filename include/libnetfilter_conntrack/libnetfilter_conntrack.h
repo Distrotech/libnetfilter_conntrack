@@ -279,6 +279,8 @@ enum {
 	NFCT_CMP_TIMEOUT_GE = (NFCT_CMP_TIMEOUT_EQ | NFCT_CMP_TIMEOUT_GT),
 	NFCT_CMP_TIMEOUT_LT = (1 << 4),
 	NFCT_CMP_TIMEOUT_LE = (NFCT_CMP_TIMEOUT_EQ | NFCT_CMP_TIMEOUT_LT),
+	NFCT_CMP_MASK = (1 << 5),
+	NFCT_CMP_STRICT = (1 << 6),
 };
 
 extern int nfct_cmp(const struct nf_conntrack *ct1,
