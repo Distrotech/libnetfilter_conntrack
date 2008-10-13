@@ -308,6 +308,21 @@ void __build_secmark(struct nfnlhdr *req,
 	nfnl_addattr32(&req->nlh, size, CTA_SECMARK, htonl(ct->secmark));
 }
 
+void __build_helper_name(struct nfnlhdr *req,
+			 size_t size,
+			 const struct nf_conntrack *ct)
+{
+	struct nfattr *nest;
+
+	nest = nfnl_nest(&req->nlh, size, CTA_HELP);
+	nfnl_addattr_l(&req->nlh,
+		       size, 
+		       CTA_HELP_NAME,
+		       ct->helper_name,
+		       strlen(ct->helper_name));
+	nfnl_nest_end(&req->nlh, nest);
+}
+
 int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      struct nfnlhdr *req,
 		      size_t size,
@@ -416,6 +431,9 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->set) &&
 	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->set))
 	    	__build_nat_seq_adj(req, size, ct, __DIR_REPL);
+
+	if (test_bit(ATTR_HELPER_NAME, ct->set))
+		__build_helper_name(req, size, ct);
 
 	return 0;
 }

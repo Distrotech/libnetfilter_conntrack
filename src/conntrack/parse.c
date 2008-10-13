@@ -356,6 +356,22 @@ __parse_nat_seq(const struct nfattr *attr, struct nf_conntrack *ct, int dir)
 	}
 }
 
+static void 
+__parse_helper(const struct nfattr *attr, struct nf_conntrack *ct)
+{
+	struct nfattr *tb[CTA_HELP_MAX];
+
+	nfnl_parse_nested(tb, CTA_HELP_MAX, attr);
+	if (!tb[CTA_HELP_NAME-1])
+		return;
+
+	strncpy(ct->helper_name, 
+		NFA_DATA(tb[CTA_HELP_NAME-1]),
+		__NFCT_HELPER_NAMELEN);
+	ct->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+	set_bit(ATTR_HELPER_NAME, ct->set);
+}
+
 int __parse_message_type(const struct nlmsghdr *nlh)
 {
 	u_int16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
@@ -447,4 +463,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 		ct->id = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_ID-1]));
 		set_bit(ATTR_ID, ct->set);
 	}
+
+	if (cda[CTA_HELP-1])
+		__parse_helper(cda[CTA_HELP-1], ct);
 }

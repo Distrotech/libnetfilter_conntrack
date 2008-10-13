@@ -120,6 +120,7 @@ enum nf_conntrack_attr {
 	ATTR_SCTP_STATE = 52,			/* u8 bits */
 	ATTR_SCTP_VTAG_ORIG,			/* u32 bits */
 	ATTR_SCTP_VTAG_REPL,			/* u32 bits */
+	ATTR_HELPER_NAME,			/* string (30 bytes max) */
 	ATTR_MAX
 };
 

@@ -138,6 +138,9 @@ struct nf_conntrack {
 	u_int32_t	use;
 	u_int32_t	id;
 
+#define __NFCT_HELPER_NAMELEN		30	/* same length in xt_helper */
+	char 		helper_name[__NFCT_HELPER_NAMELEN];
+
 	union __nfct_protoinfo 	protoinfo;
 	struct __nfct_counters 	counters[__DIR_MAX];
 	struct __nfct_nat 	snat;

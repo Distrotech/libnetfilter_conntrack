@@ -308,6 +308,12 @@ static void set_attr_repl_off_aft(struct nf_conntrack *ct, const void *value)
 	ct->tuple[__DIR_REPL].natseq.offset_after = *((u_int32_t *) value);
 }
 
+static void set_attr_helper_name(struct nf_conntrack *ct, const void *value)
+{
+	strncpy(ct->helper_name, value, __NFCT_HELPER_NAMELEN);
+	ct->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+}
+
 static void set_attr_do_nothing(struct nf_conntrack *ct, const void *value) {}
 
 set_attr set_attr_array[] = {
@@ -366,4 +372,5 @@ set_attr set_attr_array[] = {
 	[ATTR_SCTP_STATE]	= set_attr_sctp_state,
 	[ATTR_SCTP_VTAG_ORIG]	= set_attr_sctp_vtag_orig,
 	[ATTR_SCTP_VTAG_REPL]	= set_attr_sctp_vtag_repl,
+	[ATTR_HELPER_NAME]	= set_attr_helper_name,
 };

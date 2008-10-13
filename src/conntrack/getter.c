@@ -282,6 +282,11 @@ static const void *get_attr_repl_off_aft(const struct nf_conntrack *ct)
 	return &ct->tuple[__DIR_REPL].natseq.offset_after;
 }
 
+static const void *get_attr_helper_name(const struct nf_conntrack *ct)
+{
+	return ct->helper_name;
+}
+
 get_attr get_attr_array[] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -338,4 +343,5 @@ get_attr get_attr_array[] = {
 	[ATTR_SCTP_STATE]		= get_attr_sctp_state,
 	[ATTR_SCTP_VTAG_ORIG]		= get_attr_sctp_vtag_orig,
 	[ATTR_SCTP_VTAG_REPL]		= get_attr_sctp_vtag_repl,
+	[ATTR_HELPER_NAME]		= get_attr_helper_name,
 };
