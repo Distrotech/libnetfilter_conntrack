@@ -385,6 +385,99 @@ int nfct_attr_unset(struct nf_conntrack *ct,
 }
 
 /**
+ * nfct_set_attr_grp - set a group of attributes
+ * @ct: pointer to a valid conntrack object
+ * @type: attribute group (see ATTR_GRP_*)
+ * @data: pointer to struct (see struct nfct_attr_grp_*)
+ *
+ * Note that calling this function for ATTR_GRP_COUNTER_* does nothing since 
+ * counters are unsettable.
+ */
+void nfct_set_attr_grp(struct nf_conntrack *ct,
+		       const enum nf_conntrack_attr_grp type,
+		       const void *data)
+{
+	assert(ct != NULL);
+
+	if (unlikely(type >= ATTR_GRP_MAX))
+		return;
+
+	if (set_attr_grp_array[type]) {
+		set_attr_grp_array[type](ct, data);
+		set_bitmask_u32(ct->set, attr_grp_bitmask[type], __NFCT_BITSET);
+	}
+}
+
+/**
+ * nfct_get_attr_grp - get an attribute group
+ * @ct: pointer to a valid conntrack object
+ * @type: attribute group (see ATTR_GRP_*)
+ * @data: pointer to struct (see struct nfct_attr_grp_*)
+ *
+ * On error, it returns -1 and errno is appropriately set. On success, the
+ * data pointer contains the attribute group.
+ */
+int nfct_get_attr_grp(const struct nf_conntrack *ct,
+		      const enum nf_conntrack_attr_grp type,
+		      void *data)
+{
+	assert(ct != NULL);
+
+	if (unlikely(type >= ATTR_GRP_MAX)) {
+		errno = EINVAL;
+		return -1;
+	}
+	if (!test_bitmask_u32(ct->set, attr_grp_bitmask[type], __NFCT_BITSET)) {
+		errno = ENODATA;
+		return -1;
+	}
+	assert(get_attr_grp_array[type]);
+	get_attr_grp_array[type](ct, data);
+	return 0;
+}
+
+/**
+ * nfct_attr_grp_is_set - check if an attribute group is set
+ * @ct: pointer to a valid conntrack object
+ * @type: attribute group (see ATTR_GRP_*)
+ *
+ * If the attribute group is set, this function returns 1, otherwise 0.
+ */
+int nfct_attr_grp_is_set(const struct nf_conntrack *ct,
+			 const enum nf_conntrack_attr_grp type)
+{
+	assert(ct != NULL);
+
+	if (unlikely(type >= ATTR_GRP_MAX)) {
+		errno = EINVAL;
+		return -1;
+	}
+	return test_bitmask_u32(ct->set, attr_grp_bitmask[type], __NFCT_BITSET);
+}
+
+/**
+ * nfct_attr_grp_unset - unset an attribute group
+ * @ct: pointer to a valid conntrack object
+ * @type: attribute group (see ATTR_GRP_*)
+ *
+ * On error, it returns -1 and errno is appropriately set. On success, 
+ * this function returns 0.
+ */
+int nfct_attr_grp_unset(struct nf_conntrack *ct,
+			const enum nf_conntrack_attr_grp type)
+{
+	assert(ct != NULL);
+
+	if (unlikely(type >= ATTR_GRP_MAX)) {
+		errno = EINVAL;
+		return -1;
+	}
+	unset_bitmask_u32(ct->set, attr_grp_bitmask[type], __NFCT_BITSET);
+
+	return 0;
+}
+
+/**
  * nfct_build_conntrack - build a netlink message from a conntrack object
  * @ssh: nfnetlink subsystem handler
  * @req: buffer used to build the netlink message

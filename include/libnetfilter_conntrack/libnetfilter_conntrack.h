@@ -124,6 +124,45 @@ enum nf_conntrack_attr {
 	ATTR_MAX
 };
 
+/* conntrack attribute groups */
+enum nf_conntrack_attr_grp {
+	ATTR_GRP_ORIG_IPV4 = 0,			/* struct nfct_attr_grp_ipv4 */
+	ATTR_GRP_REPL_IPV4,			/* struct nfct_attr_grp_ipv4 */
+	ATTR_GRP_ORIG_IPV6,			/* struct nfct_attr_grp_ipv6 */
+	ATTR_GRP_REPL_IPV6,			/* struct nfct_attr_grp_ipv6 */
+	ATTR_GRP_ORIG_PORT = 4,			/* struct nfct_attr_grp_port */
+	ATTR_GRP_REPL_PORT,			/* struct nfct_attr_grp_port */
+	ATTR_GRP_ICMP,				/* struct nfct_attr_grp_icmp */
+	ATTR_GRP_MASTER_IPV4,			/* struct nfct_attr_grp_ipv4 */
+	ATTR_GRP_MASTER_IPV6 = 8,		/* struct nfct_attr_grp_ipv6 */
+	ATTR_GRP_MASTER_PORT,			/* struct nfct_attr_grp_port */
+	ATTR_GRP_ORIG_COUNTERS,			/* struct nfct_attr_grp_ctrs */
+	ATTR_GRP_REPL_COUNTERS,			/* struct nfct_attr_grp_ctrs */
+	ATTR_GRP_MAX
+};
+
+struct nfct_attr_grp_ipv4 {
+	u_int32_t src, dst;
+};
+
+struct nfct_attr_grp_ipv6 {
+	u_int32_t src[4], dst[4];
+};
+
+struct nfct_attr_grp_port {
+	u_int16_t sport, dport;
+};
+
+struct nfct_attr_grp_icmp {
+	u_int16_t id;
+	u_int8_t code, type;
+};
+
+struct nfct_attr_grp_ctrs {
+	u_int64_t packets;
+	u_int64_t bytes;
+};
+
 /* message type */
 enum nf_conntrack_msg_type {
 	NFCT_T_UNKNOWN = 0,
@@ -237,6 +276,23 @@ extern int nfct_attr_is_set(const struct nf_conntrack *ct,
 /* unsetter */
 extern int nfct_attr_unset(struct nf_conntrack *ct,
 			   const enum nf_conntrack_attr type);
+
+/* group setter */
+extern void nfct_set_attr_grp(struct nf_conntrack *ct,
+			      const enum nf_conntrack_attr_grp type,
+			      const void *value);
+/* group getter */
+extern int nfct_get_attr_grp(const struct nf_conntrack *ct,
+			     const enum nf_conntrack_attr_grp type,
+			     void *data);
+
+/* group checker */
+extern int nfct_attr_grp_is_set(const struct nf_conntrack *ct,
+				const enum nf_conntrack_attr_grp type);
+
+/* unsetter */
+extern int nfct_attr_grp_unset(struct nf_conntrack *ct,
+			       const enum nf_conntrack_attr_grp type);
 
 /* print */
 

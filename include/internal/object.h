@@ -146,7 +146,8 @@ struct nf_conntrack {
 	struct __nfct_nat 	snat;
 	struct __nfct_nat 	dnat;
 
-	u_int32_t 		set[2];
+#define __NFCT_BITSET			2
+	u_int32_t               set[__NFCT_BITSET];
 };
 
 /*

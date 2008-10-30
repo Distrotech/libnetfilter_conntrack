@@ -13,6 +13,8 @@ typedef void (*copy_attr)(struct nf_conntrack *d, const struct nf_conntrack *o);
 typedef void (*filter_attr)(struct nfct_filter *filter, const void *value);
 typedef int (*getobjopt)(const struct nf_conntrack *ct);
 typedef void (*setobjopt)(struct nf_conntrack *ct);
+typedef void (*set_attr_grp)(struct nf_conntrack *ct, const void *value);
+typedef void (*get_attr_grp)(const struct nf_conntrack *ct, void *data);
 
 /*
  * expectation types

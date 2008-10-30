@@ -24,9 +24,40 @@ static inline void unset_bit_u16(int nr, u_int16_t *addr)
 	addr[nr >> 4] &= ~(1UL << (nr & 15));
 }
 
+static inline void
+set_bitmask_u32(u_int32_t *buf1, const u_int32_t *buf2, int len)
+{
+	int i;
+
+	for (i=0; i<len; i++)
+		buf1[i] |= buf2[i];
+}
+
+static inline void
+unset_bitmask_u32(u_int32_t *buf1, const u_int32_t *buf2, int len)
+{
+	int i;
+
+	for (i=0; i<len; i++)
+		buf1[i] &= ~buf2[i];
+}
+
 static inline int test_bit(int nr, const u_int32_t *addr)
 {
 	return ((1UL << (nr & 31)) & (addr[nr >> 5])) != 0;
+}
+
+static inline int 
+test_bitmask_u32(const uint32_t *buf1, const uint32_t *buf2, int len)
+{
+	int i;
+
+	for (i=0; i<len; i++) {
+		if ((buf1[i] & buf2[i]) != buf2[i]) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 #endif

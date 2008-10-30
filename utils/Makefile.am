@@ -5,7 +5,12 @@ check_PROGRAMS = expect_dump expect_create expect_get expect_delete \
 	       conntrack_create conntrack_dump conntrack_update \
 	       conntrack_delete conntrack_flush conntrack_create_nat \
 	       conntrack_get conntrack_events \
-	       conntrack_master conntrack_filter
+	       conntrack_master conntrack_filter \
+	       conntrack_grp_create
+
+conntrack_grp_create_SOURCES = conntrack_grp_create.c
+conntrack_grp_create_LDADD = ../src/libnetfilter_conntrack.la
+conntrack_grp_create_LDFLAGS = -dynamic -ldl
 
 conntrack_create_SOURCES = conntrack_create.c
 conntrack_create_LDADD = ../src/libnetfilter_conntrack.la
