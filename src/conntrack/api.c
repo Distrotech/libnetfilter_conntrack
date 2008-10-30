@@ -103,7 +103,7 @@ int nfct_setobjopt(struct nf_conntrack *ct, unsigned int option)
 {
 	assert(ct != NULL);
 
-	if (option > NFCT_SOPT_MAX) {
+	if (unlikely(option > NFCT_SOPT_MAX)) {
 		errno = EOPNOTSUPP;
 		return -1;
 	}
@@ -123,7 +123,7 @@ int nfct_getobjopt(const struct nf_conntrack *ct, unsigned int option)
 {
 	assert(ct != NULL);
 
-	if (option > NFCT_GOPT_MAX) {
+	if (unlikely(option > NFCT_GOPT_MAX)) {
 		errno = EOPNOTSUPP;
 		return -1;
 	}
@@ -218,7 +218,7 @@ void nfct_set_attr(struct nf_conntrack *ct,
 	assert(ct != NULL);
 	assert(value != NULL);
 
-	if (type >= ATTR_MAX)
+	if (unlikely(type >= ATTR_MAX))
 		return;
 
 	if (set_attr_array[type]) {
@@ -279,7 +279,7 @@ const void *nfct_get_attr(const struct nf_conntrack *ct,
 {
 	assert(ct != NULL);
 
-	if (type >= ATTR_MAX) {
+	if (unlikely(type >= ATTR_MAX)) {
 		errno = EINVAL;
 		return NULL;
 	}
@@ -355,7 +355,7 @@ int nfct_attr_is_set(const struct nf_conntrack *ct,
 {
 	assert(ct != NULL);
 
-	if (type >= ATTR_MAX) {
+	if (unlikely(type >= ATTR_MAX)) {
 		errno = EINVAL;
 		return -1;
 	}
@@ -375,7 +375,7 @@ int nfct_attr_unset(struct nf_conntrack *ct,
 {
 	assert(ct != NULL);
 
-	if (type >= ATTR_MAX) {
+	if (unlikely(type >= ATTR_MAX)) {
 		errno = EINVAL;
 		return -1;
 	}
@@ -893,7 +893,7 @@ void nfct_filter_add_attr(struct nfct_filter *filter,
 	assert(filter != NULL);
 	assert(value != NULL);
 
-	if (type >= NFCT_FILTER_MAX)
+	if (unlikely(type >= NFCT_FILTER_MAX))
 		return;
 
 	if (filter_attr_array[type]) {
@@ -934,7 +934,7 @@ int nfct_filter_set_logic(struct nfct_filter *filter,
 			  const enum nfct_filter_attr type,
 			  const enum nfct_filter_logic logic)
 {
-	if (type >= NFCT_FILTER_MAX) {
+	if (unlikely(type >= NFCT_FILTER_MAX)) {
 		errno = ENOTSUP;
                 return -1;
 	}

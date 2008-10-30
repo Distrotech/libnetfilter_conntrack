@@ -83,7 +83,7 @@ setobjopt setobjopt_array[] = {
 
 int __setobjopt(struct nf_conntrack *ct, unsigned int option)
 {
-	if (option > NFCT_SOPT_MAX)
+	if (unlikely(option > NFCT_SOPT_MAX))
 		return -1;
 
 	setobjopt_array[option](ct);
@@ -131,7 +131,7 @@ getobjopt getobjopt_array[] = {
 
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option)
 {
-	if (option > NFCT_GOPT_MAX)
+	if (unlikely(option > NFCT_GOPT_MAX))
 		return -1;
 
 	return getobjopt_array[option](ct);
