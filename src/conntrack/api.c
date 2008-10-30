@@ -363,6 +363,34 @@ int nfct_attr_is_set(const struct nf_conntrack *ct,
 }
 
 /**
+ * nfct_attr_is_set_array - check if an array if attribute types is set
+ * @ct: pointer to a valid conntrack object
+ * @array: attribute type array
+ * @size: size of the array
+ *
+ * On error, -1 is returned and errno is set appropiately, otherwise
+ * the value of the attribute is returned.
+ */
+int nfct_attr_is_set_array(const struct nf_conntrack *ct,
+			   const enum nf_conntrack_attr *type_array,
+			   int size)
+{
+	int i;
+
+	assert(ct != NULL);
+
+	for (i=0; i<size; i++) {
+		if (unlikely(type_array[i] >= ATTR_MAX)) {
+			errno = EINVAL;
+			return -1;
+		}
+		if (!test_bit(type_array[i], ct->set))
+			return 0;
+	}
+	return 1;
+}
+
+/**
  * nfct_attr_unset - unset a certain attribute
  * @type: attribute type
  * @ct: pointer to a valid conntrack object

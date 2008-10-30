@@ -273,6 +273,10 @@ extern u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
 extern int nfct_attr_is_set(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type);
 
+extern int nfct_attr_is_set_array(const struct nf_conntrack *ct,
+				  const enum nf_conntrack_attr *type_array,
+				  int size);
+
 /* unsetter */
 extern int nfct_attr_unset(struct nf_conntrack *ct,
 			   const enum nf_conntrack_attr type);
