@@ -191,11 +191,11 @@ static int __snprintf_counters_xml(char *buf,
 	unsigned int size = 0, offset = 0;
 
 	ret = snprintf(buf, len, "<packets>%llu</packets>",
-		       ct->counters[type].packets);
+		       (unsigned long long)ct->counters[type].packets);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = snprintf(buf+offset, len, "<bytes>%llu</bytes>",
-		       ct->counters[type].bytes);
+		       (unsigned long long)ct->counters[type].bytes);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
