@@ -28,75 +28,111 @@ static void __autocomplete(struct nf_conntrack *ct, int dir)
         ct->set[0] |= TS_ORIG | TS_REPL;
 }
 
+static void setobjopt_undo_snat(struct nf_conntrack *ct)
+{
+	ct->snat.min_ip = ct->tuple[__DIR_REPL].dst.v4;
+	ct->snat.max_ip = ct->snat.min_ip;
+	ct->tuple[__DIR_REPL].dst.v4 = ct->tuple[__DIR_ORIG].src.v4;
+	set_bit(ATTR_SNAT_IPV4, ct->set);
+}
+
+static void setobjopt_undo_dnat(struct nf_conntrack *ct)
+{
+	ct->dnat.min_ip = ct->tuple[__DIR_REPL].src.v4;
+	ct->dnat.max_ip = ct->dnat.min_ip;
+	ct->tuple[__DIR_REPL].src.v4 = ct->tuple[__DIR_ORIG].dst.v4;
+	set_bit(ATTR_DNAT_IPV4, ct->set);
+}
+
+static void setobjopt_undo_spat(struct nf_conntrack *ct)
+{
+	ct->snat.l4min.all = ct->tuple[__DIR_REPL].l4dst.tcp.port;
+	ct->snat.l4max.all = ct->snat.l4max.all;
+	ct->tuple[__DIR_REPL].l4dst.tcp.port =
+			ct->tuple[__DIR_ORIG].l4src.tcp.port;
+	set_bit(ATTR_SNAT_PORT, ct->set);
+}
+
+static void setobjopt_undo_dpat(struct nf_conntrack *ct)
+{
+	ct->dnat.l4min.all = ct->tuple[__DIR_REPL].l4src.tcp.port;
+	ct->dnat.l4max.all = ct->dnat.l4min.all;
+	ct->tuple[__DIR_REPL].l4src.tcp.port =
+			ct->tuple[__DIR_ORIG].l4dst.tcp.port;
+	set_bit(ATTR_DNAT_PORT, ct->set);
+}
+
+static void setobjopt_setup_orig(struct nf_conntrack *ct)
+{
+	__autocomplete(ct, __DIR_ORIG);
+}
+
+static void setobjopt_setup_repl(struct nf_conntrack *ct)
+{
+	__autocomplete(ct, __DIR_REPL);
+}
+
+setobjopt setobjopt_array[] = {
+	[NFCT_SOPT_UNDO_SNAT] 		= setobjopt_undo_snat,
+	[NFCT_SOPT_UNDO_DNAT] 		= setobjopt_undo_dnat,
+	[NFCT_SOPT_UNDO_SPAT] 		= setobjopt_undo_spat,
+	[NFCT_SOPT_UNDO_DPAT] 		= setobjopt_undo_dpat,
+	[NFCT_SOPT_SETUP_ORIGINAL] 	= setobjopt_setup_orig,
+	[NFCT_SOPT_SETUP_REPLY]		= setobjopt_setup_repl,
+};
+
 int __setobjopt(struct nf_conntrack *ct, unsigned int option)
 {
-	switch(option) {
-	case NFCT_SOPT_UNDO_SNAT:
-		ct->snat.min_ip = ct->tuple[__DIR_REPL].dst.v4;
-		ct->snat.max_ip = ct->snat.min_ip;
-		ct->tuple[__DIR_REPL].dst.v4 = ct->tuple[__DIR_ORIG].src.v4;
-		set_bit(ATTR_SNAT_IPV4, ct->set);
-		break;
-	case NFCT_SOPT_UNDO_DNAT:
-		ct->dnat.min_ip = ct->tuple[__DIR_REPL].src.v4;
-		ct->dnat.max_ip = ct->dnat.min_ip;
-		ct->tuple[__DIR_REPL].src.v4 = ct->tuple[__DIR_ORIG].dst.v4;
-		set_bit(ATTR_DNAT_IPV4, ct->set);
-		break;
-	case NFCT_SOPT_UNDO_SPAT:
-		ct->snat.l4min.all = ct->tuple[__DIR_REPL].l4dst.tcp.port;
-		ct->snat.l4max.all = ct->snat.l4max.all;
-		ct->tuple[__DIR_REPL].l4dst.tcp.port = 
-			ct->tuple[__DIR_ORIG].l4src.tcp.port;
-		set_bit(ATTR_SNAT_PORT, ct->set);
-		break;
-	case NFCT_SOPT_UNDO_DPAT:
-		ct->dnat.l4min.all = ct->tuple[__DIR_REPL].l4src.tcp.port;
-		ct->dnat.l4max.all = ct->dnat.l4min.all;
-		ct->tuple[__DIR_REPL].l4src.tcp.port =
-			ct->tuple[__DIR_ORIG].l4dst.tcp.port;
-		set_bit(ATTR_DNAT_PORT, ct->set);
-		break;
-	case NFCT_SOPT_SETUP_ORIGINAL:
-		__autocomplete(ct, __DIR_ORIG);
-		break;
-	case NFCT_SOPT_SETUP_REPLY:
-		__autocomplete(ct, __DIR_REPL);
-		break;
-	}
+	if (option > NFCT_SOPT_MAX)
+		return -1;
+
+	setobjopt_array[option](ct);
 	return 0;
 }
 
+static int getobjopt_is_snat(const struct nf_conntrack *ct)
+{
+	return ((test_bit(ATTR_STATUS, ct->set) ?
+		ct->status & IPS_SRC_NAT_DONE : 1) &&
+		ct->tuple[__DIR_REPL].dst.v4 != 
+		ct->tuple[__DIR_ORIG].src.v4);
+}
+
+static int getobjopt_is_dnat(const struct nf_conntrack *ct)
+{
+	return ((test_bit(ATTR_STATUS, ct->set) ?
+		ct->status & IPS_DST_NAT_DONE : 1) &&
+		ct->tuple[__DIR_REPL].src.v4 !=
+		ct->tuple[__DIR_ORIG].dst.v4);
+}
+
+static int getobjopt_is_spat(const struct nf_conntrack *ct)
+{
+	return ((test_bit(ATTR_STATUS, ct->set) ?
+		ct->status & IPS_SRC_NAT_DONE : 1) &&
+		ct->tuple[__DIR_REPL].l4dst.tcp.port !=
+		ct->tuple[__DIR_ORIG].l4src.tcp.port);
+}
+
+static int getobjopt_is_dpat(const struct nf_conntrack *ct)
+{
+	return ((test_bit(ATTR_STATUS, ct->set) ?
+		ct->status & IPS_DST_NAT_DONE : 1) &&
+		ct->tuple[__DIR_REPL].l4src.tcp.port !=
+		ct->tuple[__DIR_ORIG].l4dst.tcp.port);
+}
+
+getobjopt getobjopt_array[] = {
+	[NFCT_GOPT_IS_SNAT] = getobjopt_is_snat,
+	[NFCT_GOPT_IS_DNAT] = getobjopt_is_dnat,
+	[NFCT_GOPT_IS_SPAT] = getobjopt_is_spat,
+	[NFCT_GOPT_IS_DPAT] = getobjopt_is_dpat,
+};
+
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option)
 {
-	int ret = -1;
+	if (option > NFCT_GOPT_MAX)
+		return -1;
 
-	switch(option) {
-	case NFCT_GOPT_IS_SNAT:
-		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
-		        ct->status & IPS_SRC_NAT_DONE : 1) &&
-		       ct->tuple[__DIR_REPL].dst.v4 != 
-		       ct->tuple[__DIR_ORIG].src.v4);
-		break;
-	case NFCT_GOPT_IS_DNAT:
-		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
-		        ct->status & IPS_DST_NAT_DONE : 1) &&
-		       ct->tuple[__DIR_REPL].src.v4 !=
-		       ct->tuple[__DIR_ORIG].dst.v4);
-		break;
-	case NFCT_GOPT_IS_SPAT:
-		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
-		        ct->status & IPS_SRC_NAT_DONE : 1) &&
-		       ct->tuple[__DIR_REPL].l4dst.tcp.port !=
-		       ct->tuple[__DIR_ORIG].l4src.tcp.port);
-		break;
-	case NFCT_GOPT_IS_DPAT:
-		ret = ((test_bit(ATTR_STATUS, ct->set) ? 
-		        ct->status & IPS_DST_NAT_DONE : 1) &&
-		       ct->tuple[__DIR_REPL].l4src.tcp.port !=
-		       ct->tuple[__DIR_ORIG].l4dst.tcp.port);
-		break;
-	}
-
-	return ret;
+	return getobjopt_array[option](ct);
 }
