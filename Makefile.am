@@ -2,7 +2,7 @@ include $(top_srcdir)/Make_global.am
 
 AUTOMAKE_OPTIONS = foreign dist-bzip2 1.6
 
-SUBDIRS	= include src utils
+SUBDIRS	= include src utils qa
 
 man_MANS = #nfnetlink_conntrack.3 nfnetlink_conntrack.7
 
