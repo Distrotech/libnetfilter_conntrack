@@ -316,7 +316,7 @@ static void set_attr_helper_name(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_do_nothing(struct nf_conntrack *ct, const void *value) {}
 
-set_attr set_attr_array[] = {
+set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]	= set_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 	= set_attr_orig_ipv4_dst,
 	[ATTR_REPL_IPV4_SRC]	= set_attr_repl_ipv4_src,

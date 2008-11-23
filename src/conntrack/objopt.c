@@ -72,7 +72,7 @@ static void setobjopt_setup_repl(struct nf_conntrack *ct)
 	__autocomplete(ct, __DIR_REPL);
 }
 
-setobjopt setobjopt_array[] = {
+setobjopt setobjopt_array[__NFCT_SOPT_MAX] = {
 	[NFCT_SOPT_UNDO_SNAT] 		= setobjopt_undo_snat,
 	[NFCT_SOPT_UNDO_DNAT] 		= setobjopt_undo_dnat,
 	[NFCT_SOPT_UNDO_SPAT] 		= setobjopt_undo_spat,
@@ -122,7 +122,7 @@ static int getobjopt_is_dpat(const struct nf_conntrack *ct)
 		ct->tuple[__DIR_ORIG].l4dst.tcp.port);
 }
 
-getobjopt getobjopt_array[] = {
+getobjopt getobjopt_array[__NFCT_GOPT_MAX] = {
 	[NFCT_GOPT_IS_SNAT] = getobjopt_is_snat,
 	[NFCT_GOPT_IS_DNAT] = getobjopt_is_dnat,
 	[NFCT_GOPT_IS_SPAT] = getobjopt_is_spat,

@@ -370,7 +370,7 @@ static void copy_attr_repl_off_aft(struct nf_conntrack *dest,
 		orig->tuple[__DIR_REPL].natseq.offset_after;
 }
 
-copy_attr copy_attr_array[] = {
+copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
 	[ATTR_REPL_IPV4_SRC]		= copy_attr_repl_ipv4_src,

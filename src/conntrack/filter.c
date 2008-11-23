@@ -38,7 +38,7 @@ static void filter_attr_dst_ipv4(struct nfct_filter *filter, const void *value)
 	filter->l3proto_elems[1]++;
 }
 
-filter_attr filter_attr_array[] = {
+filter_attr filter_attr_array[NFCT_FILTER_MAX] = {
 	[NFCT_FILTER_L4PROTO]		= filter_attr_l4proto,
 	[NFCT_FILTER_L4PROTO_STATE]	= filter_attr_l4proto_state,
 	[NFCT_FILTER_SRC_IPV4]		= filter_attr_src_ipv4,

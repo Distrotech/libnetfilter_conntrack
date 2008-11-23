@@ -140,7 +140,7 @@ static void set_attr_grp_do_nothing(struct nf_conntrack *ct, const void *value)
 {
 }
 
-set_attr_grp set_attr_grp_array[] = {
+set_attr_grp set_attr_grp_array[ATTR_GRP_MAX] = {
 	[ATTR_GRP_ORIG_IPV4]		= set_attr_grp_orig_ipv4,
 	[ATTR_GRP_REPL_IPV4]		= set_attr_grp_repl_ipv4,
 	[ATTR_GRP_ORIG_IPV6]		= set_attr_grp_orig_ipv6,

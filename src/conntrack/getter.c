@@ -287,7 +287,7 @@ static const void *get_attr_helper_name(const struct nf_conntrack *ct)
 	return ct->helper_name;
 }
 
-get_attr get_attr_array[] = {
+get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
 	[ATTR_REPL_IPV4_SRC]		= get_attr_repl_ipv4_src,
