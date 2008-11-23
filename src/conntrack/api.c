@@ -892,6 +892,7 @@ void nfct_copy(struct nf_conntrack *ct1,
 	if (flags == NFCT_CP_ALL) {
 		for (i=0; i<ATTR_MAX; i++) {
 			if (test_bit(i, ct2->set)) {
+				assert(copy_attr_array[i]);
 				copy_attr_array[i](ct1, ct2);
 				set_bit(i, ct1->set);
 			}
@@ -917,6 +918,7 @@ void nfct_copy(struct nf_conntrack *ct1,
 	if (flags & NFCT_CP_ORIG) {
 		for (i=0; i<__CP_ORIG_MAX; i++) {
 			if (test_bit(cp_orig_mask[i], ct2->set)) {
+				assert(copy_attr_array[i]);
 				copy_attr_array[cp_orig_mask[i]](ct1, ct2);
 				set_bit(cp_orig_mask[i], ct1->set);
 			}
@@ -938,6 +940,7 @@ void nfct_copy(struct nf_conntrack *ct1,
 	if (flags & NFCT_CP_REPL) {
 		for (i=0; i<__CP_REPL_MAX; i++) {
 			if (test_bit(cp_repl_mask[i], ct2->set)) {
+				assert(copy_attr_array[i]);
 				copy_attr_array[cp_repl_mask[i]](ct1, ct2);
 				set_bit(cp_repl_mask[i], ct1->set);
 			}
@@ -947,6 +950,7 @@ void nfct_copy(struct nf_conntrack *ct1,
 	if (flags & NFCT_CP_META) {
 		for (i=ATTR_TCP_STATE; i<ATTR_MAX; i++) {
 			if (test_bit(i, ct2->set)) {
+				assert(copy_attr_array[i]),
 				copy_attr_array[i](ct1, ct2);
 				set_bit(i, ct1->set);
 			}
@@ -967,6 +971,7 @@ void nfct_copy_attr(struct nf_conntrack *ct1,
 		    const enum nf_conntrack_attr type)
 {
 	if (test_bit(type, ct2->set)) {
+		assert(copy_attr_array[type]);
 		copy_attr_array[type](ct1, ct2);
 		set_bit(type, ct1->set);
 	}

@@ -370,6 +370,13 @@ static void copy_attr_repl_off_aft(struct nf_conntrack *dest,
 		orig->tuple[__DIR_REPL].natseq.offset_after;
 }
 
+static void copy_attr_helper_name(struct nf_conntrack *dest,
+				  const struct nf_conntrack *orig)
+{
+	strncpy(dest->helper_name, orig->helper_name, __NFCT_HELPER_NAMELEN);
+	dest->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+}
+
 copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -426,4 +433,5 @@ copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_SCTP_STATE]		= copy_attr_sctp_state,
 	[ATTR_SCTP_VTAG_ORIG]		= copy_attr_sctp_vtag_orig,
 	[ATTR_SCTP_VTAG_REPL]		= copy_attr_sctp_vtag_repl,
+	[ATTR_HELPER_NAME]		= copy_attr_helper_name,
 };
