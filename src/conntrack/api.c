@@ -1009,8 +1009,8 @@ void nfct_filter_destroy(struct nfct_filter *filter)
  * @type: filter attribute type
  * @value: pointer to the value of the filter attribute
  *
- * Limitations: You can add up to 256 IPv4 addresses and masks for 
- * NFCT_FILTER_SRC_IPV4 and, similarly, 256 for NFCT_FILTER_DST_IPV4.
+ * Limitations: You can add up to 127 IPv4 addresses and masks for 
+ * NFCT_FILTER_SRC_IPV4 and, similarly, 127 for NFCT_FILTER_DST_IPV4.
  */
 void nfct_filter_add_attr(struct nfct_filter *filter,
 			  const enum nfct_filter_attr type, 
@@ -1033,6 +1033,8 @@ void nfct_filter_add_attr(struct nfct_filter *filter,
  * @filter: filter object that we want to modify
  * @type: filter attribute type
  * @value: value of the filter attribute using unsigned int (32 bits).
+ *
+ * Limitations: You can add up to 255 protocols which is a reasonable limit.
  */
 void nfct_filter_add_attr_u32(struct nfct_filter *filter,
 			      const enum nfct_filter_attr type,

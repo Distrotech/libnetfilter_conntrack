@@ -14,4 +14,5 @@ libnfconntrack_la_SOURCES = api.c callback.c \
 			    compare.c \
 			    copy.c \
 			    filter.c bsf.c \
-			    grp.c grp_getter.c grp_setter.c
+			    grp.c grp_getter.c grp_setter.c \
+			    stack.c

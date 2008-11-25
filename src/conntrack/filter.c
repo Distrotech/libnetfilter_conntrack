@@ -9,7 +9,11 @@
 
 static void filter_attr_l4proto(struct nfct_filter *filter, const void *value)
 {
+	if (filter->l4proto_len >= __FILTER_L4PROTO_MAX)
+		return;
+
 	set_bit(*((int *) value), filter->l4proto_map);
+	filter->l4proto_len++;
 }
 
 static void 
@@ -18,11 +22,15 @@ filter_attr_l4proto_state(struct nfct_filter *filter, const void *value)
 	const struct nfct_filter_proto *this = value;
 
 	set_bit_u16(this->state, &filter->l4proto_state[this->proto].map);
+	filter->l4proto_state[this->proto].len++;
 }
 
 static void filter_attr_src_ipv4(struct nfct_filter *filter, const void *value)
 {
 	const struct nfct_filter_ipv4 *this = value;
+
+	if (filter->l3proto_elems[0] >= __FILTER_ADDR_MAX)
+		return;
 
 	filter->l3proto[0][filter->l3proto_elems[0]].addr = this->addr;
 	filter->l3proto[0][filter->l3proto_elems[0]].mask = this->mask;
@@ -32,6 +40,9 @@ static void filter_attr_src_ipv4(struct nfct_filter *filter, const void *value)
 static void filter_attr_dst_ipv4(struct nfct_filter *filter, const void *value)
 {
 	const struct nfct_filter_ipv4 *this = value;
+
+	if (filter->l3proto_elems[1] >= __FILTER_ADDR_MAX)
+		return;
 
 	filter->l3proto[1][filter->l3proto_elems[1]].addr = this->addr;
 	filter->l3proto[1][filter->l3proto_elems[1]].mask = this->mask;

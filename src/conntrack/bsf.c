@@ -6,6 +6,7 @@
  */
 
 #include "internal/internal.h"
+#include "internal/stack.h"
 #include <linux/filter.h>
 
 #ifndef SKF_AD_NLATTR
@@ -32,175 +33,192 @@ static void show_filter(struct sock_filter *this, int size)
 static inline void show_filter(struct sock_filter *this, int size) {}
 #endif
 
-static void set_basic_filter(struct sock_filter *this,
-			     unsigned int first_type,
-			     unsigned int second_type,
-			     unsigned int third_type,
-			     unsigned int label,
-			     unsigned int word_size)
+#define NEW_POS(x) (sizeof(x)/sizeof(struct sock_filter))
+
+static inline int
+nfct_bsf_load_payload_offset(struct sock_filter *this, int pos)
 {
-	struct sock_filter filter[] = {
-	[0] = {
-		/* A = sizeof(struct nlmsghdr) + sizeof(struct nfgenmsg) */
-		.code	= BPF_LD|BPF_IMM,
-		.k	= sizeof(struct nlmsghdr) + sizeof(struct nfgenmsg),
+	struct sock_filter __code = {
+		.code 	= BPF_LD|BPF_IMM,
+		.k 	= sizeof(struct nlmsghdr) + sizeof(struct nfgenmsg),
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static inline int
+nfct_bsf_find_attr(struct sock_filter *this, int attr, int pos)
+{
+	struct sock_filter __code[] = {
+		[0] = {
+			/* X = attribute type */
+			.code	= BPF_LDX|BPF_IMM,
+			.k	= attr,
 		},
-	[1] = {
-		/* X = first_type */
-		.code	= BPF_LDX|BPF_IMM,
-		.k	= first_type,
-		},
-	[2] = {
-		/* A = netlink attribute offset */
-		.code	= BPF_LD|BPF_B|BPF_ABS,
-		.k	= SKF_AD_OFF + SKF_AD_NLATTR,
-		},
-	[3] = {
-		/* Reject if not found (A == 0) */
+		[1] = {
+			/* A = netlink attribute offset */
+			.code	= BPF_LD|BPF_B|BPF_ABS,
+			.k	= SKF_AD_OFF + SKF_AD_NLATTR,
+		}
+	};
+	memcpy(&this[pos], __code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+struct jump {
+	int line;
+	u_int8_t jt;
+	u_int8_t jf;
+};
+
+static inline int
+nfct_bsf_cmp_k_stack(struct sock_filter *this, int k, 
+	       int jump_true, int pos, struct stack *s)
+{
+	struct sock_filter __code = {
 		.code	= BPF_JMP|BPF_JEQ|BPF_K,
-		.k	= 0,
-		.jt	= label - 3 - 1,
-		},
-	[4] = {
+		.k	= k,
+	};
+	struct jump jmp = {
+		.line	= pos,
+		.jt	= jump_true - 1,
+		.jf	= 0,
+	};
+	stack_push(s, &jmp);
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static inline int
+nfct_bsf_alu_and(struct sock_filter *this, int k, int pos)
+{
+	struct sock_filter __code = {
+		.code 	= BPF_ALU|BPF_AND|BPF_K,
+		.k	= k,
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static inline int
+nfct_bsf_add_attr_data_offset(struct sock_filter *this, int pos)
+{
+	struct sock_filter __code = {
 		/* A += sizeof(struct nfattr) */
 		.code	= BPF_ALU|BPF_ADD|BPF_K,
 		.k	= sizeof(struct nfattr),
-		},
-	[5] = {
-		/* X = second_type */
-		.code	= BPF_LDX|BPF_IMM,
-		.k	= second_type,
-		},
-	[6] = {
-		/* A = netlink attribute offset */
-		.code	= BPF_LD|BPF_B|BPF_ABS,
-		.k	= SKF_AD_OFF + SKF_AD_NLATTR,
-		},
-	[7] = {
-		/* Reject if not found (A == 0) */
-		.code	= BPF_JMP|BPF_JEQ|BPF_K,
-		.k	= 0,
-		.jt	= label - 7 - 1,
-		},
-	[8] = {
-		/* A += sizeof(struct nfattr) */
-		.code	= BPF_ALU|BPF_ADD|BPF_K,
-		.k	= sizeof(struct nfattr),
-		},
-	[9] = {
-		/* X = third_type */
-		.code	= BPF_LDX|BPF_IMM,
-		.k	= third_type,
-		},
-	[10] = {
-		/* A = netlink attribute offset */
-		.code	= BPF_LD|BPF_B|BPF_ABS,
-		.k	= SKF_AD_OFF + SKF_AD_NLATTR,
-		},
-	[11] = {
-		/* Reject if not found (A == 0) */
-		.code	= BPF_JMP|BPF_JEQ|BPF_K,
-		.k	= 0,
-		.jt	= label - 11 - 1,
-		},
-	[12] = {
-		/* X = A */
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static inline int
+nfct_bsf_x_equal_a(struct sock_filter *this, int pos)
+{
+	struct sock_filter __code = {
 		.code	= BPF_MISC|BPF_TAX,
-		},
-	[13] = {
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static inline int
+nfct_bsf_load_attr(struct sock_filter *this, int word_size, int pos)
+{
+	struct sock_filter __code = {
 		/* A = skb->data[X + k:word_size] */
 		.code	= BPF_LD|word_size|BPF_IND,
 		.k	= sizeof(struct nfattr),
-		},
-	};
 
-	memcpy(this, filter, sizeof(filter));
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
 }
+
+static inline int
+nfct_bsf_ret_verdict(struct sock_filter *this, int verdict, int pos)
+{
+	struct sock_filter __code = {
+		.code	= BPF_RET|BPF_K,
+		.k	= verdict,
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static inline int
+nfct_bsf_jump_to(struct sock_filter *this, int line, int pos)
+{
+	struct sock_filter __code = {
+		.code	= BPF_JMP|BPF_JA,
+		.k	= line,
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+};
 
 static int
 add_state_filter_cta(struct sock_filter *this,
 		     unsigned int cta_protoinfo_proto,
 		     unsigned int cta_protoinfo_state,
 		     u_int16_t state_flags,
-		     unsigned int logic,
-		     size_t remain)
+		     unsigned int logic)
 {
-	struct sock_filter filter[14 + __FILTER_PROTO_MAX];
-	struct sock_filter verdict = {
-		/* Reject */
-		.code	= BPF_RET|BPF_K,
-		.k	= NFCT_FILTER_REJECT,
-	};
 	unsigned int i, j;
 	unsigned int label_continue, jt;
+	struct stack *s;
+	struct jump jmp;
 
-	/* calculate the number of filter lines */
-	for (i = 0, j = 0; i < sizeof(state_flags) * 8; i++) {
-		if (state_flags & (1 << i)) {
-			j++;
-		}
-	}
-
-	/* nothing to filter, skip */
-	if (j == 0)
-		return 0;
-
-	if (j + 14 >= __FILTER_PROTO_MAX + 14 || j + 14 > remain) {
-		errno = ENOSPC;
+	/* XXX: 32 maximum states + 3 jumps in the three-level iteration */
+	s = stack_create(sizeof(struct jump), 3 + 32);
+	if (s == NULL) {
+		errno = ENOMEM;
 		return -1;
 	}
 
-	memset(filter, 0, sizeof(filter));
-
-	jt = j + 1;
+	jt = 1;
 	if (logic == NFCT_FILTER_LOGIC_POSITIVE)
-		label_continue = j + 1;
+		label_continue = 1;
 	else
-		label_continue = j + 2;
+		label_continue = 2;
 
-	set_basic_filter(filter,
-			 CTA_PROTOINFO,
-			 cta_protoinfo_proto,
-			 cta_protoinfo_state,
-			 14 + label_continue,
-			 BPF_B);
+	j = 0;
+	j += nfct_bsf_load_payload_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_PROTOINFO, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_add_attr_data_offset(this, j);
+	j += nfct_bsf_find_attr(this, cta_protoinfo_proto, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_add_attr_data_offset(this, j);
+	j += nfct_bsf_find_attr(this, cta_protoinfo_state, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_x_equal_a(this, j);
+	j += nfct_bsf_load_attr(this, BPF_B, j);
 
-	for (i = 0, j = 0; i < sizeof(state_flags) * 8; i++) {
-		struct sock_filter cmp = {
-			.code	= BPF_JMP|BPF_JEQ|BPF_K,
-			.k	= i,
-			.jt	= jt - j - 1,
-		};
-
+	for (i = 0; i < sizeof(state_flags) * 8; i++) {
 		if (state_flags & (1 << i)) {
-			memcpy(&filter[j + 14], &cmp, sizeof(cmp));
-			j++;
+			j += nfct_bsf_cmp_k_stack(this, i, jt - j, j, s);
 		}
 	}
 
-	memcpy(this, filter, sizeof(struct sock_filter) * (j + 14));
+	while (stack_pop(s, &jmp) != -1)
+		this[jmp.line].jt += jmp.jt + j;
 
-	if (logic == NFCT_FILTER_LOGIC_NEGATIVE) {
-		struct sock_filter jump = {
-			.code	= BPF_JMP|BPF_JA,
-			.k	= 1,
-		};
-		memcpy(&this[j + 14], &jump, sizeof(jump));
-		j++;
-	}
+	if (logic == NFCT_FILTER_LOGIC_NEGATIVE)
+		j += nfct_bsf_jump_to(this, 1, j);
 
-	memcpy(&this[j + 14], &verdict, sizeof(verdict));
-	j++;
+	j += nfct_bsf_ret_verdict(this, NFCT_FILTER_REJECT, j);
 
-	return j + 14;
+	stack_destroy(s);
+
+	return j;
 }
 
 static int 
 add_state_filter(struct sock_filter *this, 
 		 int proto,
 		 u_int16_t flags,
-		 unsigned int logic,
-		 size_t remain)
+		 unsigned int logic)
 {
 	struct {
 		unsigned int cta_protoinfo;
@@ -229,25 +247,22 @@ add_state_filter(struct sock_filter *this,
 				    cta[proto].cta_protoinfo,
 				    cta[proto].cta_state,
 				    flags,
-				    logic,
-				    remain);
+				    logic);
 }
 
 static int 
-bsf_add_state_filter(const struct nfct_filter *filter,
-		     struct sock_filter *this, 
-		     size_t remain)
+bsf_add_state_filter(const struct nfct_filter *filter, struct sock_filter *this)
 {
 	unsigned int i, j;
 
 	for (i = 0, j = 0; i < IPPROTO_MAX; i++) {
-		if (filter->l4proto_state[i].map) {
+		if (filter->l4proto_state[i].map &&
+		    filter->l4proto_state[i].len > 0) {
 			j += add_state_filter(
 				      this, 
 				      i, 
 				      filter->l4proto_state[i].map,
-				      filter->logic[NFCT_FILTER_L4PROTO_STATE],
-				      remain);
+				      filter->logic[NFCT_FILTER_L4PROTO_STATE]);
 		}
 	}
 
@@ -255,93 +270,71 @@ bsf_add_state_filter(const struct nfct_filter *filter,
 }
 
 static int 
-bsf_add_proto_filter(const struct nfct_filter *f,
-		     struct sock_filter *this,
-		     size_t remain)
+bsf_add_proto_filter(const struct nfct_filter *f, struct sock_filter *this)
 {
-	struct sock_filter filter[14 + IPPROTO_MAX];
-	struct sock_filter verdict = {
-		/* Reject */
-		.code	= BPF_RET|BPF_K,
-		.k	= NFCT_FILTER_REJECT,
-	};
 	unsigned int i, j;
 	unsigned int label_continue, jt;
-
-	for (i = 0, j = 0; i < IPPROTO_MAX; i++) {
-		if (test_bit(i, f->l4proto_map)) {
-			j++;
-		}
-	}
+	struct stack *s;
+	struct jump jmp;
 
 	/* nothing to filter, skip */
-	if (j == 0)
+	if (f->l4proto_len == 0)
 		return 0;
 
-	if (j + 14 >= IPPROTO_MAX + 14 || j + 14 > remain) {
-		errno = ENOSPC;
+	/* XXX: 255 maximum proto + 3 jumps in the three-level iteration */
+	s = stack_create(sizeof(struct jump), 3 + 255);
+	if (s == NULL) {
+		errno = ENOMEM;
 		return -1;
 	}
 
-	jt = j + 1;
+	jt = 1;
 	if (f->logic[NFCT_FILTER_L4PROTO] == NFCT_FILTER_LOGIC_POSITIVE)
-		label_continue = j + 1;
+		label_continue = 1;
 	else
-		label_continue = j + 2;
+		label_continue = 2;
 
-	memset(filter, 0, sizeof(filter));
+	j = 0;
+	j += nfct_bsf_load_payload_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_TUPLE_ORIG, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_add_attr_data_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_TUPLE_PROTO, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_add_attr_data_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_PROTO_NUM, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_x_equal_a(this, j);
+	j += nfct_bsf_load_attr(this, BPF_B, j);
 
-	set_basic_filter(filter,
-			 CTA_TUPLE_ORIG,
-			 CTA_TUPLE_PROTO,
-			 CTA_PROTO_NUM,
-			 14 + label_continue,
-			 BPF_B);
-
-	for (i = 0, j = 0; i < IPPROTO_MAX; i++) {
-		struct sock_filter cmp = {
-			.code	= BPF_JMP|BPF_JEQ|BPF_K,
-			.k	= i,
-			.jt	= jt - j - 1,
-		};
-
+	for (i = 0; i < IPPROTO_MAX; i++) {
 		if (test_bit(i, f->l4proto_map)) {
-			memcpy(&filter[j + 14], &cmp, sizeof(cmp));
-			j++;
+			j += nfct_bsf_cmp_k_stack(this, i, jt - j, j, s);
 		}
 	}
 
-	memcpy(this, filter, sizeof(struct sock_filter) * (j + 14));
+	while (stack_pop(s, &jmp) != -1)
+		this[jmp.line].jt += jmp.jt + j;
 
-	if (f->logic[NFCT_FILTER_L4PROTO] == NFCT_FILTER_LOGIC_NEGATIVE) {
-		struct sock_filter jump = {
-			.code	= BPF_JMP|BPF_JA,
-			.k	= 1,
-		};
-		memcpy(&this[j + 14], &jump, sizeof(jump));
-		j++;
-	}
+	if (f->logic[NFCT_FILTER_L4PROTO] == NFCT_FILTER_LOGIC_NEGATIVE)
+		j += nfct_bsf_jump_to(this, 1, j);
 
-	memcpy(&this[j + 14], &verdict, sizeof(verdict));
-	j++;
+	j += nfct_bsf_ret_verdict(this, NFCT_FILTER_REJECT, j);
 
-	return j + 14;
+	stack_destroy(s);
+
+	return j;
 }
 
 static int
 bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 		         struct sock_filter *this,
-			 unsigned int type,
-		         size_t remain)
+			 unsigned int type)
 {
-	struct sock_filter filter[14 + __FILTER_ADDR_MAX];
-	struct sock_filter verdict = {
-		/* Reject */
-		.code	= BPF_RET|BPF_K,
-		.k	= NFCT_FILTER_REJECT,
-	};
 	unsigned int i, j, dir, attr;
 	unsigned int label_continue, jt;
+	struct stack *s;
+	struct jump jmp;
 
 	switch(type) {
 	case CTA_IP_V4_SRC:
@@ -360,107 +353,89 @@ bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 	if (f->l3proto_elems[dir] == 0)
 		return 0;
 
-	if (f->l3proto_elems[dir] + 14 >= __FILTER_ADDR_MAX + 14 ||
-	    f->l3proto_elems[dir] + 14 > remain) {
-	    	errno = ENOSPC;
+	/* XXX: 127 maximum IPs + 3 jumps in the three-level iteration */
+	s = stack_create(sizeof(struct jump), 3 + 127);
+	if (s == NULL) {
+		errno = ENOMEM;
 		return -1;
 	}
 
-	jt = (f->l3proto_elems[dir] * 2) + 1;
+	jt = 1;
 	if (f->logic[attr] == NFCT_FILTER_LOGIC_POSITIVE)
-		label_continue = (f->l3proto_elems[dir] * 2) + 1;
+		label_continue = 1;
 	else
-		label_continue = (f->l3proto_elems[dir] * 2) + 2;
+		label_continue = 2;
 
-	memset(filter, 0, sizeof(filter));
+	j = 0;
+	j += nfct_bsf_load_payload_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_TUPLE_ORIG, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_add_attr_data_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_TUPLE_IP, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_add_attr_data_offset(this, j);
+	j += nfct_bsf_find_attr(this, type, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_x_equal_a(this, j);
+	j += nfct_bsf_load_attr(this, BPF_W, j);
 
-	set_basic_filter(filter,
-			 CTA_TUPLE_ORIG,
-			 CTA_TUPLE_IP,
-			 type,
-			 14 + label_continue,
-			 BPF_W);
+	for (i = 0; i < f->l3proto_elems[dir]; i++) {
+		int ip = f->l3proto[dir][i].addr & f->l3proto[dir][i].mask;
 
-	for (i = 0, j = 0; i < f->l3proto_elems[dir]; i++) {
-		struct sock_filter cmp[] = {
-		[0] = {
-			.code 	= BPF_ALU|BPF_AND|BPF_K,
-			.k	= f->l3proto[dir][i].mask,
-			},
-		[1] = {
-			.code	= BPF_JMP|BPF_JEQ|BPF_K,
-			.k	= f->l3proto[dir][i].addr & 
-				  f->l3proto[dir][i].mask,
-			.jt	= jt - j - 2,
-			},
-		};
-		memcpy(&filter[j + 14], cmp, sizeof(cmp));
-		j+=2;
+		j += nfct_bsf_alu_and(this, f->l3proto[dir][i].mask, j);
+		j += nfct_bsf_cmp_k_stack(this, ip, jt - j, j, s);
 	}
 
-	memcpy(this, filter, sizeof(struct sock_filter) * (j + 14));
+	while (stack_pop(s, &jmp) != -1)
+		this[jmp.line].jt += jmp.jt + j;
 
-	if (f->logic[attr] == NFCT_FILTER_LOGIC_NEGATIVE) {
-		struct sock_filter jump = {
-			.code	= BPF_JMP|BPF_JA,
-			.k	= 1,
-		};
-		memcpy(&this[j + 14], &jump, sizeof(jump));
-		j++;
-	}
+	if (f->logic[attr] == NFCT_FILTER_LOGIC_NEGATIVE)
+		j += nfct_bsf_jump_to(this, 1, j);
 
-	memcpy(&this[j + 14], &verdict, sizeof(verdict));
-	j++;
+	j += nfct_bsf_ret_verdict(this, NFCT_FILTER_REJECT, j);
 
-	return j + 14;
+	stack_destroy(s);
+
+	return j;
 }
 
 static int
-bsf_add_saddr_ipv4_filter(const struct nfct_filter *f,
-			  struct sock_filter *this,
-			  size_t remain)
+bsf_add_saddr_ipv4_filter(const struct nfct_filter *f, struct sock_filter *this)
 {
-	return bsf_add_addr_ipv4_filter(f, this, CTA_IP_V4_SRC, remain);
+	return bsf_add_addr_ipv4_filter(f, this, CTA_IP_V4_SRC);
 }
 
 static int 
-bsf_add_daddr_ipv4_filter(const struct nfct_filter *f,
-			  struct sock_filter *this,
-			  size_t remain)
+bsf_add_daddr_ipv4_filter(const struct nfct_filter *f, struct sock_filter *this)
 {
-	return bsf_add_addr_ipv4_filter(f, this, CTA_IP_V4_DST, remain);
+	return bsf_add_addr_ipv4_filter(f, this, CTA_IP_V4_DST);
 }
 
 /* this buffer must be big enough to store all the autogenerated lines */
-#define BSF_BUFFER_SIZE 	1024
+#define BSF_BUFFER_SIZE 	2048
 
 int __setup_netlink_socket_filter(int fd, struct nfct_filter *f)
 {
 	struct sock_filter bsf[BSF_BUFFER_SIZE];	
-	struct sock_filter bsf_accept = {
-		/* Accept */
-		.code	= BPF_RET|BPF_K,
-		.k	= NFCT_FILTER_ACCEPT,
-	};
 	struct sock_fprog sf;	
 	unsigned int j = 0;
 
 	memset(bsf, 0, sizeof(bsf));
 
-	j += bsf_add_proto_filter(f, &bsf[j], BSF_BUFFER_SIZE-j);
-	j += bsf_add_saddr_ipv4_filter(f, &bsf[j], BSF_BUFFER_SIZE-j);
-	j += bsf_add_daddr_ipv4_filter(f, &bsf[j], BSF_BUFFER_SIZE-j);
-	j += bsf_add_state_filter(f, &bsf[j], BSF_BUFFER_SIZE-j);
+	j += bsf_add_proto_filter(f, &bsf[j]);
+	j += bsf_add_saddr_ipv4_filter(f, &bsf[j]);
+	j += bsf_add_daddr_ipv4_filter(f, &bsf[j]);
+	j += bsf_add_state_filter(f, &bsf[j]);
 
 	/* nothing to filter, skip */
 	if (j == 0)
 		return 0;
 
-	memcpy(&bsf[j], &bsf_accept, sizeof(struct sock_filter));
+	j += nfct_bsf_ret_verdict(bsf, NFCT_FILTER_ACCEPT, j);
 
-	show_filter(bsf, j+1);
+	show_filter(bsf, j);
 
-	sf.len = (sizeof(struct sock_filter) * (j + 1)) / sizeof(bsf[0]);
+	sf.len = (sizeof(struct sock_filter) * j) / sizeof(bsf[0]);
 	sf.filter = bsf;
 
 	return setsockopt(fd, SOL_SOCKET, SO_ATTACH_FILTER, &sf, sizeof(sf));
