@@ -35,7 +35,7 @@ static inline void show_filter(struct sock_filter *this, int size) {}
 
 #define NEW_POS(x) (sizeof(x)/sizeof(struct sock_filter))
 
-static inline int
+static int
 nfct_bsf_load_payload_offset(struct sock_filter *this, int pos)
 {
 	struct sock_filter __code = {
@@ -46,7 +46,7 @@ nfct_bsf_load_payload_offset(struct sock_filter *this, int pos)
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_find_attr(struct sock_filter *this, int attr, int pos)
 {
 	struct sock_filter __code[] = {
@@ -71,7 +71,7 @@ struct jump {
 	u_int8_t jf;
 };
 
-static inline int
+static int
 nfct_bsf_cmp_k_stack(struct sock_filter *this, int k, 
 	       int jump_true, int pos, struct stack *s)
 {
@@ -89,7 +89,7 @@ nfct_bsf_cmp_k_stack(struct sock_filter *this, int k,
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_alu_and(struct sock_filter *this, int k, int pos)
 {
 	struct sock_filter __code = {
@@ -100,7 +100,7 @@ nfct_bsf_alu_and(struct sock_filter *this, int k, int pos)
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_add_attr_data_offset(struct sock_filter *this, int pos)
 {
 	struct sock_filter __code = {
@@ -112,7 +112,7 @@ nfct_bsf_add_attr_data_offset(struct sock_filter *this, int pos)
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_x_equal_a(struct sock_filter *this, int pos)
 {
 	struct sock_filter __code = {
@@ -122,7 +122,7 @@ nfct_bsf_x_equal_a(struct sock_filter *this, int pos)
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_load_attr(struct sock_filter *this, int word_size, int pos)
 {
 	struct sock_filter __code = {
@@ -135,7 +135,7 @@ nfct_bsf_load_attr(struct sock_filter *this, int word_size, int pos)
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_ret_verdict(struct sock_filter *this, int verdict, int pos)
 {
 	struct sock_filter __code = {
@@ -146,7 +146,7 @@ nfct_bsf_ret_verdict(struct sock_filter *this, int verdict, int pos)
 	return NEW_POS(__code);
 }
 
-static inline int
+static int
 nfct_bsf_jump_to(struct sock_filter *this, int line, int pos)
 {
 	struct sock_filter __code = {
