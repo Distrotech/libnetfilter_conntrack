@@ -425,13 +425,13 @@ int nfexp_build_query(struct nfnl_subsys_handle *ssh,
 		nfexp_build_expect(ssh, req, size, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_ACK, data);
 		break;
 	case NFCT_Q_DESTROY:
-		nfexp_build_expect(ssh, req, size, IPCTNL_MSG_EXP_DELETE, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK, data);
+		nfexp_build_expect(ssh, req, size, IPCTNL_MSG_EXP_DELETE, NLM_F_REQUEST|NLM_F_ACK, data);
 		break;
 	case NFCT_Q_FLUSH:
 		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_DELETE, NLM_F_REQUEST|NLM_F_ACK);
 		break;
 	case NFCT_Q_DUMP:
-		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_GET, NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST|NLM_F_DUMP);
+		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_DUMP);
 		break;
 	default:
 		errno = ENOTSUP;
