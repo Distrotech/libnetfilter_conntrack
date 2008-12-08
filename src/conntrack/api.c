@@ -206,9 +206,9 @@ void nfct_callback_unregister(struct nfct_handle *h)
  * @value: pointer to the attribute value
  *
  * Note that certain attributes are unsettable:
- * 	- ATTR_USE
- * 	- ATTR_ID
- * 	- ATTR_*_COUNTER_*
+ * 	ATTR_USE
+ * 	ATTR_ID
+ * 	ATTR_*_COUNTER_*
  * The call of this function for such attributes do nothing.
  */
 void nfct_set_attr(struct nf_conntrack *ct,
@@ -363,7 +363,7 @@ int nfct_attr_is_set(const struct nf_conntrack *ct,
 }
 
 /**
- * nfct_attr_is_set_array - check if an array if attribute types is set
+ * nfct_attr_is_set_array - check if an array of attribute types is set
  * @ct: pointer to a valid conntrack object
  * @array: attribute type array
  * @size: size of the array
@@ -761,13 +761,13 @@ int nfct_catch(struct nfct_handle *h)
  * If you pass NFCT_T_UNKNOWN, the message type will not be output. 
  *
  * Currently, the output available are:
- * 	- NFCT_O_DEFAULT: default /proc-like output
- * 	- NFCT_O_XML: XML output
+ * 	NFCT_O_DEFAULT: default /proc-like output
+ * 	NFCT_O_XML: XML output
  *
  * The output flags are:
- * 	- NFCT_OF_SHOW_LAYER3: include layer 3 information in the output, 
- * 	   this is *only* required by NFCT_O_DEFAULT.
- * 	- NFCT_OF_TIME: display time.
+ * 	NFCT_OF_SHOW_LAYER3: include layer 3 information in the output, 
+ * 	this is *only* required by NFCT_O_DEFAULT.
+ * 	NFCT_OF_TIME: display time.
  *
  * This function returns the size of the information that _would_ have been 
  * written to the buffer, even if there was no room for it. Thus, the
@@ -824,26 +824,25 @@ int nfct_compare(const struct nf_conntrack *ct1,
  *
  * The available flags are:
  *
- * 	- NFCT_CMP_STRICT: the compared objects must have the same attributes
+ * 	NFCT_CMP_STRICT: the compared objects must have the same attributes
  * 	and the same values, otherwise it returns that the objects are 
  * 	different.
- * 	- NFCT_CMP_MASK: the first object is used as mask, this means that 
+ * 	NFCT_CMP_MASK: the first object is used as mask, this means that 
  * 	if an attribute is present in ct1 but not in ct2, this function 
  * 	returns that the objects are different.
- * 	- NFCT_CMP_ALL: full comparison of both objects
- * 	- NFCT_CMP_ORIG: it only compares the source and destination address;
+ * 	NFCT_CMP_ALL: full comparison of both objects
+ * 	NFCT_CMP_ORIG: it only compares the source and destination address;
  * 	source and destination ports; the layer 3 and 4 protocol numbers
  * 	of the original direction; and the id (if present).
- * 	- NFCT_CMP_REPL: like NFCT_CMP_REPL but it compares the flow
+ * 	NFCT_CMP_REPL: like NFCT_CMP_REPL but it compares the flow
  * 	information that goes in the reply direction.
- * 	- NFCT_CMP_TIMEOUT_EQ: timeout(ct1) == timeout(ct2)
- * 	- NFCT_CMP_TIMEOUT_GT: timeout(ct1) > timeout(ct2)
- * 	- NFCT_CMP_TIMEOUT_LT: timeout(ct1) < timeout(ct2)
- * 	- NFCT_CMP_TIMEOUT_GE: timeout(ct1) >= timeout(ct2)
- * 	- NFCT_CMP_TIMEOUT_LE: timeout(ct1) <= timeout(ct2)
+ * 	NFCT_CMP_TIMEOUT_EQ: timeout(ct1) == timeout(ct2)
+ * 	NFCT_CMP_TIMEOUT_GT: timeout(ct1) > timeout(ct2)
+ * 	NFCT_CMP_TIMEOUT_LT: timeout(ct1) < timeout(ct2)
+ * 	NFCT_CMP_TIMEOUT_GE: timeout(ct1) >= timeout(ct2)
+ * 	NFCT_CMP_TIMEOUT_LE: timeout(ct1) <= timeout(ct2)
  *
- * The default status bits comparison consists of the following operation:
- * status(ct1) & status(ct2) == status(ct1).
+ * The status bits comparison is status(ct1) & status(ct2) == status(ct1).
  *
  * If both conntrack object are equal, this function returns 1, otherwise
  * 0 is returned.
@@ -871,14 +870,14 @@ int nfct_cmp(const struct nf_conntrack *ct1,
  * 2) You can copy only a part of the source object to the target
  *
  * The current supported flags are:
- * 	- NFCT_CP_ALL that copies the object entirely.
- * 	- NFCT_CP_ORIG and NFCT_CP_REPL that can be used to copy the
+ * 	NFCT_CP_ALL: that copies the object entirely.
+ * 	NFCT_CP_ORIG and NFCT_CP_REPL: that can be used to copy the
  * 	information that identifies a flow in the original and the reply
  * 	direction. This information is usually composed of: source and
  * 	destination IP address; source and destination ports; layer 3
  * 	and 4 protocol number.
- * 	- NFCT_CP_META that copies the metainformation 
- * 	  (all the attributes >= ATTR_TCP_STATE)
+ * 	NFCT_CP_META: that copies the metainformation 
+ * 	(all the attributes >= ATTR_TCP_STATE)
  */
 void nfct_copy(struct nf_conntrack *ct1,
 	       const struct nf_conntrack *ct2,
