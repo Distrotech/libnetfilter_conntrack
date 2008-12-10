@@ -32,10 +32,13 @@ int main()
 	nfct_callback_register(h, NFCT_T_ALL, cb, NULL);
 	ret = nfct_query(h, NFCT_Q_DUMP, &family);
 
-	printf("TEST: dump conntrack (%d)(%s)\n", ret, strerror(errno));
-
+	printf("TEST: get conntrack ");
 	if (ret == -1)
-		exit(EXIT_FAILURE);
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
 	nfct_close(h);
+
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

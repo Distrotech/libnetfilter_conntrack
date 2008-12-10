@@ -37,12 +37,13 @@ int main()
 
 	ret = nfexp_catch(h);
 
-	printf("TEST: OK (%d)(%s)\n", ret, strerror(errno));
+	printf("TEST: expectation events ");
+	if (ret == -1)
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
 	nfct_close(h);
 
-	if (ret == -1)
-		exit(EXIT_FAILURE);
-
-	exit(EXIT_SUCCESS);
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

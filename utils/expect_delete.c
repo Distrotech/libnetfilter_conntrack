@@ -41,10 +41,11 @@ int main()
 
 	ret = nfexp_query(h, NFCT_Q_DESTROY, exp);
 
-	printf("TEST: delete expectation (%d)(%s)\n", ret, strerror(errno));
-
+	printf("TEST: delete expectation ");
 	if (ret == -1)
-		exit(EXIT_FAILURE);
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
-	exit(EXIT_SUCCESS);
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

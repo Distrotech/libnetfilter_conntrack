@@ -47,10 +47,13 @@ int main()
 
 	ret = nfct_query(h, NFCT_Q_GET, ct);
 
-	printf("TEST: get conntrack (%d)(%s)\n", ret, strerror(errno));
-
+	printf("TEST: get conntrack ");
 	if (ret == -1)
-		exit(EXIT_FAILURE);
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
 	nfct_close(h);
+
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

@@ -54,10 +54,13 @@ int main()
 	nfexp_callback_register(h, NFCT_T_ALL, cb, NULL);
 	ret = nfexp_query(h, NFCT_Q_GET, exp);
 
-	printf("TEST: get expectation (%d)(%s)\n", ret, strerror(errno));
-
+	printf("TEST: get expectation ");
 	if (ret == -1)
-		exit(EXIT_FAILURE);
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
-	exit(EXIT_SUCCESS);
+	nfct_close(h);
+
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

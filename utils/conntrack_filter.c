@@ -80,10 +80,13 @@ int main()
 
 	ret = nfct_catch(h);
 
-	printf("TEST: OK (%d)(%s)\n", ret, strerror(errno));
-
+	printf("TEST: conntrack events ");
 	if (ret == -1)
-		exit(EXIT_FAILURE);
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
 	nfct_close(h);
+
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

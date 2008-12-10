@@ -48,7 +48,11 @@ int main()
 
 	ret = nfct_query(h, NFCT_Q_CREATE, master);
 
-	printf("TEST: add master conntrack (%d)(%s)\n", ret, strerror(errno));
+	printf("TEST: add master conntrack ");
+	if (ret == -1)
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
 	nfct_close(h);
 
@@ -107,10 +111,13 @@ int main()
 
 	ret = nfexp_query(h, NFCT_Q_CREATE, exp);
 
-	printf("TEST: create expectation (%d)(%s)\n", ret, strerror(errno));
-
+	printf("TEST: create expectation ");
 	if (ret == -1)
-		exit(EXIT_FAILURE);
+		printf("(%d)(%s)\n", ret, strerror(errno));
+	else
+		printf("(OK)\n");
 
-	exit(EXIT_SUCCESS);
+	nfct_close(h);
+
+	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }
