@@ -106,8 +106,11 @@ void __build_protoinfo(struct nfnlhdr *req,
 	case IPPROTO_TCP:
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
-		nfnl_addattr_l(&req->nlh, size, CTA_PROTOINFO_TCP_STATE,
-			       &ct->protoinfo.tcp.state, sizeof(u_int8_t));
+		if (test_bit(ATTR_TCP_STATE, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_TCP_STATE,
+				       &ct->protoinfo.tcp.state,
+				       sizeof(u_int8_t));
 		if (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
 		    test_bit(ATTR_TCP_MASK_ORIG, ct->set))
 			nfnl_addattr_l(&req->nlh, size,
