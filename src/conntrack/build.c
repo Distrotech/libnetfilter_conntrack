@@ -194,7 +194,7 @@ void __build_protonat(struct nfnlhdr *req,
 
 	nest = nfnl_nest(&req->nlh, size, CTA_NAT_PROTO);
 
-	switch (ct->tuple[NFCT_DIR_ORIGINAL].protonum) {
+	switch (ct->tuple[__DIR_ORIG].protonum) {
 	case IPPROTO_TCP:
 	case IPPROTO_UDP:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTONAT_PORT_MIN,
@@ -333,7 +333,7 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      u_int16_t flags,
 		      const struct nf_conntrack *ct)
 {
-	u_int8_t l3num = ct->tuple[NFCT_DIR_ORIGINAL].l3protonum;
+	u_int8_t l3num = ct->tuple[__DIR_ORIG].l3protonum;
 
 	if (!test_bit(ATTR_ORIG_L3PROTO, ct->set)) {
 		errno = EINVAL;

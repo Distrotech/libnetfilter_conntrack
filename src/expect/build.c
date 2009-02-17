@@ -24,9 +24,9 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 	u_int8_t l3num;
 
 	if (test_bit(ATTR_ORIG_L3PROTO, exp->master.set))
-		l3num = exp->master.tuple[NFCT_DIR_ORIGINAL].l3protonum;
+		l3num = exp->master.tuple[__DIR_ORIG].l3protonum;
 	else if (test_bit(ATTR_ORIG_L3PROTO, exp->expected.set))
-		l3num = exp->expected.tuple[NFCT_DIR_ORIGINAL].l3protonum;
+		l3num = exp->expected.tuple[__DIR_ORIG].l3protonum;
 	else
 		return -1;
 
