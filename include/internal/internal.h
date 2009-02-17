@@ -24,7 +24,6 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
-#include "internal/deprecated.h"
 #include "internal/object.h"
 #include "internal/prototypes.h"
 #include "internal/types.h"

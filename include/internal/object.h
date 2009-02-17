@@ -15,11 +15,6 @@ struct nfct_handle {
 	struct nfnl_subsys_handle	*nfnlssh_ct;
 	struct nfnl_subsys_handle	*nfnlssh_exp;
 
-	/* deprecated old API */
-	nfct_callback 			callback;
-	void 				*callback_data;
-	nfct_handler			handler;
-
 	/* callback handler for the new API */
 	struct nfnl_callback		nfnl_cb;
 
