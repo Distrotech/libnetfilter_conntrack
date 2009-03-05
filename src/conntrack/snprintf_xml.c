@@ -59,7 +59,8 @@ static char *proto2str[IPPROTO_MAX] = {
         [IPPROTO_UDPLITE] = "udplite",
         [IPPROTO_ICMP] = "icmp",
         [IPPROTO_ICMPV6] = "icmp6",
-        [IPPROTO_SCTP] = "sctp"
+        [IPPROTO_SCTP] = "sctp",
+        [IPPROTO_GRE] = "gre"
 };
 static char *l3proto2str[AF_MAX] = {
 	[AF_INET] = "ipv4",
@@ -174,6 +175,17 @@ static int __snprintf_proto_xml(char *buf,
 		} else {
 			ret = snprintf(buf, len, "<dport>%u</dport>",
 				       ntohs(tuple->l4dst.tcp.port));
+			BUFFER_SIZE(ret, size, len, offset);
+		}
+		break;
+	case IPPROTO_GRE:
+		if (type == __ADDR_SRC) {
+			ret = snprintf(buf, len, "<srckey>0x%x</srckey>", 
+				       ntohs(tuple->l4src.all));
+			BUFFER_SIZE(ret, size, len, offset);
+		} else {
+			ret = snprintf(buf, len, "<dstkey>%u</dstkey>",
+				       ntohs(tuple->l4dst.all));
 			BUFFER_SIZE(ret, size, len, offset);
 		}
 		break;

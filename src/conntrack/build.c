@@ -50,6 +50,7 @@ void __build_tuple_proto(struct nfnlhdr *req,
 	case IPPROTO_UDP:
 	case IPPROTO_TCP:
 	case IPPROTO_SCTP:
+	case IPPROTO_GRE:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
 			       &t->l4src.tcp.port, sizeof(u_int16_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,

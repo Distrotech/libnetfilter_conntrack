@@ -13,7 +13,8 @@ static char *proto2str[IPPROTO_MAX] = {
         [IPPROTO_UDPLITE] = "udplite",
         [IPPROTO_ICMP] = "icmp",
         [IPPROTO_ICMPV6] = "icmpv6",
-        [IPPROTO_SCTP] = "sctp"
+        [IPPROTO_SCTP] = "sctp",
+        [IPPROTO_GRE] = "gre"
 };
 
 static char *l3proto2str[AF_MAX] = {
@@ -162,7 +163,11 @@ int __snprintf_proto(char *buf,
 			        ntohs(tuple->l4src.tcp.port),
 			        ntohs(tuple->l4dst.tcp.port));
 		break;
-
+	case IPPROTO_GRE:
+		return snprintf(buf, len, "srckey=0x%x dstkey=0x%x ",
+			        ntohs(tuple->l4src.all),
+			        ntohs(tuple->l4dst.all));
+		break;
 	case IPPROTO_ICMP:
 	case IPPROTO_ICMPV6:
 		/* The ID only makes sense some ICMP messages but we want to
