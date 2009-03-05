@@ -14,7 +14,8 @@ static char *proto2str[IPPROTO_MAX] = {
         [IPPROTO_ICMP] = "icmp",
         [IPPROTO_ICMPV6] = "icmpv6",
         [IPPROTO_SCTP] = "sctp",
-        [IPPROTO_GRE] = "gre"
+        [IPPROTO_GRE] = "gre",
+        [IPPROTO_UDPLITE] = "udplite",
 };
 
 static char *l3proto2str[AF_MAX] = {
