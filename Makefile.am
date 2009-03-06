@@ -10,8 +10,6 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnetfilter_conntrack.pc
 
 EXTRA_DIST = Make_global.am
-dist-hook:
-	rm -rf `find $(distdir)/debian -name .svn`
 
 $(OBJECTS): libtool
 libtool: $(LIBTOOL_DEPS)
