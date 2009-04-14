@@ -40,9 +40,7 @@
  *		</counters>
  * 	</meta>
  * 	<meta direction="independent">
- *	 	<layer4>
- * 			<state>ESTABLISHED</state>
- * 		</layer4>
+ * 		<state>ESTABLISHED</state>
  * 		<timeout>100</timeout>
  * 		<mark>1</mark>
  * 		<secmark>0</secmark>
@@ -290,12 +288,33 @@ int __snprintf_conntrack_xml(char *buf,
 	ret = __snprintf_tuple_xml(buf+offset, len, ct, __DIR_REPL);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	if (test_bit(ATTR_TIMEOUT, ct->set) ||
+	if (test_bit(ATTR_TCP_STATE, ct->set) ||
+	    test_bit(ATTR_SCTP_STATE, ct->set) ||
+	    test_bit(ATTR_DCCP_STATE, ct->set) ||
+	    test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set)) {
 		ret = snprintf(buf+offset, len, 
 			       "<meta direction=\"independent\">");
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_TCP_STATE, ct->set)) {
+		ret = snprintf(buf+offset, len, "<state>%s</state>",
+			       states[ct->protoinfo.tcp.state]);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_SCTP_STATE, ct->set)) {
+		ret = snprintf(buf+offset, len, "<state>%s</state>",
+			       states[ct->protoinfo.sctp.state]);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_DCCP_STATE, ct->set)) {
+		ret = snprintf(buf+offset, len, "<state>%s</state>",
+			       states[ct->protoinfo.dccp.state]);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
@@ -338,7 +357,10 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_TIMEOUT, ct->set) ||
+	if (test_bit(ATTR_TCP_STATE, ct->set) ||
+	    test_bit(ATTR_SCTP_STATE, ct->set) ||
+	    test_bit(ATTR_DCCP_STATE, ct->set) ||
+	    test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set)) {
