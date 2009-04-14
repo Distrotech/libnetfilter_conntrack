@@ -50,6 +50,7 @@ void __build_tuple_proto(struct nfnlhdr *req,
 	case IPPROTO_UDP:
 	case IPPROTO_TCP:
 	case IPPROTO_SCTP:
+	case IPPROTO_DCCP:
 	case IPPROTO_GRE:
 	case IPPROTO_UDPLITE:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
@@ -98,14 +99,20 @@ void __build_tuple(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_protoinfo(struct nfnlhdr *req,
-		       size_t size,
-		       const struct nf_conntrack *ct)
+static void __build_protoinfo(struct nfnlhdr *req, size_t size,
+			      const struct nf_conntrack *ct)
 {
 	struct nfattr *nest, *nest_proto;
 
 	switch(ct->tuple[__DIR_ORIG].protonum) {
 	case IPPROTO_TCP:
+		if (!(test_bit(ATTR_TCP_STATE, ct->set) ||
+		      (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
+		       test_bit(ATTR_TCP_MASK_ORIG, ct->set)) ||
+		      (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
+		       test_bit(ATTR_TCP_MASK_REPL, ct->set)))) {
+			break;
+		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
 		if (test_bit(ATTR_TCP_STATE, ct->set))
@@ -129,6 +136,11 @@ void __build_protoinfo(struct nfnlhdr *req,
 		nfnl_nest_end(&req->nlh, nest);
 		break;
 	case IPPROTO_SCTP:
+		if (!(test_bit(ATTR_SCTP_STATE, ct->set) &&
+		      (test_bit(ATTR_SCTP_VTAG_ORIG, ct->set) &&
+		       test_bit(ATTR_SCTP_VTAG_REPL, ct->set)))) {
+			break;
+		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_SCTP);
 		if (test_bit(ATTR_SCTP_STATE, ct->set))
@@ -147,6 +159,19 @@ void __build_protoinfo(struct nfnlhdr *req,
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 		break;
+	case IPPROTO_DCCP:
+		if (!(test_bit(ATTR_DCCP_STATE, ct->set)))
+			break;
+
+		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
+		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_DCCP);
+		if (test_bit(ATTR_DCCP_STATE, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_DCCP_STATE,
+				       &ct->protoinfo.dccp.state,
+				       sizeof(u_int8_t));
+		nfnl_nest_end(&req->nlh, nest_proto);
+		nfnl_nest_end(&req->nlh, nest);
 	default:
 		break;
 	}
@@ -404,12 +429,7 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	if (test_bit(ATTR_SECMARK, ct->set))
 		__build_secmark(req, size, ct);
 
-	if (test_bit(ATTR_TCP_STATE, ct->set) ||
-	    (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
-	     test_bit(ATTR_TCP_MASK_ORIG, ct->set)) ||
-	    (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
-	     test_bit(ATTR_TCP_MASK_REPL, ct->set)))
-		__build_protoinfo(req, size, ct);
+	__build_protoinfo(req, size, ct);
 
 	if (test_bit(ATTR_SNAT_IPV4, ct->set) && 
 	    test_bit(ATTR_SNAT_PORT, ct->set))

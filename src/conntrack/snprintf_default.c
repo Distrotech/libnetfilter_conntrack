@@ -16,6 +16,7 @@ static char *proto2str[IPPROTO_MAX] = {
         [IPPROTO_SCTP] = "sctp",
         [IPPROTO_GRE] = "gre",
         [IPPROTO_UDPLITE] = "udplite",
+        [IPPROTO_DCCP] = "dccp",
 };
 
 static char *l3proto2str[AF_MAX] = {
@@ -45,6 +46,19 @@ static const char *sctp_states[] = {
 	"SHUTDOWN_SENT",
 	"SHUTDOWN_RECD",
 	"SHUTDOWN_ACK_SENT",
+};
+
+static const char *dccp_states[] = {
+	"NONE",
+	"REQUEST",
+	"RESPOND",
+	"PARTOPEN",
+	"OPEN",
+	"CLOSEREQ",
+	"CLOSING",
+	"TIMEWAIT",
+	"IGNORE",
+	"INVALID",
 };
 
 static int __snprintf_l3protocol(char *buf,
@@ -85,6 +99,12 @@ int __snprintf_protoinfo_sctp(char *buf,
 			      const struct nf_conntrack *ct)
 {
 	return snprintf(buf, len, "%s ", sctp_states[ct->protoinfo.sctp.state]);
+}
+int __snprintf_protoinfo_dccp(char *buf, 
+			      unsigned int len,
+			      const struct nf_conntrack *ct)
+{
+	return snprintf(buf, len, "%s ", dccp_states[ct->protoinfo.dccp.state]);
 }
 
 int __snprintf_address_ipv4(char *buf,
@@ -285,6 +305,11 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (test_bit(ATTR_SCTP_STATE, ct->set)) {
 		ret = __snprintf_protoinfo_sctp(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_DCCP_STATE, ct->set)) {
+		ret = __snprintf_protoinfo_dccp(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

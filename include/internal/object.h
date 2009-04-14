@@ -53,6 +53,9 @@ union __nfct_l4_src {
 	struct {
 		u_int16_t 	port;
 	} sctp;
+	struct {
+		u_int16_t 	port;
+	} dccp;
 };
 
 union __nfct_l4_dst {
@@ -70,6 +73,9 @@ union __nfct_l4_dst {
 	struct {
 		u_int16_t 	port;
 	} sctp;
+	struct {
+		u_int16_t 	port;
+	} dccp;
 };
 
 union __nfct_address {
@@ -110,7 +116,9 @@ union __nfct_protoinfo {
 		u_int8_t 		state;
 		u_int32_t 		vtag[__DIR_MAX];
 	} sctp;
-
+	struct {
+		u_int8_t 		state;
+	} dccp;
 };
 
 struct __nfct_counters {

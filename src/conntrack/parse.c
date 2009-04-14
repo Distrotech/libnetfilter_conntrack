@@ -244,6 +244,20 @@ static void __parse_protoinfo_sctp(const struct nfattr *attr,
 
 }
 
+static void __parse_protoinfo_dccp(const struct nfattr *attr, 
+				   struct nf_conntrack *ct)
+{
+	struct nfattr *tb[CTA_PROTOINFO_DCCP_MAX];
+
+	nfnl_parse_nested(tb, CTA_PROTOINFO_DCCP_MAX, attr);
+
+	if (tb[CTA_PROTOINFO_DCCP_STATE-1]) {
+                ct->protoinfo.dccp.state =
+                        *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_DCCP_STATE-1]);
+		set_bit(ATTR_DCCP_STATE, ct->set);
+	}
+}
+
 static void __parse_protoinfo(const struct nfattr *attr,
 			      struct nf_conntrack *ct)
 {
@@ -256,6 +270,9 @@ static void __parse_protoinfo(const struct nfattr *attr,
 
 	if (tb[CTA_PROTOINFO_SCTP-1])
 		__parse_protoinfo_sctp(tb[CTA_PROTOINFO_SCTP-1], ct);
+
+	if (tb[CTA_PROTOINFO_DCCP-1])
+		__parse_protoinfo_dccp(tb[CTA_PROTOINFO_DCCP-1], ct);
 }
 
 static void __parse_counters(const struct nfattr *attr,

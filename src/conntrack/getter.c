@@ -287,6 +287,11 @@ static const void *get_attr_helper_name(const struct nf_conntrack *ct)
 	return ct->helper_name;
 }
 
+static const void *get_attr_dccp_state(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.dccp.state;
+}
+
 get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -344,4 +349,5 @@ get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_SCTP_VTAG_ORIG]		= get_attr_sctp_vtag_orig,
 	[ATTR_SCTP_VTAG_REPL]		= get_attr_sctp_vtag_repl,
 	[ATTR_HELPER_NAME]		= get_attr_helper_name,
+	[ATTR_DCCP_STATE]		= get_attr_dccp_state,
 };
