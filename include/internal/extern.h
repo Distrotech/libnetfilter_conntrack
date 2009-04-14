@@ -13,4 +13,11 @@ extern get_exp_attr	get_exp_attr_array[];
 
 extern uint32_t attr_grp_bitmask[ATTR_GRP_MAX][__NFCT_BITSET];
 
+/* for the snprintf infrastructure */
+extern const char 	*l3proto2str[AF_MAX];
+extern const char	*proto2str[IPPROTO_MAX];
+extern const char	*states[TCP_CONNTRACK_MAX];
+extern const char	*sctp_states[SCTP_CONNTRACK_MAX];
+extern const char	*dccp_states[DCCP_CONNTRACK_MAX];
+
 #endif

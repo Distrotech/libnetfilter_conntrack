@@ -53,33 +53,17 @@
  * </flow>
  */
 
-static char *proto2str[IPPROTO_MAX] = {
-	[IPPROTO_TCP] = "tcp",
-        [IPPROTO_UDP] = "udp",
-        [IPPROTO_UDPLITE] = "udplite",
-        [IPPROTO_ICMP] = "icmp",
-        [IPPROTO_ICMPV6] = "icmp6",
-        [IPPROTO_SCTP] = "sctp",
-        [IPPROTO_GRE] = "gre",
-        [IPPROTO_UDPLITE] = "udplite",
-	[IPPROTO_DCCP] = "dccp",
-};
-static char *l3proto2str[AF_MAX] = {
-	[AF_INET] = "ipv4",
-	[AF_INET6] = "ipv6"
-};
-
 enum {
 	__ADDR_SRC = 0,
 	__ADDR_DST,
 };
 
-static char *__proto2str(u_int8_t protonum)
+static const char *__proto2str(u_int8_t protonum)
 {
 	return proto2str[protonum] ? proto2str[protonum] : "unknown";
 }
 
-static char *__l3proto2str(u_int8_t protonum)
+static const char *__l3proto2str(u_int8_t protonum)
 {
 	return l3proto2str[protonum] ? l3proto2str[protonum] : "unknown";
 }

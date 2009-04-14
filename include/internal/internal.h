@@ -23,6 +23,9 @@
 
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_tcp.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_sctp.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack_dccp.h>
 
 #include "internal/object.h"
 #include "internal/prototypes.h"

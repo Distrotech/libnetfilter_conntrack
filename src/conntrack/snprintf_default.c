@@ -7,60 +7,6 @@
 
 #include "internal/internal.h"
 
-static char *proto2str[IPPROTO_MAX] = {
-	[IPPROTO_TCP] = "tcp",
-        [IPPROTO_UDP] = "udp",
-        [IPPROTO_UDPLITE] = "udplite",
-        [IPPROTO_ICMP] = "icmp",
-        [IPPROTO_ICMPV6] = "icmpv6",
-        [IPPROTO_SCTP] = "sctp",
-        [IPPROTO_GRE] = "gre",
-        [IPPROTO_UDPLITE] = "udplite",
-        [IPPROTO_DCCP] = "dccp",
-};
-
-static char *l3proto2str[AF_MAX] = {
-	[AF_INET] = "ipv4",
-	[AF_INET6] = "ipv6"
-};
-
-static const char *states[] = {
-	"NONE",
-	"SYN_SENT",
-	"SYN_RECV",
-	"ESTABLISHED",
-	"FIN_WAIT",
-	"CLOSE_WAIT",
-	"LAST_ACK",
-	"TIME_WAIT",
-	"CLOSE",
-	"LISTEN"
-};
-
-static const char *sctp_states[] = {
-	"NONE",
-	"CLOSED",
-	"COOKIE_WAIT",
-	"COOKIE_ECHOED",
-	"ESTABLISHED",
-	"SHUTDOWN_SENT",
-	"SHUTDOWN_RECD",
-	"SHUTDOWN_ACK_SENT",
-};
-
-static const char *dccp_states[] = {
-	"NONE",
-	"REQUEST",
-	"RESPOND",
-	"PARTOPEN",
-	"OPEN",
-	"CLOSEREQ",
-	"CLOSING",
-	"TIMEWAIT",
-	"IGNORE",
-	"INVALID",
-};
-
 static int __snprintf_l3protocol(char *buf,
 				 unsigned int len,
 				 const struct nf_conntrack *ct)
