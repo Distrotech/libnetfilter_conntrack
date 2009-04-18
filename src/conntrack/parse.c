@@ -237,9 +237,9 @@ static void __parse_protoinfo_sctp(const struct nfattr *attr,
 	}
 
 	if (tb[CTA_PROTOINFO_SCTP_VTAG_REPLY-1]) {
-		ct->protoinfo.sctp.vtag[__DIR_ORIG] = 
+		ct->protoinfo.sctp.vtag[__DIR_REPL] = 
 			ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_VTAG_REPLY-1]));
-		set_bit(ATTR_SCTP_VTAG_ORIG, ct->set);
+		set_bit(ATTR_SCTP_VTAG_REPL, ct->set);
 	}
 
 }
