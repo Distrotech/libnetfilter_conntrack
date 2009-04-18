@@ -168,7 +168,7 @@ static int __snprintf_proto_xml(char *buf,
 				       ntohs(tuple->l4src.all));
 			BUFFER_SIZE(ret, size, len, offset);
 		} else {
-			ret = snprintf(buf, len, "<dstkey>%u</dstkey>",
+			ret = snprintf(buf, len, "<dstkey>0x%x</dstkey>",
 				       ntohs(tuple->l4dst.all));
 			BUFFER_SIZE(ret, size, len, offset);
 		}
