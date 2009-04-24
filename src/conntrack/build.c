@@ -160,16 +160,20 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 		nfnl_nest_end(&req->nlh, nest);
 		break;
 	case IPPROTO_DCCP:
-		if (!(test_bit(ATTR_DCCP_STATE, ct->set)))
+		if (!(test_bit(ATTR_DCCP_STATE, ct->set) &&
+		      test_bit(ATTR_DCCP_ROLE, ct->set)))
 			break;
 
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_DCCP);
-		if (test_bit(ATTR_DCCP_STATE, ct->set))
-			nfnl_addattr_l(&req->nlh, size,
-				       CTA_PROTOINFO_DCCP_STATE,
-				       &ct->protoinfo.dccp.state,
-				       sizeof(u_int8_t));
+		nfnl_addattr_l(&req->nlh, size,
+			       CTA_PROTOINFO_DCCP_STATE,
+			       &ct->protoinfo.dccp.state,
+			       sizeof(u_int8_t));
+		nfnl_addattr_l(&req->nlh, size,
+			       CTA_PROTOINFO_DCCP_ROLE,
+			       &ct->protoinfo.dccp.role,
+			       sizeof(u_int8_t));
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 	default:

@@ -26,6 +26,13 @@ enum dccp_state {
 	DCCP_CONNTRACK_MAX
 };
 
+enum dccp_roles {
+	DCCP_CONNTRACK_ROLE_CLIENT,
+	DCCP_CONNTRACK_ROLE_SERVER,
+	__DCCP_CONNTRACK_ROLE_MAX
+};
+#define DCCP_ROLE_MAX		(__DCCP_CONNTRACK_ROLE_MAX - 1)
+
 #ifdef __cplusplus
 }
 #endif

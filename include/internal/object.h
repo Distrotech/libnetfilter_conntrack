@@ -118,6 +118,7 @@ union __nfct_protoinfo {
 	} sctp;
 	struct {
 		u_int8_t 		state;
+		u_int8_t		role;
 	} dccp;
 };
 

@@ -319,6 +319,11 @@ static void set_attr_dccp_state(struct nf_conntrack *ct, const void *value)
 	ct->protoinfo.dccp.state = *((u_int8_t *) value);
 }
 
+static void set_attr_dccp_role(struct nf_conntrack *ct, const void *value)
+{
+	ct->protoinfo.dccp.role = *((u_int8_t *) value);
+}
+
 static void set_attr_do_nothing(struct nf_conntrack *ct, const void *value) {}
 
 set_attr set_attr_array[ATTR_MAX] = {
@@ -379,4 +384,5 @@ set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_SCTP_VTAG_REPL]	= set_attr_sctp_vtag_repl,
 	[ATTR_HELPER_NAME]	= set_attr_helper_name,
 	[ATTR_DCCP_STATE]	= set_attr_dccp_state,
+	[ATTR_DCCP_ROLE]	= set_attr_dccp_role,
 };

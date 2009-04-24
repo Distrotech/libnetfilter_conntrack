@@ -256,6 +256,11 @@ static void __parse_protoinfo_dccp(const struct nfattr *attr,
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_DCCP_STATE-1]);
 		set_bit(ATTR_DCCP_STATE, ct->set);
 	}
+	if (tb[CTA_PROTOINFO_DCCP_ROLE-1]) {
+                ct->protoinfo.dccp.role =
+                        *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_DCCP_ROLE-1]);
+		set_bit(ATTR_DCCP_ROLE, ct->set);
+	}
 }
 
 static void __parse_protoinfo(const struct nfattr *attr,
