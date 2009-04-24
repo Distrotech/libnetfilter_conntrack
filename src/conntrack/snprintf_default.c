@@ -126,6 +126,7 @@ int __snprintf_proto(char *buf,
 	case IPPROTO_UDP:
 	case IPPROTO_UDPLITE:
 	case IPPROTO_SCTP:
+	case IPPROTO_DCCP:
 		return snprintf(buf, len, "sport=%u dport=%u ",
 			        ntohs(tuple->l4src.tcp.port),
 			        ntohs(tuple->l4dst.tcp.port));

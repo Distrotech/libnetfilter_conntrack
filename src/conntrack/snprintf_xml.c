@@ -152,6 +152,7 @@ static int __snprintf_proto_xml(char *buf,
 	case IPPROTO_UDP:
 	case IPPROTO_UDPLITE:
 	case IPPROTO_SCTP:
+	case IPPROTO_DCCP:
 		if (type == __ADDR_SRC) {
 			ret = snprintf(buf, len, "<sport>%u</sport>", 
 				       ntohs(tuple->l4src.tcp.port));
