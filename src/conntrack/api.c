@@ -200,6 +200,80 @@ void nfct_callback_unregister(struct nfct_handle *h)
 }
 
 /**
+ * nf_callback_register2 - register a callback
+ * @h: library handler
+ * @cb: callback used to process conntrack received
+ * @data: data used by the callback, if any.
+ *
+ * This function register a callback to handle the conntrack received, 
+ * in case of error -1 is returned and errno is set appropiately, otherwise
+ * 0 is returned.
+ *
+ * Note that the data parameter is optional, if you do not want to pass any
+ * data to your callback, then use NULL.
+ *
+ * NOTICE: The difference with nf_callback_register() is that this function
+ * uses the new callback interface that includes the Netlink header.
+ *
+ * WARNING: Don't mix nf_callback_register() and nf_callback_register2()
+ * calls, use only once at a time.
+ */
+int nfct_callback_register2(struct nfct_handle *h,
+			    enum nf_conntrack_msg_type type,
+			    int (*cb)(const struct nlmsghdr *nlh,
+			    	      enum nf_conntrack_msg_type type,
+				      struct nf_conntrack *ct, 
+				      void *data),
+			   void *data)
+{
+	struct __data_container *container;
+
+	assert(h != NULL);
+
+	container = calloc(sizeof(struct __data_container), 1);
+	if (container == NULL)
+		return -1;
+
+	h->cb2 = cb;
+	container->h = h;
+	container->type = type;
+	container->data = data;
+
+	h->nfnl_cb.call = __callback;
+	h->nfnl_cb.data = container;
+	h->nfnl_cb.attr_count = CTA_MAX;
+
+	nfnl_callback_register(h->nfnlssh_ct, 
+			       IPCTNL_MSG_CT_NEW,
+			       &h->nfnl_cb);
+
+	nfnl_callback_register(h->nfnlssh_ct,
+			       IPCTNL_MSG_CT_DELETE,
+			       &h->nfnl_cb);
+
+	return 0;
+}
+
+/**
+ * nfct_callback_unregister2 - unregister a callback
+ * @h: library handler
+ */
+void nfct_callback_unregister2(struct nfct_handle *h)
+{
+	assert(h != NULL);
+
+	nfnl_callback_unregister(h->nfnlssh_ct, IPCTNL_MSG_CT_NEW);
+	nfnl_callback_unregister(h->nfnlssh_ct, IPCTNL_MSG_CT_DELETE);
+
+	h->cb2 = NULL;
+	free(h->nfnl_cb.data);
+
+	h->nfnl_cb.call = NULL;
+	h->nfnl_cb.data = NULL;
+	h->nfnl_cb.attr_count = 0;
+}
+
+/**
  * nfct_set_attr - set the value of a certain conntrack attribute
  * @ct: pointer to a valid conntrack
  * @type: attribute type

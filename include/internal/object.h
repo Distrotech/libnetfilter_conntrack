@@ -22,6 +22,15 @@ struct nfct_handle {
 				      struct nf_conntrack *ct,
 				      void *data);
 
+	/* This is the second version of the callback that includes
+	 * the Netlink header. This is the result of an early design
+	 * error, hiding Netlink details is evil. You end needing some
+	 * internal information at some point like the Netlink PortID. */
+	int			(*cb2)(const struct nlmsghdr *nlh,
+				       enum nf_conntrack_msg_type type,
+				       struct nf_conntrack *ct,
+				       void *data);
+
 	int			(*expect_cb)(enum nf_conntrack_msg_type type, 
 					     struct nf_expect *exp,
 					     void *data);

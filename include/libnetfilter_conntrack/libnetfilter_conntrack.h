@@ -233,6 +233,18 @@ extern int nfct_callback_register(struct nfct_handle *h,
 
 extern void nfct_callback_unregister(struct nfct_handle *h);
 
+/* register / unregister callback: extended version including netlink header */
+
+extern int nfct_callback_register2(struct nfct_handle *h,
+				   enum nf_conntrack_msg_type type,
+				   int (*cb)(const struct nlmsghdr *nlh,
+				   	     enum nf_conntrack_msg_type type,
+				  	     struct nf_conntrack *ct,
+					     void *data),
+				   void *data);
+
+extern void nfct_callback_unregister2(struct nfct_handle *h);
+
 /* callback verdict */
 enum {
 	NFCT_CB_FAILURE = -1,   /* failure */

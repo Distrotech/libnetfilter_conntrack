@@ -31,6 +31,8 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data)
 
 	if (container->h->cb)
 		ret = container->h->cb(type, ct, container->data);
+	else if (container->h->cb2)
+		ret = container->h->cb2(nlh, type, ct, container->data);
 
 	switch(ret) {
 	case NFCT_CB_FAILURE:
