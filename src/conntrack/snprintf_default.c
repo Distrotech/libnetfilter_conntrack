@@ -38,19 +38,28 @@ int __snprintf_protoinfo(char *buf,
 			 unsigned int len,
 			 const struct nf_conntrack *ct)
 {
-	return snprintf(buf, len, "%s ", states[ct->protoinfo.tcp.state]);
+	return snprintf(buf, len, "%s ",
+			ct->protoinfo.tcp.state < TCP_CONNTRACK_MAX ?
+			states[ct->protoinfo.tcp.state] :
+			states[TCP_CONNTRACK_NONE]);
 }
 int __snprintf_protoinfo_sctp(char *buf, 
 			      unsigned int len,
 			      const struct nf_conntrack *ct)
 {
-	return snprintf(buf, len, "%s ", sctp_states[ct->protoinfo.sctp.state]);
+	return snprintf(buf, len, "%s ",
+			ct->protoinfo.sctp.state < SCTP_CONNTRACK_MAX ?
+			sctp_states[ct->protoinfo.sctp.state] :
+			sctp_states[SCTP_CONNTRACK_NONE]);
 }
 int __snprintf_protoinfo_dccp(char *buf, 
 			      unsigned int len,
 			      const struct nf_conntrack *ct)
 {
-	return snprintf(buf, len, "%s ", dccp_states[ct->protoinfo.dccp.state]);
+	return snprintf(buf, len, "%s ",
+			ct->protoinfo.dccp.state < DCCP_CONNTRACK_MAX ?
+			sctp_states[ct->protoinfo.dccp.state] :
+			sctp_states[DCCP_CONNTRACK_NONE]);
 }
 
 int __snprintf_address_ipv4(char *buf,

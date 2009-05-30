@@ -303,19 +303,25 @@ int __snprintf_conntrack_xml(char *buf,
 
 	if (test_bit(ATTR_TCP_STATE, ct->set)) {
 		ret = snprintf(buf+offset, len, "<state>%s</state>",
-			       states[ct->protoinfo.tcp.state]);
+			       ct->protoinfo.tcp.state < TCP_CONNTRACK_MAX ?
+			       states[ct->protoinfo.tcp.state] :
+			       states[TCP_CONNTRACK_NONE]);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_SCTP_STATE, ct->set)) {
 		ret = snprintf(buf+offset, len, "<state>%s</state>",
-			       states[ct->protoinfo.sctp.state]);
+			       ct->protoinfo.sctp.state < SCTP_CONNTRACK_MAX ?
+			       states[ct->protoinfo.sctp.state] :
+			       states[SCTP_CONNTRACK_NONE]);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_DCCP_STATE, ct->set)) {
 		ret = snprintf(buf+offset, len, "<state>%s</state>",
-			       states[ct->protoinfo.dccp.state]);
+			       ct->protoinfo.sctp.state < DCCP_CONNTRACK_MAX ?
+			       states[ct->protoinfo.dccp.state] :
+			       states[DCCP_CONNTRACK_NONE]);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
