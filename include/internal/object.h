@@ -151,7 +151,10 @@ struct nf_conntrack {
 	u_int32_t	use;
 	u_int32_t	id;
 
-#define __NFCT_HELPER_NAMELEN		30	/* same length in xt_helper */
+/* xt_helper uses a length size of 30 bytes, however, no helper name in
+ * the tree has exceeded 16 bytes length. Since 2.6.29, the maximum
+ * length accepted is 16 bytes, this limit is enforced during module load. */
+#define __NFCT_HELPER_NAMELEN		16
 	char 		helper_name[__NFCT_HELPER_NAMELEN];
 
 	union __nfct_protoinfo 	protoinfo;
