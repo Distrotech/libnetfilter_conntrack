@@ -37,7 +37,7 @@ int main()
 
 	nfct_setobjopt(master, NFCT_SOPT_SETUP_REPLY);
 
-	nfct_set_attr_u8(master, ATTR_TCP_STATE, TCP_CONNTRACK_LISTEN);
+	nfct_set_attr_u8(master, ATTR_TCP_STATE, TCP_CONNTRACK_SYN_SENT);
 	nfct_set_attr_u32(master, ATTR_TIMEOUT, 200);
 
 	h = nfct_open(CONNTRACK, 0);

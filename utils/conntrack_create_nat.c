@@ -27,7 +27,7 @@ int main()
 
 	nfct_setobjopt(ct, NFCT_SOPT_SETUP_REPLY);
 
-	nfct_set_attr_u8(ct, ATTR_TCP_STATE, TCP_CONNTRACK_LISTEN);
+	nfct_set_attr_u8(ct, ATTR_TCP_STATE, TCP_CONNTRACK_SYN_SENT);
 	nfct_set_attr_u32(ct, ATTR_TIMEOUT, 100);
 
 	nfct_set_attr_u32(ct, ATTR_SNAT_IPV4, inet_addr("8.8.8.8"));
