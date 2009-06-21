@@ -630,6 +630,12 @@ enum ip_conntrack_status {
 /* Be liberal in window checking */
 #define IP_CT_TCP_FLAG_BE_LIBERAL               0x08
 
+/* WARNING: do not use these constants in new applications, we keep them here
+ * to avoid breaking backward compatibility. */
+#define NFCT_DIR_ORIGINAL 0
+#define NFCT_DIR_REPLY 1
+#define NFCT_DIR_MAX NFCT_DIR_REPLY+1
+
 #ifdef __cplusplus
 }
 #endif
