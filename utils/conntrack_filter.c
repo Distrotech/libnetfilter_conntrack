@@ -66,6 +66,19 @@ int main()
 
 	nfct_filter_add_attr(filter, NFCT_FILTER_SRC_IPV4, &filter_ipv4);
 
+	/* BSF always wants data in host-byte order */
+	struct nfct_filter_ipv6 filter_ipv6 = {
+		.addr = { 0x0, 0x0, 0x0, 0x1 },
+		.mask = { 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff },
+	}; 
+
+	/* ignore whatever that comes from ::1 (loopback) */
+	nfct_filter_set_logic(filter,
+			      NFCT_FILTER_SRC_IPV6,
+			      NFCT_FILTER_LOGIC_NEGATIVE);
+
+	nfct_filter_add_attr(filter, NFCT_FILTER_SRC_IPV6, &filter_ipv6);
+
 	if (nfct_filter_attach(nfct_fd(h), filter) == -1) {
 		perror("nfct_filter_attach");
 		return 0;

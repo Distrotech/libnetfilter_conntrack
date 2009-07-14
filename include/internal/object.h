@@ -222,6 +222,19 @@ struct nfct_filter {
 		u_int32_t 	mask;
 	} l3proto[2][__FILTER_ADDR_MAX];
 
+	/*
+	 * FIXME: For IPv6 filtering, up to 20 IPs/masks (12 BSF lines
+	 * per comparison). I think that it is not worthy to try to support
+	 * more than that for performance reasons. It seems that oprofile
+	 * shows bad numbers for very large BSF code.
+	 */
+	u_int32_t 		l3proto_elems_ipv6[2];
+	struct {
+#define __FILTER_IPV6_MAX	20
+		u_int32_t 	addr[4];
+		u_int32_t 	mask[4];
+	} l3proto_ipv6[2][__FILTER_IPV6_MAX];
+
 	u_int32_t 		set[1];
 };
 

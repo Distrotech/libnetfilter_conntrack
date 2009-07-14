@@ -13,6 +13,11 @@
 #define SKF_AD_NLATTR		12
 #endif
 
+/* this requires a Linux kernel >= 2.6.29 */
+#ifndef SKF_AD_NLATTR_NEST
+#define SKF_AD_NLATTR_NEST	16
+#endif
+
 #define NFCT_FILTER_REJECT	0U
 #define NFCT_FILTER_ACCEPT	~0U
 
@@ -65,6 +70,26 @@ nfct_bsf_find_attr(struct sock_filter *this, int attr, int pos)
 	return NEW_POS(__code);
 }
 
+/* like the previous, but limit the search to the bound of the nest */
+static int
+nfct_bsf_find_attr_nest(struct sock_filter *this, int attr, int pos)
+{
+	struct sock_filter __code[] = {
+		[0] = {
+			/* X = attribute type */
+			.code	= BPF_LDX|BPF_IMM,
+			.k	= attr,
+		},
+		[1] = {
+			/* A = netlink attribute offset */
+			.code	= BPF_LD|BPF_B|BPF_ABS,
+			.k	= SKF_AD_OFF + SKF_AD_NLATTR_NEST,
+		}
+	};
+	memcpy(&this[pos], __code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
 struct jump {
 	int line;
 	u_int8_t jt;
@@ -83,6 +108,25 @@ nfct_bsf_cmp_k_stack(struct sock_filter *this, int k,
 		.line	= pos,
 		.jt	= jump_true - 1,
 		.jf	= 0,
+	};
+	stack_push(s, &jmp);
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+/* like previous, but use jf instead of jt. We can merge both functions */
+static int
+nfct_bsf_cmp_k_stack_jf(struct sock_filter *this, int k,
+			int jump_false, int pos, struct stack *s)
+{
+	struct sock_filter __code = {
+		.code	= BPF_JMP|BPF_JEQ|BPF_K,
+		.k	= k,
+	};
+	struct jump jmp = {
+		.line	= pos,
+		.jt	= 0,
+		.jf	= jump_false - 1,
 	};
 	stack_push(s, &jmp);
 	memcpy(&this[pos], &__code, sizeof(__code));
@@ -130,6 +174,19 @@ nfct_bsf_load_attr(struct sock_filter *this, int word_size, int pos)
 		.code	= BPF_LD|word_size|BPF_IND,
 		.k	= sizeof(struct nfattr),
 
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
+
+static int
+nfct_bsf_load_attr_offset(struct sock_filter *this, int word_size,
+			  int offset, int pos)
+{
+	struct sock_filter __code = {
+		/* A = skb->data[X + k:word_size] */
+		.code	= BPF_LD|word_size|BPF_IND,
+		.k	= sizeof(struct nfattr) + offset,
 	};
 	memcpy(&this[pos], &__code, sizeof(__code));
 	return NEW_POS(__code);
@@ -411,6 +468,111 @@ bsf_add_daddr_ipv4_filter(const struct nfct_filter *f, struct sock_filter *this)
 	return bsf_add_addr_ipv4_filter(f, this, CTA_IP_V4_DST);
 }
 
+static int
+bsf_add_addr_ipv6_filter(const struct nfct_filter *f,
+		         struct sock_filter *this,
+			 unsigned int type)
+{
+	unsigned int i, j, dir, attr;
+	unsigned int label_continue, jf;
+	struct stack *s;
+	struct jump jmp;
+
+	switch(type) {
+	case CTA_IP_V6_SRC:
+		dir = __FILTER_ADDR_SRC;
+		attr = NFCT_FILTER_SRC_IPV6;
+		break;
+	case CTA_IP_V6_DST:
+		dir = __FILTER_ADDR_DST;
+		attr = NFCT_FILTER_DST_IPV6;
+		break;
+	default:
+		return 0;
+	}
+
+	/* nothing to filter, skip */
+	if (f->l3proto_elems_ipv6[dir] == 0)
+		return 0;
+
+	/* XXX: 80 jumps (4*20) + 3 jumps in the three-level iteration */
+	s = stack_create(sizeof(struct jump), 3 + 80);
+	if (s == NULL) {
+		errno = ENOMEM;
+		return -1;
+	}
+
+	jf = 1;
+	if (f->logic[attr] == NFCT_FILTER_LOGIC_POSITIVE)
+		label_continue = 1;
+	else
+		label_continue = 2;
+
+	j = 0;
+	j += nfct_bsf_load_payload_offset(this, j);
+	j += nfct_bsf_find_attr(this, CTA_TUPLE_ORIG, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	/* no need to access attribute payload, we are using nest-based finder
+	 * j += nfct_bsf_add_attr_data_offset(this, j); */
+	j += nfct_bsf_find_attr_nest(this, CTA_TUPLE_IP, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_find_attr_nest(this, type, j);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
+	j += nfct_bsf_x_equal_a(this, j);
+
+	for (i = 0; i < f->l3proto_elems_ipv6[dir]; i++) {
+		int k, offset;
+
+		for (k = 0, offset = 0; k < 4; k++, offset += 4) {
+			int ip = f->l3proto_ipv6[dir][i].addr[k] &
+				 f->l3proto_ipv6[dir][i].mask[k];
+
+			j += nfct_bsf_load_attr_offset(this, BPF_W, offset, j);
+			j += nfct_bsf_alu_and(this,
+					      f->l3proto_ipv6[dir][i].mask[k],
+					      j);
+			if (k < 3) {
+				j += nfct_bsf_cmp_k_stack_jf(this, ip,
+							     jf - j, j, s);
+			} else {
+				/* last word: jump if true */
+				j += nfct_bsf_cmp_k_stack(this, ip, jf - j,
+							  j, s);
+			}
+		}
+	}
+
+	while (stack_pop(s, &jmp) != -1) {
+		if (jmp.jt) {
+			this[jmp.line].jt += jmp.jt + j;
+		}
+		if (jmp.jf) {
+			this[jmp.line].jf += jmp.jf + j;
+		}
+	}
+
+	if (f->logic[attr] == NFCT_FILTER_LOGIC_NEGATIVE)
+		j += nfct_bsf_jump_to(this, 1, j);
+
+	j += nfct_bsf_ret_verdict(this, NFCT_FILTER_REJECT, j);
+
+	stack_destroy(s);
+
+	return j;
+}
+
+static int
+bsf_add_saddr_ipv6_filter(const struct nfct_filter *f, struct sock_filter *this)
+{
+	return bsf_add_addr_ipv6_filter(f, this, CTA_IP_V6_SRC);
+}
+
+static int 
+bsf_add_daddr_ipv6_filter(const struct nfct_filter *f, struct sock_filter *this)
+{
+	return bsf_add_addr_ipv6_filter(f, this, CTA_IP_V6_DST);
+}
+
 /* this buffer must be big enough to store all the autogenerated lines */
 #define BSF_BUFFER_SIZE 	2048
 
@@ -425,6 +587,8 @@ int __setup_netlink_socket_filter(int fd, struct nfct_filter *f)
 	j += bsf_add_proto_filter(f, &bsf[j]);
 	j += bsf_add_saddr_ipv4_filter(f, &bsf[j]);
 	j += bsf_add_daddr_ipv4_filter(f, &bsf[j]);
+	j += bsf_add_saddr_ipv6_filter(f, &bsf[j]);
+	j += bsf_add_daddr_ipv6_filter(f, &bsf[j]);
 	j += bsf_add_state_filter(f, &bsf[j]);
 
 	/* nothing to filter, skip */

@@ -416,12 +416,18 @@ struct nfct_filter_ipv4 {
 	u_int32_t addr;
 	u_int32_t mask;
 };
+struct nfct_filter_ipv6 {
+	u_int32_t addr[4];
+	u_int32_t mask[4];
+};
 
 enum nfct_filter_attr {
 	NFCT_FILTER_L4PROTO = 0,	/* u_int32_t */
 	NFCT_FILTER_L4PROTO_STATE,	/* struct nfct_filter_proto */
 	NFCT_FILTER_SRC_IPV4,		/* struct nfct_filter_ipv4 */
 	NFCT_FILTER_DST_IPV4,		/* struct nfct_filter_ipv4 */
+	NFCT_FILTER_SRC_IPV6,		/* struct nfct_filter_ipv6 */
+	NFCT_FILTER_DST_IPV6,		/* struct nfct_filter_ipv6 */
 	NFCT_FILTER_MAX
 };
 
