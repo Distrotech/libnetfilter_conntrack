@@ -297,6 +297,11 @@ static const void *get_attr_dccp_role(const struct nf_conntrack *ct)
 	return &ct->protoinfo.dccp.role;
 }
 
+static const void *get_attr_dccp_seq(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.dccp.seq;
+}
+
 get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -356,4 +361,5 @@ get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_HELPER_NAME]		= get_attr_helper_name,
 	[ATTR_DCCP_STATE]		= get_attr_dccp_state,
 	[ATTR_DCCP_ROLE]		= get_attr_dccp_role,
+	[ATTR_DCCP_SEQ]			= get_attr_dccp_seq,
 };

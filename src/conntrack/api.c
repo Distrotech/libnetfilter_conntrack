@@ -341,6 +341,19 @@ void nfct_set_attr_u32(struct nf_conntrack *ct,
 }
 
 /**
+ * nfct_set_attr_u64 - set the value of a certain conntrack attribute
+ * @ct: pointer to a valid conntrack
+ * @type: attribute type
+ * @value: unsigned 64 bits attribute value
+ */
+void nfct_set_attr_u64(struct nf_conntrack *ct,
+		       const enum nf_conntrack_attr type, 
+		       u_int64_t value)
+{
+	nfct_set_attr(ct, type, &value);
+}
+
+/**
  * nfct_get_attr - get a conntrack attribute
  * ct: pointer to a valid conntrack
  * @type: attribute type
@@ -413,6 +426,22 @@ u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
 {
 	const u_int32_t *ret = nfct_get_attr(ct, type);
+	return ret == NULL ? 0 : *ret;
+}
+
+/**
+ * nfct_get_attr_u64 - get attribute of unsigned 32-bits long
+ * @ct: pointer to a valid conntrack
+ * @type: attribute type
+ *
+ * Returns the value of the requested attribute, if the attribute is not 
+ * set, 0 is returned. In order to check if the attribute is set or not,
+ * use nfct_attr_is_set.
+ */
+u_int64_t nfct_get_attr_u64(const struct nf_conntrack *ct,
+			    const enum nf_conntrack_attr type)
+{
+	const u_int64_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 

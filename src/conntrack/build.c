@@ -160,6 +160,11 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 				       CTA_PROTOINFO_DCCP_ROLE,
 				       &ct->protoinfo.dccp.role,
 				       sizeof(u_int8_t));
+		if (test_bit(ATTR_DCCP_SEQ, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_DCCP_SEQ,
+				       &ct->protoinfo.dccp.seq,
+				       sizeof(u_int64_t));
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 	default:

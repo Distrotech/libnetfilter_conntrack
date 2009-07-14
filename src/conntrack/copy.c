@@ -256,6 +256,12 @@ static void copy_attr_dccp_role(struct nf_conntrack *dest,
 	dest->protoinfo.dccp.role = orig->protoinfo.dccp.role;
 }
 
+static void copy_attr_dccp_seq(struct nf_conntrack *dest,
+			       const struct nf_conntrack *orig)
+{
+	dest->protoinfo.dccp.seq = orig->protoinfo.dccp.seq;
+}
+
 static void copy_attr_snat_ipv4(struct nf_conntrack *dest,
 				const struct nf_conntrack *orig)
 {
@@ -448,4 +454,5 @@ copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_HELPER_NAME]		= copy_attr_helper_name,
 	[ATTR_DCCP_STATE]		= copy_attr_dccp_state,
 	[ATTR_DCCP_ROLE]		= copy_attr_dccp_role,
+	[ATTR_DCCP_SEQ]			= copy_attr_dccp_seq,
 };
