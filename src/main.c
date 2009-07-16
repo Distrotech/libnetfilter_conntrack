@@ -88,6 +88,9 @@ int nfct_close(struct nfct_handle *cth)
 
 	/* required by the new API */
 	cth->cb = NULL;
+	cth->cb2 = NULL;
+	cth->expect_cb = NULL;
+	cth->expect_cb2 = NULL;
 	free(cth->nfnl_cb.data);
 
 	cth->nfnl_cb.call = NULL; 
