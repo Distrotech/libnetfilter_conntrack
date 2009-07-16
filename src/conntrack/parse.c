@@ -262,8 +262,9 @@ static void __parse_protoinfo_dccp(const struct nfattr *attr,
 		set_bit(ATTR_DCCP_ROLE, ct->set);
 	}
 	if (tb[CTA_PROTOINFO_DCCP_SEQ-1]) {
-                ct->protoinfo.dccp.handshake_seq =
-                        *(u_int64_t *)NFA_DATA(tb[CTA_PROTOINFO_DCCP_SEQ-1]);
+		ct->protoinfo.dccp.handshake_seq =
+			__be64_to_cpu(*(u_int64_t *)
+				NFA_DATA(tb[CTA_PROTOINFO_DCCP_SEQ-1]));
 		set_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->set);
 	}
 }
