@@ -31,6 +31,8 @@ int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data)
 
 	if (container->h->expect_cb)
 		ret = container->h->expect_cb(type, exp, container->data);
+	else if (container->h->expect_cb2)
+		ret = container->h->expect_cb2(nlh, type, exp, container->data);
 
 	switch(ret) {
 	case NFCT_CB_FAILURE:

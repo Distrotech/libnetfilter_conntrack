@@ -160,6 +160,81 @@ void nfexp_callback_unregister(struct nfct_handle *h)
 }
 
 /**
+ * nfexp_callback_register2 - register a callback
+ * @h: library handler
+ * @cb: callback used to process expect received
+ * @data: data used by the callback, if any.
+ *
+ * This function register a callback to handle the expect received, 
+ * in case of error -1 is returned and errno is set appropiately, otherwise
+ * 0 is returned.
+ *
+ * Note that the data parameter is optional, if you do not want to pass any
+ * data to your callback, then use NULL.
+ *
+ * NOTICE: The difference with nfexp_callback_register() is that this function
+ * uses the new callback interface that includes the Netlink header.
+ *
+ * WARNING: Don't mix nfexp_callback_register() and nfexp_callback_register2()
+ * calls, use only once at a time.
+ */
+int nfexp_callback_register2(struct nfct_handle *h,
+			     enum nf_conntrack_msg_type type,
+			     int (*cb)(const struct nlmsghdr *nlh,
+			     	       enum nf_conntrack_msg_type type,
+			   	       struct nf_expect *exp, 
+				       void *data),
+			     void *data)
+{
+	struct __data_container *container;
+
+	assert(h != NULL);
+
+	container = malloc(sizeof(struct __data_container));
+	if (!container)
+		return -1;
+	memset(container, 0, sizeof(struct __data_container));
+
+	h->expect_cb2 = cb;
+	container->h = h;
+	container->type = type;
+	container->data = data;
+
+	h->nfnl_cb.call = __expect_callback;
+	h->nfnl_cb.data = container;
+	h->nfnl_cb.attr_count = CTA_EXPECT_MAX;
+
+	nfnl_callback_register(h->nfnlssh_exp, 
+			       IPCTNL_MSG_EXP_NEW,
+			       &h->nfnl_cb);
+
+	nfnl_callback_register(h->nfnlssh_exp,
+			       IPCTNL_MSG_EXP_DELETE,
+			       &h->nfnl_cb);
+
+	return 0;
+}
+
+/**
+ * nfexp_callback_unregister2 - unregister a callback
+ * @h: library handler
+ */
+void nfexp_callback_unregister2(struct nfct_handle *h)
+{
+	assert(h != NULL);
+
+	nfnl_callback_unregister(h->nfnlssh_exp, IPCTNL_MSG_EXP_NEW);
+	nfnl_callback_unregister(h->nfnlssh_exp, IPCTNL_MSG_EXP_DELETE);
+
+	h->expect_cb2 = NULL;
+	free(h->nfnl_cb.data);
+
+	h->nfnl_cb.call = NULL;
+	h->nfnl_cb.data = NULL;
+	h->nfnl_cb.attr_count = 0;
+}
+
+/**
  * nfexp_set_attr - set the value of a certain expect attribute
  * @exp: pointer to a valid expect 
  * @type: attribute type

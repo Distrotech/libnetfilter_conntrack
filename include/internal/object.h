@@ -34,6 +34,12 @@ struct nfct_handle {
 	int			(*expect_cb)(enum nf_conntrack_msg_type type, 
 					     struct nf_expect *exp,
 					     void *data);
+
+	/* second version of the expect callback: it includes netlink header */
+	int			(*expect_cb2)(const struct nlmsghdr *nlh,
+					      enum nf_conntrack_msg_type type, 
+					      struct nf_expect *exp,
+					      void *data);
 };
 
 /* container used to pass data to nfnl callbacks */

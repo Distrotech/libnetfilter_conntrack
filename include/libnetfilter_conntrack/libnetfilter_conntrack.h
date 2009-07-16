@@ -519,6 +519,17 @@ extern int nfexp_callback_register(struct nfct_handle *h,
 
 extern void nfexp_callback_unregister(struct nfct_handle *h);
 
+/* register / unregister callback: extended version including netlink header */
+extern int nfexp_callback_register2(struct nfct_handle *h,
+				    enum nf_conntrack_msg_type type,
+				    int (*cb)(const struct nlmsghdr *nlh,
+				    	      enum nf_conntrack_msg_type type,
+					      struct nf_expect *exp,
+					      void *data),
+				    void *data);
+
+extern void nfexp_callback_unregister2(struct nfct_handle *h);
+
 /* setter */
 extern void nfexp_set_attr(struct nf_expect *exp,
 			   const enum nf_expect_attr type,
