@@ -128,7 +128,7 @@ union __nfct_protoinfo {
 	struct {
 		u_int8_t 		state;
 		u_int8_t		role;
-		u_int64_t		seq;
+		u_int64_t		handshake_seq;
 	} dccp;
 };
 
