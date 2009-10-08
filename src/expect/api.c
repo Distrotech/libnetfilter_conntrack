@@ -433,12 +433,12 @@ int nfexp_attr_unset(struct nf_expect *exp,
  * On error, -1 is returned and errno is appropiately set.
  * On success, 0 is returned.
  */
-int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
-		       void *req,
-		       size_t size,
-		       u_int16_t type,
-		       u_int16_t flags,
-		       const struct nf_expect *exp)
+static int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
+			      void *req,
+			      size_t size,
+			      u_int16_t type,
+			      u_int16_t flags,
+			      const struct nf_expect *exp)
 {
 	assert(ssh != NULL);
 	assert(req != NULL);
@@ -477,11 +477,11 @@ int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
  * On success, 0 is returned. On error, -1 is returned and errno is set
  * appropiately.
  */
-int nfexp_build_query(struct nfnl_subsys_handle *ssh,
-		      const enum nf_conntrack_query qt,
-		      const void *data,
-		      void *buffer,
-		      unsigned int size)
+static int nfexp_build_query(struct nfnl_subsys_handle *ssh,
+			     const enum nf_conntrack_query qt,
+			     const void *data,
+			     void *buffer,
+			     unsigned int size)
 {
 	struct nfnlhdr *req = buffer;
 	const u_int8_t *family = data;
@@ -539,9 +539,9 @@ int nfexp_build_query(struct nfnl_subsys_handle *ssh,
  * the message received is not of the requested type then 0 is returned, 
  * otherwise this function returns the message type parsed.
  */
-int nfexp_parse_expect(enum nf_conntrack_msg_type type,
-		       const struct nlmsghdr *nlh,
-		       struct nf_expect *exp)
+static int nfexp_parse_expect(enum nf_conntrack_msg_type type,
+			      const struct nlmsghdr *nlh,
+			      struct nf_expect *exp)
 {
 	unsigned int flags;
 	int len = nlh->nlmsg_len;

@@ -27,34 +27,36 @@ int __snprintf_protocol(char *buf,
 		 ct->tuple[__DIR_ORIG].protonum));
 }
 
-int __snprintf_timeout(char *buf,
-		       unsigned int len,
-		       const struct nf_conntrack *ct)
+static int __snprintf_timeout(char *buf,
+			      unsigned int len,
+			      const struct nf_conntrack *ct)
 {
 	return snprintf(buf, len, "%u ", ct->timeout);
 }
 
-int __snprintf_protoinfo(char *buf, 
-			 unsigned int len,
-			 const struct nf_conntrack *ct)
+static int __snprintf_protoinfo(char *buf,
+				unsigned int len,
+				const struct nf_conntrack *ct)
 {
 	return snprintf(buf, len, "%s ",
 			ct->protoinfo.tcp.state < TCP_CONNTRACK_MAX ?
 			states[ct->protoinfo.tcp.state] :
 			states[TCP_CONNTRACK_NONE]);
 }
-int __snprintf_protoinfo_sctp(char *buf, 
-			      unsigned int len,
-			      const struct nf_conntrack *ct)
+
+static int __snprintf_protoinfo_sctp(char *buf,
+				     unsigned int len,
+				     const struct nf_conntrack *ct)
 {
 	return snprintf(buf, len, "%s ",
 			ct->protoinfo.sctp.state < SCTP_CONNTRACK_MAX ?
 			sctp_states[ct->protoinfo.sctp.state] :
 			sctp_states[SCTP_CONNTRACK_NONE]);
 }
-int __snprintf_protoinfo_dccp(char *buf, 
-			      unsigned int len,
-			      const struct nf_conntrack *ct)
+
+static int __snprintf_protoinfo_dccp(char *buf,
+				     unsigned int len,
+				     const struct nf_conntrack *ct)
 {
 	return snprintf(buf, len, "%s ",
 			ct->protoinfo.dccp.state < DCCP_CONNTRACK_MAX ?
@@ -62,9 +64,9 @@ int __snprintf_protoinfo_dccp(char *buf,
 			sctp_states[DCCP_CONNTRACK_NONE]);
 }
 
-int __snprintf_address_ipv4(char *buf,
-			    unsigned int len,
-			    const struct __nfct_tuple *tuple)
+static int __snprintf_address_ipv4(char *buf,
+				   unsigned int len,
+				   const struct __nfct_tuple *tuple)
 {
 	int ret, size = 0, offset = 0;
 	struct in_addr src = { .s_addr = tuple->src.v4 };
@@ -79,9 +81,9 @@ int __snprintf_address_ipv4(char *buf,
 	return size;
 }
 
-int __snprintf_address_ipv6(char *buf, 
-			    unsigned int len,
-			    const struct __nfct_tuple *tuple)
+static int __snprintf_address_ipv6(char *buf,
+				   unsigned int len,
+				   const struct __nfct_tuple *tuple)
 {
 	int ret, size = 0, offset = 0;
 	struct in6_addr src;
@@ -159,9 +161,9 @@ int __snprintf_proto(char *buf,
 	return size;
 }
 
-int __snprintf_status_assured(char *buf,
-			      unsigned int len,
-			      const struct nf_conntrack *ct)
+static int __snprintf_status_assured(char *buf,
+				     unsigned int len,
+				     const struct nf_conntrack *ct)
 {
 	int size = 0;
 	
@@ -171,9 +173,9 @@ int __snprintf_status_assured(char *buf,
 	return size;
 }
 
-int __snprintf_status_not_seen_reply(char *buf,
-				     unsigned int len,
-				     const struct nf_conntrack *ct)
+static int __snprintf_status_not_seen_reply(char *buf,
+					    unsigned int len,
+					    const struct nf_conntrack *ct)
 {
 	int size = 0;
 	
@@ -183,10 +185,10 @@ int __snprintf_status_not_seen_reply(char *buf,
 	return size;
 }
 
-int __snprintf_counters(char *buf, 
-		        unsigned int len, 
-		        const struct nf_conntrack *ct,
-		        int dir)
+static int __snprintf_counters(char *buf,
+			       unsigned int len,
+			       const struct nf_conntrack *ct,
+			       int dir)
 {
 	return (snprintf(buf, len, "packets=%llu bytes=%llu ",
 			 (unsigned long long) ct->counters[dir].packets,

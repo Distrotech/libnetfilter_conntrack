@@ -7,9 +7,9 @@
 
 #include "internal/internal.h"
 
-void __build_tuple_ip(struct nfnlhdr *req, 
-		      size_t size,
-		      const struct __nfct_tuple *t)
+static void __build_tuple_ip(struct nfnlhdr *req,
+			     size_t size,
+			     const struct __nfct_tuple *t)
 {
 	struct nfattr *nest;
 
@@ -35,9 +35,9 @@ void __build_tuple_ip(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_tuple_proto(struct nfnlhdr *req,
-			 size_t size,
-			 const struct __nfct_tuple *t)
+static void __build_tuple_proto(struct nfnlhdr *req,
+				size_t size,
+				const struct __nfct_tuple *t)
 {
 	struct nfattr *nest;
 
@@ -214,10 +214,10 @@ __build_nat_seq_adj(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_protonat(struct nfnlhdr *req,
-		      size_t size,
-		      const struct nf_conntrack *ct,
-		      const struct __nfct_nat *nat)
+static void __build_protonat(struct nfnlhdr *req,
+			     size_t size,
+			     const struct nf_conntrack *ct,
+			     const struct __nfct_nat *nat)
 {
 	struct nfattr *nest;
 
@@ -235,17 +235,17 @@ void __build_protonat(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_nat(struct nfnlhdr *req,
-		 size_t size,
-		 const struct __nfct_nat *nat)
+static void __build_nat(struct nfnlhdr *req,
+			size_t size,
+			const struct __nfct_nat *nat)
 {
 	nfnl_addattr_l(&req->nlh, size, CTA_NAT_MINIP,
 		       &nat->min_ip, sizeof(u_int32_t));
 }
 
-void __build_snat(struct nfnlhdr *req,
-		  size_t size,
-		  const struct nf_conntrack *ct)
+static void __build_snat(struct nfnlhdr *req,
+			 size_t size,
+			 const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -255,9 +255,9 @@ void __build_snat(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_snat_ipv4(struct nfnlhdr *req,
-		       size_t size,
-		       const struct nf_conntrack *ct)
+static void __build_snat_ipv4(struct nfnlhdr *req,
+			      size_t size,
+			      const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -266,9 +266,9 @@ void __build_snat_ipv4(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_snat_port(struct nfnlhdr *req,
-		       size_t size,
-		       const struct nf_conntrack *ct)
+static void __build_snat_port(struct nfnlhdr *req,
+			      size_t size,
+			      const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -277,9 +277,9 @@ void __build_snat_port(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_dnat(struct nfnlhdr *req,
-		  size_t size, 
-		  const struct nf_conntrack *ct)
+static void __build_dnat(struct nfnlhdr *req,
+			 size_t size,
+			 const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -289,9 +289,9 @@ void __build_dnat(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_dnat_ipv4(struct nfnlhdr *req,
-		       size_t size, 
-		       const struct nf_conntrack *ct)
+static void __build_dnat_ipv4(struct nfnlhdr *req,
+			      size_t size,
+			      const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -300,9 +300,9 @@ void __build_dnat_ipv4(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_dnat_port(struct nfnlhdr *req,
-		       size_t size, 
-		       const struct nf_conntrack *ct)
+static void __build_dnat_port(struct nfnlhdr *req,
+			      size_t size,
+			      const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
@@ -311,38 +311,38 @@ void __build_dnat_port(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
-void __build_status(struct nfnlhdr *req,
-		    size_t size,
-		    const struct nf_conntrack *ct)
+static void __build_status(struct nfnlhdr *req,
+			   size_t size,
+			   const struct nf_conntrack *ct)
 {
 	nfnl_addattr32(&req->nlh, size, CTA_STATUS,
 		       htonl(ct->status | IPS_CONFIRMED));
 }
 
-void __build_timeout(struct nfnlhdr *req,
-			size_t size,
-			const struct nf_conntrack *ct)
+static void __build_timeout(struct nfnlhdr *req,
+			    size_t size,
+			    const struct nf_conntrack *ct)
 {
 	nfnl_addattr32(&req->nlh, size, CTA_TIMEOUT, htonl(ct->timeout));
 }
 
-void __build_mark(struct nfnlhdr *req,
-		  size_t size,
-		  const struct nf_conntrack *ct)
+static void __build_mark(struct nfnlhdr *req,
+			 size_t size,
+			 const struct nf_conntrack *ct)
 {
 	nfnl_addattr32(&req->nlh, size, CTA_MARK, htonl(ct->mark));
 }
 
-void __build_secmark(struct nfnlhdr *req,
-		     size_t size,
-		     const struct nf_conntrack *ct)
+static void __build_secmark(struct nfnlhdr *req,
+			    size_t size,
+			    const struct nf_conntrack *ct)
 {
 	nfnl_addattr32(&req->nlh, size, CTA_SECMARK, htonl(ct->secmark));
 }
 
-void __build_helper_name(struct nfnlhdr *req,
-			 size_t size,
-			 const struct nf_conntrack *ct)
+static void __build_helper_name(struct nfnlhdr *req,
+				size_t size,
+				const struct nf_conntrack *ct)
 {
 	struct nfattr *nest;
 
