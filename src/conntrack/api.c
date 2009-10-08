@@ -18,7 +18,7 @@
  * In case of success, this function returns a valid pointer to a memory blob,
  * otherwise NULL is returned and errno is set appropiately.
  */
-struct nf_conntrack *nfct_new()
+struct nf_conntrack *nfct_new(void)
 {
 	struct nf_conntrack *ct;
 
@@ -66,7 +66,7 @@ size_t nfct_sizeof(const struct nf_conntrack *ct)
  * does although _this could change in the future_. Therefore, do not assume
  * that nfct_sizeof(ct) == nfct_maxsize().
  */
-size_t nfct_maxsize()
+size_t nfct_maxsize(void)
 {
 	return sizeof(struct nf_conntrack);
 }

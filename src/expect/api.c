@@ -18,7 +18,7 @@
  * In case of success, this function returns a valid pointer to a memory blob,
  * otherwise NULL is returned and errno is set appropiately.
  */
-struct nf_expect *nfexp_new()
+struct nf_expect *nfexp_new(void)
 {
 	struct nf_expect *exp;
 
@@ -66,7 +66,7 @@ size_t nfexp_sizeof(const struct nf_expect *exp)
  * does although _this could change in the future_. Therefore, do not assume
  * that nfexp_sizeof(exp) == nfexp_maxsize().
  */
-size_t nfexp_maxsize()
+size_t nfexp_maxsize(void)
 {
 	return sizeof(struct nf_expect);
 }
