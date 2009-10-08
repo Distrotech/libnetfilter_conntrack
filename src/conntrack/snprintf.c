@@ -21,7 +21,6 @@ const char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_ICMPV6]		= "icmpv6",
 	[IPPROTO_SCTP]			= "sctp",
 	[IPPROTO_GRE]			= "gre",
-	[IPPROTO_UDPLITE]		= "udplite",
 	[IPPROTO_DCCP]			= "dccp",
 };
 
