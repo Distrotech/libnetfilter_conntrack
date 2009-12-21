@@ -21,8 +21,21 @@ static void __autocomplete(struct nf_conntrack *ct, int dir)
 	       &ct->tuple[other].src.v6,
 	       sizeof(union __nfct_address));
 
-	ct->tuple[dir].l4src.all = ct->tuple[other].l4dst.all;
-	ct->tuple[dir].l4dst.all = ct->tuple[other].l4src.all;
+	switch(ct->tuple[dir].protonum) {
+	case IPPROTO_UDP:
+	case IPPROTO_TCP:
+	case IPPROTO_SCTP:
+	case IPPROTO_DCCP:
+	case IPPROTO_GRE:
+	case IPPROTO_UDPLITE:
+		ct->tuple[dir].l4src.all = ct->tuple[other].l4dst.all;
+		ct->tuple[dir].l4dst.all = ct->tuple[other].l4src.all;
+		break;
+	case IPPROTO_ICMP:
+	case IPPROTO_ICMPV6:
+		/* the setter already autocompletes the reply tuple. */
+		break;
+	}
 
 	/* XXX: this is safe but better convert bitset to uint64_t */
         ct->set[0] |= TS_ORIG | TS_REPL;
