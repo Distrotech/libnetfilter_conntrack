@@ -200,6 +200,20 @@ static void __parse_protoinfo_tcp(const struct nfattr *attr,
 		set_bit(ATTR_TCP_STATE, ct->set);
 	}
 
+	if (tb[CTA_PROTOINFO_TCP_WSCALE_ORIGINAL-1]) {
+		memcpy(&ct->protoinfo.tcp.wscale[__DIR_ORIG],
+		       NFA_DATA(tb[CTA_PROTOINFO_TCP_WSCALE_ORIGINAL-1]),
+		       sizeof(u_int8_t));
+		set_bit(ATTR_TCP_WSCALE_ORIG, ct->set);
+	}
+
+	if (tb[CTA_PROTOINFO_TCP_WSCALE_REPLY-1]) {
+		memcpy(&ct->protoinfo.tcp.wscale[__DIR_REPL],
+		       NFA_DATA(tb[CTA_PROTOINFO_TCP_WSCALE_REPLY-1]),
+		       sizeof(u_int8_t));
+		set_bit(ATTR_TCP_WSCALE_REPL, ct->set);
+	}
+
 	if (tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]) {
 		memcpy(&ct->protoinfo.tcp.flags[0], 
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]),

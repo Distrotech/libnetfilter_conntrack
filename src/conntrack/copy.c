@@ -224,6 +224,20 @@ static void copy_attr_tcp_mask_repl(struct nf_conntrack *dest,
 		orig->protoinfo.tcp.flags[__DIR_REPL].mask;
 }
 
+static void copy_attr_tcp_wscale_orig(struct nf_conntrack *dest,
+				      const struct nf_conntrack *orig)
+{
+	dest->protoinfo.tcp.wscale[__DIR_ORIG] =
+		orig->protoinfo.tcp.wscale[__DIR_ORIG];
+}
+
+static void copy_attr_tcp_wscale_repl(struct nf_conntrack *dest,
+				      const struct nf_conntrack *orig)
+{
+	dest->protoinfo.tcp.wscale[__DIR_REPL] =
+		orig->protoinfo.tcp.wscale[__DIR_REPL];
+}
+
 static void copy_attr_sctp_state(struct nf_conntrack *dest,
 				 const struct nf_conntrack *orig)
 {
@@ -455,4 +469,6 @@ copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_DCCP_STATE]		= copy_attr_dccp_state,
 	[ATTR_DCCP_ROLE]		= copy_attr_dccp_role,
 	[ATTR_DCCP_HANDSHAKE_SEQ]	= copy_attr_dccp_handshake_seq,
+	[ATTR_TCP_WSCALE_ORIG]		= copy_attr_tcp_wscale_orig,
+	[ATTR_TCP_WSCALE_REPL]		= copy_attr_tcp_wscale_repl,
 };

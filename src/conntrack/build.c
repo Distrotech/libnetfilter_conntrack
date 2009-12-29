@@ -125,6 +125,16 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 				       CTA_PROTOINFO_TCP_FLAGS_REPLY,
 				       &ct->protoinfo.tcp.flags[1], 
 				       sizeof(u_int16_t));
+		if (test_bit(ATTR_TCP_WSCALE_ORIG, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,
+				       &ct->protoinfo.tcp.wscale[__DIR_ORIG],
+				       sizeof(u_int8_t));
+		if (test_bit(ATTR_TCP_WSCALE_REPL, ct->set))
+			nfnl_addattr_l(&req->nlh, size,
+				       CTA_PROTOINFO_TCP_WSCALE_REPLY,
+				       &ct->protoinfo.tcp.wscale[__DIR_REPL],
+				       sizeof(u_int8_t));
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 		break;

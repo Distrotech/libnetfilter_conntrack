@@ -126,6 +126,7 @@ union __nfct_protoinfo {
 			u_int8_t 	value;
 			u_int8_t 	mask;
 		} flags[__DIR_MAX];
+		u_int8_t		wscale[__DIR_MAX];
 	} tcp;
 	struct {
 		u_int8_t 		state;

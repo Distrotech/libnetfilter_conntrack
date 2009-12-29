@@ -167,6 +167,16 @@ static const void *get_attr_tcp_mask_repl(const struct nf_conntrack *ct)
 	return &ct->protoinfo.tcp.flags[__DIR_REPL].mask;
 }
 
+static const void *get_attr_tcp_wscale_orig(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.tcp.wscale[__DIR_ORIG];
+}
+
+static const void *get_attr_tcp_wscale_repl(const struct nf_conntrack *ct)
+{
+	return &ct->protoinfo.tcp.wscale[__DIR_REPL];
+}
+
 static const void *get_attr_sctp_state(const struct nf_conntrack *ct)
 {
 	return &ct->protoinfo.sctp.state;
@@ -362,4 +372,6 @@ get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_DCCP_STATE]		= get_attr_dccp_state,
 	[ATTR_DCCP_ROLE]		= get_attr_dccp_role,
 	[ATTR_DCCP_HANDSHAKE_SEQ]	= get_attr_dccp_handshake_seq,
+	[ATTR_TCP_WSCALE_ORIG]		= get_attr_tcp_wscale_orig,
+	[ATTR_TCP_WSCALE_REPL]		= get_attr_tcp_wscale_repl,
 };
