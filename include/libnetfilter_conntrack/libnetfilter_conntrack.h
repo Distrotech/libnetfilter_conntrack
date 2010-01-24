@@ -91,10 +91,10 @@ enum nf_conntrack_attr {
 	ATTR_DNAT_PORT,				/* u16 bits */
 	ATTR_TIMEOUT = 24,			/* u32 bits */
 	ATTR_MARK,				/* u32 bits */
-	ATTR_ORIG_COUNTER_PACKETS,		/* u32 bits */
-	ATTR_REPL_COUNTER_PACKETS,		/* u32 bits */
-	ATTR_ORIG_COUNTER_BYTES = 28,		/* u32 bits */
-	ATTR_REPL_COUNTER_BYTES,		/* u32 bits */
+	ATTR_ORIG_COUNTER_PACKETS,		/* u64 bits */
+	ATTR_REPL_COUNTER_PACKETS,		/* u64 bits */
+	ATTR_ORIG_COUNTER_BYTES = 28,		/* u64 bits */
+	ATTR_REPL_COUNTER_BYTES,		/* u64 bits */
 	ATTR_USE,				/* u32 bits */
 	ATTR_ID,				/* u32 bits */
 	ATTR_STATUS = 32,			/* u32 bits  */
