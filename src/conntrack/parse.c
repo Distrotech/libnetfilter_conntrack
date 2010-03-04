@@ -276,9 +276,11 @@ static void __parse_protoinfo_dccp(const struct nfattr *attr,
 		set_bit(ATTR_DCCP_ROLE, ct->set);
 	}
 	if (tb[CTA_PROTOINFO_DCCP_SEQ-1]) {
-		ct->protoinfo.dccp.handshake_seq =
-			__be64_to_cpu(*(u_int64_t *)
-				NFA_DATA(tb[CTA_PROTOINFO_DCCP_SEQ-1]));
+		u_int64_t tmp;
+		memcpy(&tmp,
+		       NFA_DATA(tb[CTA_PROTOINFO_DCCP_SEQ-1]),
+		       sizeof(tmp));
+		ct->protoinfo.dccp.handshake_seq = __be64_to_cpu(tmp);
 		set_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->set);
 	}
 }
@@ -314,10 +316,13 @@ static void __parse_counters(const struct nfattr *attr,
 				= ntohl(*(u_int32_t *)
 					NFA_DATA(tb[CTA_COUNTERS32_PACKETS-1]));
 
-		if (tb[CTA_COUNTERS_PACKETS-1])
-			ct->counters[dir].packets
-				= __be64_to_cpu(*(u_int64_t *)
-					NFA_DATA(tb[CTA_COUNTERS_PACKETS-1]));
+		if (tb[CTA_COUNTERS_PACKETS-1]) {
+			u_int64_t tmp;
+			memcpy(&tmp,
+			       NFA_DATA(tb[CTA_COUNTERS_PACKETS-1]),
+			       sizeof(tmp));
+			ct->counters[dir].packets = __be64_to_cpu(tmp);
+		}
 
 		switch(dir) {
 		case __DIR_ORIG:
@@ -335,10 +340,13 @@ static void __parse_counters(const struct nfattr *attr,
 				= ntohl(*(u_int32_t *)
 					NFA_DATA(tb[CTA_COUNTERS32_BYTES-1]));
 
-		if (tb[CTA_COUNTERS_BYTES-1])
-			ct->counters[dir].bytes
-				= __be64_to_cpu(*(u_int64_t *)
-					NFA_DATA(tb[CTA_COUNTERS_BYTES-1]));
+		if (tb[CTA_COUNTERS_BYTES-1]) {
+			u_int64_t tmp;
+			memcpy(&tmp,
+			       NFA_DATA(tb[CTA_COUNTERS_BYTES-1]),
+			       sizeof(tmp));
+			ct->counters[dir].bytes = __be64_to_cpu(tmp);
+		}
 
 		switch(dir) {
 		case __DIR_ORIG:
