@@ -365,6 +365,13 @@ static void __build_helper_name(struct nfnlhdr *req,
 	nfnl_nest_end(&req->nlh, nest);
 }
 
+static void __build_zone(struct nfnlhdr *req,
+			 size_t size,
+			 const struct nf_conntrack *ct)
+{
+	nfnl_addattr16(&req->nlh, size, CTA_ZONE, htons(ct->zone));
+}
+
 int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      struct nfnlhdr *req,
 		      size_t size,
@@ -471,6 +478,9 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 
 	if (test_bit(ATTR_HELPER_NAME, ct->set))
 		__build_helper_name(req, size, ct);
+
+	if (test_bit(ATTR_ZONE, ct->set))
+		__build_zone(req, size, ct);
 
 	return 0;
 }

@@ -409,6 +409,12 @@ static void copy_attr_helper_name(struct nf_conntrack *dest,
 	dest->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
 }
 
+static void copy_attr_zone(struct nf_conntrack *dest,
+			   const struct nf_conntrack *orig)
+{
+	dest->zone = orig->zone;
+}
+
 copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -471,4 +477,5 @@ copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_DCCP_HANDSHAKE_SEQ]	= copy_attr_dccp_handshake_seq,
 	[ATTR_TCP_WSCALE_ORIG]		= copy_attr_tcp_wscale_orig,
 	[ATTR_TCP_WSCALE_REPL]		= copy_attr_tcp_wscale_repl,
+	[ATTR_ZONE]			= copy_attr_zone,
 };

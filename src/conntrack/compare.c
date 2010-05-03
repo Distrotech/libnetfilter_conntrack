@@ -360,6 +360,14 @@ cmp_dccp_state(const struct nf_conntrack *ct1,
 	return (ct1->protoinfo.dccp.state == ct2->protoinfo.dccp.state);
 }
 
+static int 
+cmp_zone(const struct nf_conntrack *ct1,
+	 const struct nf_conntrack *ct2,
+	 unsigned int flags)
+{
+	return (ct1->zone == ct2->zone);
+}
+
 static int cmp_meta(const struct nf_conntrack *ct1,
 		    const struct nf_conntrack *ct2,
 		    unsigned int flags)
@@ -377,6 +385,8 @@ static int cmp_meta(const struct nf_conntrack *ct1,
 	if (!__cmp(ATTR_SCTP_STATE, ct1, ct2, flags, cmp_sctp_state))
 		return 0;
 	if (!__cmp(ATTR_DCCP_STATE, ct1, ct2, flags, cmp_dccp_state))
+		return 0;
+	if (!__cmp(ATTR_ZONE, ct1, ct2, flags, cmp_zone))
 		return 0;
 
 	return 1;

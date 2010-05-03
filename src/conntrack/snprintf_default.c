@@ -219,6 +219,12 @@ __snprintf_id(char *buf, unsigned int len, const struct nf_conntrack *ct)
 	return (snprintf(buf, len, "id=%u ", ct->id));
 }
 
+static int
+__snprintf_zone(char *buf, unsigned int len, const struct nf_conntrack *ct)
+{
+	return (snprintf(buf, len, "zone=%u ", ct->zone));
+}
+
 int __snprintf_conntrack_default(char *buf, 
 				 unsigned int len,
 				 const struct nf_conntrack *ct,
@@ -322,6 +328,11 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (flags & NFCT_OF_ID && test_bit(ATTR_ID, ct->set)) {
 		ret = __snprintf_id(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_ZONE, ct->set)) {
+		ret = __snprintf_zone(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

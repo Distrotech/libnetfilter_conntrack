@@ -330,6 +330,11 @@ set_attr_dccp_handshake_seq(struct nf_conntrack *ct, const void *value)
 	ct->protoinfo.dccp.handshake_seq = *((u_int64_t *) value);
 }
 
+static void set_attr_zone(struct nf_conntrack *ct, const void *value)
+{
+	ct->zone = *((u_int16_t *) value);
+}
+
 static void set_attr_do_nothing(struct nf_conntrack *ct, const void *value) {}
 
 set_attr set_attr_array[ATTR_MAX] = {
@@ -392,4 +397,5 @@ set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_DCCP_STATE]	= set_attr_dccp_state,
 	[ATTR_DCCP_ROLE]	= set_attr_dccp_role,
 	[ATTR_DCCP_HANDSHAKE_SEQ] = set_attr_dccp_handshake_seq,
+	[ATTR_ZONE]		= set_attr_zone,
 };

@@ -342,6 +342,11 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
+	if (test_bit(ATTR_ZONE, ct->set)) {
+		ret = snprintf(buf+offset, len, "<zone>%u</zone>", ct->zone);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
 	if (test_bit(ATTR_USE, ct->set)) {
 		ret = snprintf(buf+offset, len, "<use>%u</use>", ct->use);
 		BUFFER_SIZE(ret, size, len, offset);

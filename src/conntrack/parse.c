@@ -516,4 +516,9 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_HELP-1])
 		__parse_helper(cda[CTA_HELP-1], ct);
+
+	if (cda[CTA_ZONE-1]) {
+		ct->zone = ntohs(*(u_int16_t *)NFA_DATA(cda[CTA_ZONE-1]));
+		set_bit(ATTR_ZONE, ct->set);
+	}
 }

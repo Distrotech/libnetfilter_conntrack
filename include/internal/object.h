@@ -158,6 +158,7 @@ struct nf_conntrack {
 	u_int32_t 	status;
 	u_int32_t	use;
 	u_int32_t	id;
+	u_int16_t	zone;
 
 /* xt_helper uses a length size of 30 bytes, however, no helper name in
  * the tree has exceeded 16 bytes length. Since 2.6.29, the maximum

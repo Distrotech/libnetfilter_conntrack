@@ -312,6 +312,11 @@ static const void *get_attr_dccp_handshake_seq(const struct nf_conntrack *ct)
 	return &ct->protoinfo.dccp.handshake_seq;
 }
 
+static const void *get_attr_zone(const struct nf_conntrack *ct)
+{
+	return &ct->zone;
+}
+
 get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -374,4 +379,5 @@ get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_DCCP_HANDSHAKE_SEQ]	= get_attr_dccp_handshake_seq,
 	[ATTR_TCP_WSCALE_ORIG]		= get_attr_tcp_wscale_orig,
 	[ATTR_TCP_WSCALE_REPL]		= get_attr_tcp_wscale_repl,
+	[ATTR_ZONE]			= get_attr_zone,
 };
