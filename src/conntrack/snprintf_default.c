@@ -321,6 +321,11 @@ int __snprintf_conntrack_default(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
+	if (test_bit(ATTR_ZONE, ct->set)) {
+		ret = __snprintf_zone(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
 	if (test_bit(ATTR_USE, ct->set)) {
 		ret = __snprintf_use(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
@@ -328,11 +333,6 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (flags & NFCT_OF_ID && test_bit(ATTR_ID, ct->set)) {
 		ret = __snprintf_id(buf+offset, len, ct);
-		BUFFER_SIZE(ret, size, len, offset);
-	}
-
-	if (test_bit(ATTR_ZONE, ct->set)) {
-		ret = __snprintf_zone(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
