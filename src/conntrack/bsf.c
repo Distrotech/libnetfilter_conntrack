@@ -434,11 +434,11 @@ bsf_add_addr_ipv4_filter(const struct nfct_filter *f,
 	j += nfct_bsf_find_attr(this, type, j);
 	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
 	j += nfct_bsf_x_equal_a(this, j);
-	j += nfct_bsf_load_attr(this, BPF_W, j);
 
 	for (i = 0; i < f->l3proto_elems[dir]; i++) {
 		int ip = f->l3proto[dir][i].addr & f->l3proto[dir][i].mask;
 
+		j += nfct_bsf_load_attr(this, BPF_W, j);
 		j += nfct_bsf_alu_and(this, f->l3proto[dir][i].mask, j);
 		j += nfct_bsf_cmp_k_stack(this, ip, jt - j, j, s);
 	}
