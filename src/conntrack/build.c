@@ -361,7 +361,7 @@ static void __build_helper_name(struct nfnlhdr *req,
 		       size, 
 		       CTA_HELP_NAME,
 		       ct->helper_name,
-		       strlen(ct->helper_name));
+		       strlen(ct->helper_name)+1);
 	nfnl_nest_end(&req->nlh, nest);
 }
 
