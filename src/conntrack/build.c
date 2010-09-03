@@ -106,6 +106,18 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 
 	switch(ct->tuple[__DIR_ORIG].protonum) {
 	case IPPROTO_TCP:
+		/* Preliminary attribute check to avoid sending an empty
+		 * CTA_PROTOINFO_TCP nest, which results in EINVAL in
+		 * Linux kernel <= 2.6.25. */
+		if (!(test_bit(ATTR_TCP_STATE, ct->set) ||
+		      test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) ||
+		      test_bit(ATTR_TCP_FLAGS_REPL, ct->set) ||
+		      test_bit(ATTR_TCP_MASK_ORIG, ct->set) ||
+		      test_bit(ATTR_TCP_MASK_REPL, ct->set) ||
+		      test_bit(ATTR_TCP_WSCALE_ORIG, ct->set) ||
+		      test_bit(ATTR_TCP_WSCALE_REPL, ct->set))) {
+			break;
+		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
 		if (test_bit(ATTR_TCP_STATE, ct->set))
@@ -139,6 +151,12 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 		nfnl_nest_end(&req->nlh, nest);
 		break;
 	case IPPROTO_SCTP:
+		/* See comment above on TCP. */
+		if (!(test_bit(ATTR_SCTP_STATE, ct->set) ||
+		      test_bit(ATTR_SCTP_VTAG_ORIG, ct->set) ||
+		      test_bit(ATTR_SCTP_VTAG_REPL, ct->set))) {
+			break;
+		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_SCTP);
 		if (test_bit(ATTR_SCTP_STATE, ct->set))
@@ -158,6 +176,12 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 		nfnl_nest_end(&req->nlh, nest);
 		break;
 	case IPPROTO_DCCP:
+		/* See comment above on TCP. */
+		if (!(test_bit(ATTR_DCCP_STATE, ct->set) ||
+		      test_bit(ATTR_DCCP_ROLE, ct->set) ||
+		      test_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->set))) {
+			break;
+		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_DCCP);
 		if (test_bit(ATTR_DCCP_STATE, ct->set))
