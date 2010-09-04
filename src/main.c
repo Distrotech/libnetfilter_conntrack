@@ -58,6 +58,20 @@ out_free:
 	return NULL;
 }
 
+/**
+ * \defgroup LibrarySetup Library setup
+ * @{
+ */
+
+
+/**
+ * nfct_open - open a ctnetlink handler
+ * \param subsys_id can be NFNL_SUBSYS_CTNETLINK or NFNL_SUBSYS_CTNETLINK_EXP
+ * \param subscriptions ctnetlink groups to subscribe to events
+ *
+ * This function returns a handler to send commands to and receive replies from
+ * kernel-space. On error, NULL is returned and errno is explicitly set.
+ */
 struct nfct_handle *nfct_open(u_int8_t subsys_id, unsigned subscriptions)
 {
 	struct nfnl_handle *nfnlh = nfnl_open();
@@ -73,6 +87,12 @@ struct nfct_handle *nfct_open(u_int8_t subsys_id, unsigned subscriptions)
 	return nfcth;
 }
 
+/**
+ * nfct_close - close a ctnetlink handler
+ * \param cth handler obtained via nfct_open()
+ *
+ * This function returns -1 on error and errno is explicitly set.
+ */
 int nfct_close(struct nfct_handle *cth)
 {
 	int err;
@@ -103,6 +123,10 @@ int nfct_close(struct nfct_handle *cth)
 	return err;
 }
 
+/**
+ * nfct_fd - get the Netlink file descriptor of one existing ctnetlink handler
+ * \param cth handler obtained via nfct_open()
+ */
 int nfct_fd(struct nfct_handle *cth)
 {
 	return nfnl_fd(cth->nfnlh);
@@ -112,3 +136,7 @@ const struct nfnl_handle *nfct_nfnlh(struct nfct_handle *cth)
 {
 	return cth->nfnlh;
 }
+
+/**
+ * @}
+ */

@@ -13,6 +13,57 @@
 #include "internal/internal.h"
 
 /**
+ * \mainpage
+ *
+ * libnetfilter_conntrack is a userspace library providing a programming
+ * interface (API) to the in-kernel connection tracking state table. The
+ * library libnetfilter_conntrack has been previously known as
+ * libnfnetlink_conntrack and libctnetlink. This library is currently used by
+ * conntrack-tools among many other applications.
+ *
+ * libnetfilter_conntrack homepage is:
+ *      http://netfilter.org/projects/libnetfilter_conntrack/
+ *
+ * \section Dependencies
+ * libnetfilter_conntrack requires libnfnetlink and a kernel that includes the
+ * nf_conntrack_netlink subsystem (i.e. 2.6.14 or later, >= 2.6.18 recommended).
+ *
+ * \section Main Features
+ *  - listing/retrieving entries from the kernel connection tracking table.
+ *  - inserting/modifying/deleting entries from the kernel connection tracking
+ *    table.
+ *  - listing/retrieving entries from the kernel expect table.
+ *  - inserting/modifying/deleting entries from the kernel expect table.
+ * \section Git Tree
+ * The current development version of libnetfilter_conntrack can be accessed at
+ * https://git.netfilter.org/cgi-bin/gitweb.cgi?p=libnetfilter_conntrack.git
+ *
+ * \section Privileges
+ * You need the CAP_NET_ADMIN capability in order to allow your application
+ * to receive events from and to send commands to kernel-space, excepting
+ * the conntrack table dumping operation.
+ *
+ * \section using Using libnetfilter_conntrack
+ * To write your own program using libnetfilter_conntrack, you should start by
+ * reading the doxygen documentation (start by \link LibrarySetup \endlink page)
+ * and check examples available under utils/ in the libnetfilter_conntrack
+ * source code tree. You can compile these examples by invoking `make check'.
+ *
+ * \section Authors
+ * libnetfilter_conntrack has been almost entirely written by Pablo Neira Ayuso.
+ *
+ * \section python Python Binding
+ * pynetfilter_conntrack is a Python binding of libnetfilter_conntrack written
+ * by Victor Stinner. You can visit his official web site at
+ * http://software.inl.fr/trac/trac.cgi/wiki/pynetfilter_conntrack.
+ */
+
+/**
+ * \defgroup ct Conntrack object handling
+ * @{
+ */
+
+/**
  * nfct_conntrack_new - allocate a new conntrack
  *
  * In case of success, this function returns a valid pointer to a memory blob,
@@ -33,7 +84,7 @@ struct nf_conntrack *nfct_new(void)
 
 /**
  * nf_conntrack_destroy - release a conntrack object
- * @ct: pointer to the conntrack object
+ * \param ct pointer to the conntrack object
  */
 void nfct_destroy(struct nf_conntrack *ct)
 {
@@ -44,7 +95,7 @@ void nfct_destroy(struct nf_conntrack *ct)
 
 /**
  * nf_sizeof - return the size in bytes of a certain conntrack object
- * @ct: pointer to the conntrack object
+ * \param ct pointer to the conntrack object
  */
 size_t nfct_sizeof(const struct nf_conntrack *ct)
 {
@@ -57,11 +108,11 @@ size_t nfct_sizeof(const struct nf_conntrack *ct)
  *
  * Use this function if you want to allocate a conntrack object in the stack
  * instead of the heap. For example:
- *
- * char buf[nfct_maxsize()];
- * struct nf_conntrack *ct = (struct nf_conntrack *) buf;
- * memset(ct, 0, nfct_maxsize());
- *
+ * \verbatim
+	char buf[nfct_maxsize()];
+	struct nf_conntrack *ct = (struct nf_conntrack *) buf;
+	memset(ct, 0, nfct_maxsize());
+\endverbatim
  * Note: As for now this function returns the same size that nfct_sizeof(ct)
  * does although _this could change in the future_. Therefore, do not assume
  * that nfct_sizeof(ct) == nfct_maxsize().
@@ -73,7 +124,7 @@ size_t nfct_maxsize(void)
 
 /**
  * nfct_clone - clone a conntrack object
- * @ct: pointer to a valid conntrack object
+ * \param ct pointer to a valid conntrack object
  *
  * On error, NULL is returned and errno is appropiately set. Otherwise,
  * a valid pointer to the clone conntrack is returned.
@@ -93,8 +144,8 @@ struct nf_conntrack *nfct_clone(const struct nf_conntrack *ct)
 
 /**
  * nfct_setobjopt - set a certain option for a conntrack object
- * @ct: conntrack object
- * @option: option parameter
+ * \param ct conntrack object
+ * \param option option parameter
  *
  * In case of error, -1 is returned and errno is appropiately set. On success,
  * 0 is returned.
@@ -113,8 +164,8 @@ int nfct_setobjopt(struct nf_conntrack *ct, unsigned int option)
 
 /**
  * nfct_getobjopt - get a certain option for a conntrack object
- * @ct: conntrack object
- * @option: option parameter
+ * \param ct conntrack object
+ * \param option option parameter
  *
  * In case of error, -1 is returned and errno is appropiately set. On success,
  * 0 is returned.
@@ -132,10 +183,20 @@ int nfct_getobjopt(const struct nf_conntrack *ct, unsigned int option)
 }
 
 /**
+ * @}
+ */
+
+/**
+ * \defgroup LibrarySetup Library setup
+ * @{
+ */
+
+/**
  * nf_callback_register - register a callback
- * @h: library handler
- * @cb: callback used to process conntrack received
- * @data: data used by the callback, if any.
+ * \param h library handler
+ * \param type message type (see enum nf_conntrack_msg_type definition)
+ * \param cb callback used to process conntrack received
+ * \param data data used by the callback, if any.
  *
  * This function register a callback to handle the conntrack received, 
  * in case of error -1 is returned and errno is set appropiately, otherwise
@@ -182,7 +243,7 @@ int nfct_callback_register(struct nfct_handle *h,
 
 /**
  * nfct_callback_unregister - unregister a callback
- * @h: library handler
+ * \param h library handler
  */
 void nfct_callback_unregister(struct nfct_handle *h)
 {
@@ -201,9 +262,9 @@ void nfct_callback_unregister(struct nfct_handle *h)
 
 /**
  * nf_callback_register2 - register a callback
- * @h: library handler
- * @cb: callback used to process conntrack received
- * @data: data used by the callback, if any.
+ * \param h library handler
+ * \param cb callback used to process conntrack received
+ * \param data data used by the callback, if any.
  *
  * This function register a callback to handle the conntrack received, 
  * in case of error -1 is returned and errno is set appropiately, otherwise
@@ -256,7 +317,7 @@ int nfct_callback_register2(struct nfct_handle *h,
 
 /**
  * nfct_callback_unregister2 - unregister a callback
- * @h: library handler
+ * \param h library handler
  */
 void nfct_callback_unregister2(struct nfct_handle *h)
 {
@@ -274,15 +335,24 @@ void nfct_callback_unregister2(struct nfct_handle *h)
 }
 
 /**
+ * @}
+ */
+
+/**
+ * \defgroup ct Conntrack object handling
+ * @{
+ */
+
+/**
  * nfct_set_attr - set the value of a certain conntrack attribute
- * @ct: pointer to a valid conntrack
- * @type: attribute type
- * @value: pointer to the attribute value
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
+ * \param value pointer to the attribute value
  *
  * Note that certain attributes are unsettable:
- * 	ATTR_USE
- * 	ATTR_ID
- * 	ATTR_*_COUNTER_*
+ * 	- ATTR_USE
+ * 	- ATTR_ID
+ * 	- ATTR_*_COUNTER_*
  * The call of this function for such attributes do nothing.
  */
 void nfct_set_attr(struct nf_conntrack *ct,
@@ -303,9 +373,9 @@ void nfct_set_attr(struct nf_conntrack *ct,
 
 /**
  * nfct_set_attr_u8 - set the value of a certain conntrack attribute
- * @ct: pointer to a valid conntrack
- * @type: attribute type
- * @value: unsigned 8 bits attribute value
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
+ * \param value unsigned 8 bits attribute value
  */
 void nfct_set_attr_u8(struct nf_conntrack *ct,
 		      const enum nf_conntrack_attr type, 
@@ -316,9 +386,9 @@ void nfct_set_attr_u8(struct nf_conntrack *ct,
 
 /**
  * nfct_set_attr_u16 - set the value of a certain conntrack attribute
- * @ct: pointer to a valid conntrack
- * @type: attribute type
- * @value: unsigned 16 bits attribute value
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
+ * \param value unsigned 16 bits attribute value
  */
 void nfct_set_attr_u16(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
@@ -329,9 +399,9 @@ void nfct_set_attr_u16(struct nf_conntrack *ct,
 
 /**
  * nfct_set_attr_u32 - set the value of a certain conntrack attribute
- * @ct: pointer to a valid conntrack
- * @type: attribute type
- * @value: unsigned 32 bits attribute value
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
+ * \param value unsigned 32 bits attribute value
  */
 void nfct_set_attr_u32(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
@@ -342,9 +412,9 @@ void nfct_set_attr_u32(struct nf_conntrack *ct,
 
 /**
  * nfct_set_attr_u64 - set the value of a certain conntrack attribute
- * @ct: pointer to a valid conntrack
- * @type: attribute type
- * @value: unsigned 64 bits attribute value
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
+ * \param value unsigned 64 bits attribute value
  */
 void nfct_set_attr_u64(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
@@ -355,8 +425,8 @@ void nfct_set_attr_u64(struct nf_conntrack *ct,
 
 /**
  * nfct_get_attr - get a conntrack attribute
- * ct: pointer to a valid conntrack
- * @type: attribute type
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
  *
  * In case of success a valid pointer to the attribute requested is returned,
  * on error NULL is returned and errno is set appropiately.
@@ -383,8 +453,8 @@ const void *nfct_get_attr(const struct nf_conntrack *ct,
 
 /**
  * nfct_get_attr_u8 - get attribute of unsigned 8-bits long
- * @ct: pointer to a valid conntrack
- * @type: attribute type
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
  *
  * Returns the value of the requested attribute, if the attribute is not 
  * set, 0 is returned. In order to check if the attribute is set or not,
@@ -399,8 +469,8 @@ u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
 
 /**
  * nfct_get_attr_u16 - get attribute of unsigned 16-bits long
- * @ct: pointer to a valid conntrack
- * @type: attribute type
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
  *
  * Returns the value of the requested attribute, if the attribute is not 
  * set, 0 is returned. In order to check if the attribute is set or not,
@@ -415,8 +485,8 @@ u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
 
 /**
  * nfct_get_attr_u32 - get attribute of unsigned 32-bits long
- * @ct: pointer to a valid conntrack
- * @type: attribute type
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
  *
  * Returns the value of the requested attribute, if the attribute is not 
  * set, 0 is returned. In order to check if the attribute is set or not,
@@ -431,8 +501,8 @@ u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
 
 /**
  * nfct_get_attr_u64 - get attribute of unsigned 32-bits long
- * @ct: pointer to a valid conntrack
- * @type: attribute type
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
  *
  * Returns the value of the requested attribute, if the attribute is not 
  * set, 0 is returned. In order to check if the attribute is set or not,
@@ -447,8 +517,8 @@ u_int64_t nfct_get_attr_u64(const struct nf_conntrack *ct,
 
 /**
  * nfct_attr_is_set - check if a certain attribute is set
- * @ct: pointer to a valid conntrack object
- * @type: attribute type
+ * \param ct pointer to a valid conntrack object
+ * \param type attribute type
  *
  * On error, -1 is returned and errno is set appropiately, otherwise
  * the value of the attribute is returned.
@@ -467,9 +537,9 @@ int nfct_attr_is_set(const struct nf_conntrack *ct,
 
 /**
  * nfct_attr_is_set_array - check if an array of attribute types is set
- * @ct: pointer to a valid conntrack object
- * @array: attribute type array
- * @size: size of the array
+ * \param ct pointer to a valid conntrack object
+ * \param array attribute type array
+ * \param size size of the array
  *
  * On error, -1 is returned and errno is set appropiately, otherwise
  * the value of the attribute is returned.
@@ -495,9 +565,9 @@ int nfct_attr_is_set_array(const struct nf_conntrack *ct,
 
 /**
  * nfct_attr_unset - unset a certain attribute
- * @type: attribute type
- * @ct: pointer to a valid conntrack object
- * 
+ * \param type attribute type
+ * \param ct pointer to a valid conntrack object
+ *
  * On error, -1 is returned and errno is set appropiately, otherwise
  * 0 is returned.
  */
@@ -517,9 +587,9 @@ int nfct_attr_unset(struct nf_conntrack *ct,
 
 /**
  * nfct_set_attr_grp - set a group of attributes
- * @ct: pointer to a valid conntrack object
- * @type: attribute group (see ATTR_GRP_*)
- * @data: pointer to struct (see struct nfct_attr_grp_*)
+ * \param ct pointer to a valid conntrack object
+ * \param type attribute group (see ATTR_GRP_*)
+ * \param data pointer to struct (see struct nfct_attr_grp_*)
  *
  * Note that calling this function for ATTR_GRP_COUNTER_* does nothing since 
  * counters are unsettable.
@@ -541,9 +611,9 @@ void nfct_set_attr_grp(struct nf_conntrack *ct,
 
 /**
  * nfct_get_attr_grp - get an attribute group
- * @ct: pointer to a valid conntrack object
- * @type: attribute group (see ATTR_GRP_*)
- * @data: pointer to struct (see struct nfct_attr_grp_*)
+ * \param ct pointer to a valid conntrack object
+ * \param type attribute group (see ATTR_GRP_*)
+ * \param data pointer to struct (see struct nfct_attr_grp_*)
  *
  * On error, it returns -1 and errno is appropriately set. On success, the
  * data pointer contains the attribute group.
@@ -569,8 +639,8 @@ int nfct_get_attr_grp(const struct nf_conntrack *ct,
 
 /**
  * nfct_attr_grp_is_set - check if an attribute group is set
- * @ct: pointer to a valid conntrack object
- * @type: attribute group (see ATTR_GRP_*)
+ * \param ct pointer to a valid conntrack object
+ * \param type attribute group (see ATTR_GRP_*)
  *
  * If the attribute group is set, this function returns 1, otherwise 0.
  */
@@ -588,8 +658,8 @@ int nfct_attr_grp_is_set(const struct nf_conntrack *ct,
 
 /**
  * nfct_attr_grp_unset - unset an attribute group
- * @ct: pointer to a valid conntrack object
- * @type: attribute group (see ATTR_GRP_*)
+ * \param ct pointer to a valid conntrack object
+ * \param type attribute group (see ATTR_GRP_*)
  *
  * On error, it returns -1 and errno is appropriately set. On success, 
  * this function returns 0.
@@ -609,13 +679,22 @@ int nfct_attr_grp_unset(struct nf_conntrack *ct,
 }
 
 /**
+ * @}
+ */
+
+/**
+ * \defgroup nl Low level object to Netlink message
+ * @{
+ */
+
+/**
  * nfct_build_conntrack - build a netlink message from a conntrack object
- * @ssh: nfnetlink subsystem handler
- * @req: buffer used to build the netlink message
- * @size: size of the buffer passed
- * @type: netlink message type
- * @flags: netlink flags
- * @ct: pointer to a conntrack object
+ * \param ssh nfnetlink subsystem handler
+ * \param req buffer used to build the netlink message
+ * \param size size of the buffer passed
+ * \param type netlink message type
+ * \param flags netlink flags
+ * \param ct pointer to a conntrack object
  *
  * This is a low level function for those that require to be close to
  * netlink details via libnfnetlink. If you do want to obviate the netlink
@@ -640,11 +719,11 @@ int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
 
 /**
  * nfct_build_query - build a query in netlink message format for ctnetlink
- * @ssh: nfnetlink subsystem handler
- * @qt: query type
- * @data: data required to build the query
- * @req: buffer to build the netlink message
- * @size: size of the buffer passed
+ * \param ssh nfnetlink subsystem handler
+ * \param qt query type
+ * \param data data required to build the query
+ * \param req buffer to build the netlink message
+ * \param size size of the buffer passed
  *
  * This is a low level function, use it if you want to require to work
  * with netlink details via libnfnetlink, otherwise we suggest you to
@@ -654,18 +733,18 @@ int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
  * depending on the request.
  *
  * For query types:
- * 	NFCT_Q_CREATE: add a new conntrack, if it exists, fail
- * 	NFCT_O_CREATE_UPDATE: add a new conntrack, if it exists, update it
- * 	NFCT_Q_UPDATE: update a conntrack
- * 	NFCT_Q_DESTROY: destroy a conntrack
- * 	NFCT_Q_GET: get a conntrack
+ * 	- NFCT_Q_CREATE: add a new conntrack, if it exists, fail
+ * 	- NFCT_O_CREATE_UPDATE: add a new conntrack, if it exists, update it
+ * 	- NFCT_Q_UPDATE: update a conntrack
+ * 	- NFCT_Q_DESTROY: destroy a conntrack
+ * 	- NFCT_Q_GET: get a conntrack
  *
  * Pass a valid pointer to a conntrack object.
  *
  * For query types:
- * 	NFCT_Q_FLUSH: flush the conntrack table
- * 	NFCT_Q_DUMP: dump the conntrack table
- * 	NFCT_Q_DUMP_RESET: dump the conntrack table and reset counters
+ * 	- NFCT_Q_FLUSH: flush the conntrack table
+ * 	- NFCT_Q_DUMP: dump the conntrack table
+ * 	- NFCT_Q_DUMP_RESET: dump the conntrack table and reset counters
  *
  * Pass a valid pointer to the protocol family (u_int32_t)
  *
@@ -722,9 +801,9 @@ int nfct_build_query(struct nfnl_subsys_handle *ssh,
 
 /**
  * nfct_parse_conntrack - translate a netlink message to a conntrack object
- * @type: do the translation iif the message type is of a certain type
- * @nlh: pointer to the netlink message
- * @ct: pointer to the conntrack object
+ * \param type do the translation iif the message type is of a certain type
+ * \param nlh pointer to the netlink message
+ * \param ct pointer to the conntrack object
  *
  * This is a low level function, use it in case that you require to work
  * with netlink details via libnfnetlink. Otherwise, we suggest you to
@@ -732,10 +811,10 @@ int nfct_build_query(struct nfnl_subsys_handle *ssh,
  *
  * The message types are:
  *
- * NFCT_T_NEW: parse messages with new conntracks
- * NFCT_T_UPDATE: parse messages with conntrack updates
- * NFCT_T_DESTROY: parse messages with conntrack destroy 
- * NFCT_T_ALL: all message types
+ * - NFCT_T_NEW: parse messages with new conntracks
+ * - NFCT_T_UPDATE: parse messages with conntrack updates
+ * - NFCT_T_DESTROY: parse messages with conntrack destroy
+ * - NFCT_T_ALL: all message types
  *
  * The message type is a flag, therefore the can be combined, ie.
  * NFCT_T_NEW | NFCT_T_DESTROY to parse only new and destroy messages
@@ -774,10 +853,19 @@ int nfct_parse_conntrack(enum nf_conntrack_msg_type type,
 }
 
 /**
+ * @}
+ */
+
+/**
+ * \defgroup cmd Send commands to kernel-space and receive replies
+ * @{
+ */
+
+/**
  * nfct_query - send a query to ctnetlink and handle the reply
- * @h: library handler
- * @qt: query type
- * @data: data required to send the query
+ * \param h library handler
+ * \param qt query type
+ * \param data data required to send the query
  *
  * On error, -1 is returned and errno is explicitely set. On success, 0
  * is returned.
@@ -803,9 +891,9 @@ int nfct_query(struct nfct_handle *h,
 
 /**
  * nfct_send - send a query to ctnetlink
- * @h: library handler
- * @qt: query type
- * @data: data required to send the query
+ * \param h library handler
+ * \param qt query type
+ * \param data data required to send the query
  *
  * Like nfct_query but we do not wait for the reply from ctnetlink. 
  * You can use nfct_send() and nfct_catch() to emulate nfct_query().
@@ -836,7 +924,7 @@ int nfct_send(struct nfct_handle *h,
 
 /**
  * nfct_catch - catch events
- * @h: library handler
+ * \param h library handler
  *
  * On error, -1 is returned and errno is set appropiately. On success, 
  * a value greater or equal to 0 is returned indicating the callback
@@ -850,13 +938,22 @@ int nfct_catch(struct nfct_handle *h)
 }
 
 /**
+ * @}
+ */
+
+/**
+ * \defgroup ct Conntrack object handling
+ * @{
+ */
+
+/**
  * nfct_snprintf - print a conntrack object to a buffer
- * @buf: buffer used to build the printable conntrack
- * @size: size of the buffer
- * @ct: pointer to a valid conntrack object
- * @message_type: print message type (NFCT_T_UNKNOWN, NFCT_T_NEW,...)
- * @output_type: print type (NFCT_O_DEFAULT, NFCT_O_XML, ...)
- * @flags: extra flags for the output type (NFCT_OF_LAYER3)
+ * \param buf buffer used to build the printable conntrack
+ * \param size size of the buffer
+ * \param ct pointer to a valid conntrack object
+ * \param message_type print message type (NFCT_T_UNKNOWN, NFCT_T_NEW,...)
+ * \param output_type print type (NFCT_O_DEFAULT, NFCT_O_XML, ...)
+ * \param flags extra flags for the output type (NFCT_OF_LAYER3)
  *
  * If you are listening to events, probably you want to display the message 
  * type as well. In that case, set the message type parameter to any of the
@@ -864,13 +961,13 @@ int nfct_catch(struct nfct_handle *h)
  * If you pass NFCT_T_UNKNOWN, the message type will not be output. 
  *
  * Currently, the output available are:
- * 	NFCT_O_DEFAULT: default /proc-like output
- * 	NFCT_O_XML: XML output
+ * 	- NFCT_O_DEFAULT: default /proc-like output
+ * 	- NFCT_O_XML: XML output
  *
  * The output flags are:
- * 	NFCT_OF_SHOW_LAYER3: include layer 3 information in the output, 
+ * 	- NFCT_OF_SHOW_LAYER3: include layer 3 information in the output, 
  * 	this is *only* required by NFCT_O_DEFAULT.
- * 	NFCT_OF_TIME: display time.
+ * 	- NFCT_OF_TIME: display time.
  *
  * This function returns the size of the information that _would_ have been 
  * written to the buffer, even if there was no room for it. Thus, the
@@ -891,9 +988,13 @@ int nfct_snprintf(char *buf,
 }
 
 /**
+ * @}
+ */
+
+/**
  * nfct_compare - compare two conntrack objects
- * @ct1: pointer to a valid conntrack object
- * @ct2: pointer to a valid conntrack object
+ * \param ct1 pointer to a valid conntrack object
+ * \param ct2 pointer to a valid conntrack object
  *
  * This function only compare attribute set in both objects, ie. if a certain
  * attribute is not set in ct1 but it is in ct2, then the value of such 
@@ -915,9 +1016,9 @@ int nfct_compare(const struct nf_conntrack *ct1,
 
 /**
  * nfct_cmp - compare two conntrack objects
- * @ct1: pointer to a valid conntrack object
- * @ct2: pointer to a valid conntrack object
- * @flags: flags
+ * \param ct1 pointer to a valid conntrack object
+ * \param ct2 pointer to a valid conntrack object
+ * \param flags flags
  *
  * This function only compare attribute set in both objects, by default 
  * the comparison is not strict, ie. if a certain attribute is not set in one
@@ -927,23 +1028,23 @@ int nfct_compare(const struct nf_conntrack *ct1,
  *
  * The available flags are:
  *
- * 	NFCT_CMP_STRICT: the compared objects must have the same attributes
+ * 	- NFCT_CMP_STRICT: the compared objects must have the same attributes
  * 	and the same values, otherwise it returns that the objects are 
  * 	different.
- * 	NFCT_CMP_MASK: the first object is used as mask, this means that 
+ * 	- NFCT_CMP_MASK: the first object is used as mask, this means that 
  * 	if an attribute is present in ct1 but not in ct2, this function 
  * 	returns that the objects are different.
- * 	NFCT_CMP_ALL: full comparison of both objects
- * 	NFCT_CMP_ORIG: it only compares the source and destination address;
+ * 	- NFCT_CMP_ALL: full comparison of both objects
+ * 	- NFCT_CMP_ORIG: it only compares the source and destination address;
  * 	source and destination ports; the layer 3 and 4 protocol numbers
  * 	of the original direction; and the id (if present).
- * 	NFCT_CMP_REPL: like NFCT_CMP_REPL but it compares the flow
+ * 	- NFCT_CMP_REPL: like NFCT_CMP_REPL but it compares the flow
  * 	information that goes in the reply direction.
- * 	NFCT_CMP_TIMEOUT_EQ: timeout(ct1) == timeout(ct2)
- * 	NFCT_CMP_TIMEOUT_GT: timeout(ct1) > timeout(ct2)
- * 	NFCT_CMP_TIMEOUT_LT: timeout(ct1) < timeout(ct2)
- * 	NFCT_CMP_TIMEOUT_GE: timeout(ct1) >= timeout(ct2)
- * 	NFCT_CMP_TIMEOUT_LE: timeout(ct1) <= timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_EQ: timeout(ct1) == timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_GT: timeout(ct1) > timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_LT: timeout(ct1) < timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_GE: timeout(ct1) >= timeout(ct2)
+ * 	- NFCT_CMP_TIMEOUT_LE: timeout(ct1) <= timeout(ct2)
  *
  * The status bits comparison is status(ct1) & status(ct2) == status(ct1).
  *
@@ -962,9 +1063,9 @@ int nfct_cmp(const struct nf_conntrack *ct1,
 
 /**
  * nfct_copy - copy part of one source object to another
- * @ct1: destination object
- * @ct2: source object
- * @flags: flags
+ * \param ct1 destination object
+ * \param ct2 source object
+ * \param flags flags
  *
  * This function copies one part of the source object to the target.
  * It behaves like clone but:
@@ -973,13 +1074,13 @@ int nfct_cmp(const struct nf_conntrack *ct1,
  * 2) You can copy only a part of the source object to the target
  *
  * The current supported flags are:
- * 	NFCT_CP_ALL: that copies the object entirely.
- * 	NFCT_CP_ORIG and NFCT_CP_REPL: that can be used to copy the
+ * 	- NFCT_CP_ALL: that copies the object entirely.
+ * 	- NFCT_CP_ORIG and NFCT_CP_REPL: that can be used to copy the
  * 	information that identifies a flow in the original and the reply
  * 	direction. This information is usually composed of: source and
  * 	destination IP address; source and destination ports; layer 3
  * 	and 4 protocol number.
- * 	NFCT_CP_META: that copies the metainformation 
+ * 	- NFCT_CP_META: that copies the metainformation 
  * 	(all the attributes >= ATTR_TCP_STATE)
  */
 void nfct_copy(struct nf_conntrack *ct1,
@@ -1062,9 +1163,9 @@ void nfct_copy(struct nf_conntrack *ct1,
 
 /**
  * nfct_copy_attr - copy an attribute of one source object to another
- * @ct1: destination object
- * @ct2: source object
- * @flags: flags
+ * \param ct1 destination object
+ * \param ct2 source object
+ * \param flags flags
  *
  * This function copies one attribute (if present) to another object.
  */
@@ -1080,6 +1181,16 @@ void nfct_copy_attr(struct nf_conntrack *ct1,
 }
 
 /**
+ * @}
+ */
+
+/**
+ * \defgroup bsf Kernel-space filtering for events
+ *
+ * @{
+ */
+
+/**
  * nfct_filter_create - create a filter
  *
  * This function returns a valid pointer on success, otherwise NULL is
@@ -1092,7 +1203,7 @@ struct nfct_filter *nfct_filter_create(void)
 
 /**
  * nfct_filter_destroy - destroy a filter
- * @filter: filter that we want to destroy
+ * \param filter filter that we want to destroy
  *
  * This function releases the memory that is used by the filter object. 
  * However, please note that this function does *not* detach an already
@@ -1107,9 +1218,9 @@ void nfct_filter_destroy(struct nfct_filter *filter)
 
 /**
  * nfct_filter_add_attr - add a filter attribute of the filter object
- * @filter: filter object that we want to modify
- * @type: filter attribute type
- * @value: pointer to the value of the filter attribute
+ * \param filter filter object that we want to modify
+ * \param type filter attribute type
+ * \param value pointer to the value of the filter attribute
  *
  * Limitations: You can add up to 127 IPv4 addresses and masks for 
  * NFCT_FILTER_SRC_IPV4 and, similarly, 127 for NFCT_FILTER_DST_IPV4.
@@ -1132,9 +1243,9 @@ void nfct_filter_add_attr(struct nfct_filter *filter,
 
 /**
  * nfct_filter_add_attr_u32 - add an u32 filter attribute of the filter object
- * @filter: filter object that we want to modify
- * @type: filter attribute type
- * @value: value of the filter attribute using unsigned int (32 bits).
+ * \param filter filter object that we want to modify
+ * \param type filter attribute type
+ * \param value value of the filter attribute using unsigned int (32 bits).
  *
  * Limitations: You can add up to 255 protocols which is a reasonable limit.
  */
@@ -1147,9 +1258,9 @@ void nfct_filter_add_attr_u32(struct nfct_filter *filter,
 
 /**
  * nfct_filter_set_logic - set the filter logic for an attribute type
- * @filter: filter object that we want to modify
- * @type: filter attribute type
- * @logic: filter logic that we want to use
+ * \param filter filter object that we want to modify
+ * \param type filter attribute type
+ * \param logic filter logic that we want to use
  *
  * You can only use this function once to set the filtering logic for 
  * one attribute. You can define two logics: NFCT_FILTER_POSITIVE_LOGIC
@@ -1181,8 +1292,8 @@ int nfct_filter_set_logic(struct nfct_filter *filter,
 
 /**
  * nfct_filter_attach - attach a filter to a socket descriptor
- * @fd: socket descriptor
- * @filter: filter that we want to attach to the socket
+ * \param fd socket descriptor
+ * \param filter filter that we want to attach to the socket
  *
  * This function returns -1 on error and set errno appropriately. If the
  * function returns EINVAL probably you have found a bug in it. Please,
@@ -1197,7 +1308,7 @@ int nfct_filter_attach(int fd, struct nfct_filter *filter)
 
 /**
  * nfct_filter_detach - detach an existing filter
- * @fd: socket descriptor
+ * \param fd socket descriptor
  *
  * This function returns -1 on error and set errno appropriately.
  */
@@ -1207,3 +1318,7 @@ int nfct_filter_detach(int fd)
 
 	return setsockopt(fd, SOL_SOCKET, SO_DETACH_FILTER, &val, sizeof(val));
 }
+
+/**
+ * @}
+ */
