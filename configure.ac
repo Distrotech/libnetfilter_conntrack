@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to create configure.
 
-AC_INIT
+AC_INIT([libnetfilter_conntrack], [0.9.0])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE(libnetfilter_conntrack, 0.9.0)
+AM_INIT_AUTOMAKE([-Wall foreign subdir-objects dist-bzip2 1.6])
 
 AC_PROG_CC
 AM_PROG_LIBTOOL
