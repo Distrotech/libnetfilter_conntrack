@@ -4,4 +4,4 @@
 # http://sources.redhat.com/autobook/autobook/autobook_91.html
 LIBVERSION=3:2:0
 
-INCLUDES=$(all_includes) -I$(top_srcdir)/include
+AM_CPPFLAGS = $(all_includes) -I$(top_srcdir)/include
