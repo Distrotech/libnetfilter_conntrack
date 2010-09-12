@@ -34,8 +34,4 @@ run ()
 }
 
 [ "x$1" = "xdistrib" ] && include
-run aclocal
-run libtoolize -f
-#run autoheader
-run automake -a
-run autoconf
+autoreconf -fi
