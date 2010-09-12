@@ -19,8 +19,6 @@ case "$host" in
 esac
 
 dnl Dependencies
-LIBNFNETLINK_REQUIRED=1.0.0
-
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
 if test "x$HAVE_PKG_CONFIG" = "x"
 then
@@ -29,8 +27,7 @@ then
 	exit 1
 fi
 
-PKG_CHECK_MODULES(LIBNFNETLINK, libnfnetlink >= $LIBNFNETLINK_REQUIRED,,
-	AC_MSG_ERROR(Cannot find libnfnetlink >= $LIBNFNETLINK_REQUIRED))
+PKG_CHECK_MODULES([LIBNFNETLINK], [libnfnetlink >= 1.0.0])
 
 AC_CHECK_HEADERS(arpa/inet.h)
 dnl Check for inet_ntop
