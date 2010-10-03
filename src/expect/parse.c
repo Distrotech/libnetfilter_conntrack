@@ -25,7 +25,7 @@ int __parse_expect_message_type(const struct nlmsghdr *nlh)
 }
 
 void __parse_expect(const struct nlmsghdr *nlh,
-		    const struct nfattr *cda[],
+		    struct nfattr *cda[],
 		    struct nf_expect *exp)
 {
 	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);

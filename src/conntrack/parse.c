@@ -440,7 +440,7 @@ int __parse_message_type(const struct nlmsghdr *nlh)
 }
 
 void __parse_conntrack(const struct nlmsghdr *nlh,
-		       const struct nfattr *cda[],
+		       struct nfattr *cda[],
 		       struct nf_conntrack *ct)
 {
 	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);
