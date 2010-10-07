@@ -27,9 +27,15 @@ static void set_exp_attr_timeout(struct nf_expect *exp, const void *value)
 	exp->timeout = *((u_int32_t *) value);
 }
 
-set_exp_attr set_exp_attr_array[] = {
+static void set_exp_attr_zone(struct nf_expect *exp, const void *value)
+{
+	exp->zone = *((u_int16_t *) value);
+}
+
+set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_MASTER]		= set_exp_attr_master,
 	[ATTR_EXP_EXPECTED]		= set_exp_attr_expected,
 	[ATTR_EXP_MASK]			= set_exp_attr_mask,
 	[ATTR_EXP_TIMEOUT]		= set_exp_attr_timeout,
+	[ATTR_EXP_ZONE]			= set_exp_attr_zone,
 };

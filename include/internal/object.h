@@ -257,7 +257,7 @@ struct nf_expect {
 	struct nf_conntrack 	mask;
 	u_int32_t 		timeout;
 	u_int32_t 		id;
-	u_int16_t 		expectfn_queue_id;
+	u_int16_t		zone;
 
 	u_int32_t 		set[1];
 };

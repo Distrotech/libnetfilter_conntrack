@@ -43,6 +43,11 @@ int __snprintf_expect_default(char *buf,
 	ret = __snprintf_proto(buf+offset, len, &exp->expected.tuple[__DIR_ORIG]);
 	BUFFER_SIZE(ret, size, len, offset);
 
+	if (test_bit(ATTR_EXP_ZONE, exp->set)) {
+		ret = snprintf(buf+offset, len, "zone=%u ", exp->zone);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
 	/* Delete the last blank space */
 	size--;
 

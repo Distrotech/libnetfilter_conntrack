@@ -14,6 +14,12 @@ static void __build_timeout(struct nfnlhdr *req,
 	nfnl_addattr32(&req->nlh, size, CTA_EXPECT_TIMEOUT,htonl(exp->timeout));
 }
 
+static void __build_zone(struct nfnlhdr *req, size_t size,
+			 const struct nf_expect *exp)
+{
+	nfnl_addattr16(&req->nlh, size, CTA_EXPECT_ZONE, htons(exp->zone));
+}
+
 int __build_expect(struct nfnl_subsys_handle *ssh,
 		   struct nfnlhdr *req,
 		   size_t size,
@@ -57,6 +63,9 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 
 	if (test_bit(ATTR_EXP_TIMEOUT, exp->set))
 		__build_timeout(req, size, exp);
+
+	if (test_bit(ATTR_EXP_ZONE, exp->set))
+		__build_zone(req, size, exp);
 
 	return 0;
 }

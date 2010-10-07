@@ -495,6 +495,7 @@ enum nf_expect_attr {
 	ATTR_EXP_EXPECTED,	/* pointer to conntrack object */
 	ATTR_EXP_MASK,		/* pointer to conntrack object */
 	ATTR_EXP_TIMEOUT,	/* u32 bits */
+	ATTR_EXP_ZONE,		/* u16 bits */
 	ATTR_EXP_MAX
 };
 

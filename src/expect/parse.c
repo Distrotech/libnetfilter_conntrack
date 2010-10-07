@@ -54,4 +54,10 @@ void __parse_expect(const struct nlmsghdr *nlh,
 		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_TIMEOUT-1]));
 		set_bit(ATTR_EXP_TIMEOUT, exp->set);
 	}
+
+	if (cda[CTA_EXPECT_ZONE-1]) {
+		exp->zone =
+		      ntohs(*(u_int16_t *)NFA_DATA(cda[CTA_EXPECT_ZONE-1]));
+		set_bit(ATTR_EXP_ZONE, exp->set);
+	}
 }
