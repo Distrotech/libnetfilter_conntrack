@@ -32,10 +32,16 @@ static const void *get_exp_attr_zone(const struct nf_expect *exp)
 	return &exp->zone;
 }
 
+static const void *get_exp_attr_flags(const struct nf_expect *exp)
+{
+	return &exp->flags;
+}
+
 get_exp_attr get_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_MASTER]		= get_exp_attr_master,
 	[ATTR_EXP_EXPECTED]		= get_exp_attr_expected,
 	[ATTR_EXP_MASK]			= get_exp_attr_mask,
 	[ATTR_EXP_TIMEOUT]		= get_exp_attr_timeout,
 	[ATTR_EXP_ZONE]			= get_exp_attr_zone,
+	[ATTR_EXP_FLAGS]		= get_exp_attr_flags,
 };

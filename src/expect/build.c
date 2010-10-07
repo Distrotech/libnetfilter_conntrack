@@ -20,6 +20,12 @@ static void __build_zone(struct nfnlhdr *req, size_t size,
 	nfnl_addattr16(&req->nlh, size, CTA_EXPECT_ZONE, htons(exp->zone));
 }
 
+static void __build_flags(struct nfnlhdr *req,
+			  size_t size, const struct nf_expect *exp)
+{
+	nfnl_addattr32(&req->nlh, size, CTA_EXPECT_FLAGS,htonl(exp->flags));
+}
+
 int __build_expect(struct nfnl_subsys_handle *ssh,
 		   struct nfnlhdr *req,
 		   size_t size,
@@ -63,7 +69,8 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 
 	if (test_bit(ATTR_EXP_TIMEOUT, exp->set))
 		__build_timeout(req, size, exp);
-
+	if (test_bit(ATTR_EXP_FLAGS, exp->set))
+		__build_flags(req, size, exp);
 	if (test_bit(ATTR_EXP_ZONE, exp->set))
 		__build_zone(req, size, exp);
 

@@ -258,6 +258,7 @@ struct nf_expect {
 	u_int32_t 		timeout;
 	u_int32_t 		id;
 	u_int16_t		zone;
+	u_int32_t		flags;
 
 	u_int32_t 		set[1];
 };

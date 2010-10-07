@@ -496,6 +496,7 @@ enum nf_expect_attr {
 	ATTR_EXP_MASK,		/* pointer to conntrack object */
 	ATTR_EXP_TIMEOUT,	/* u32 bits */
 	ATTR_EXP_ZONE,		/* u16 bits */
+	ATTR_EXP_FLAGS,		/* u32 bits */
 	ATTR_EXP_MAX
 };
 
@@ -642,6 +643,11 @@ enum ip_conntrack_status {
 	IPS_FIXED_TIMEOUT_BIT = 10,
 	IPS_FIXED_TIMEOUT = (1 << IPS_FIXED_TIMEOUT_BIT),
 };
+
+/* expectation flags */
+#define NF_CT_EXPECT_PERMANENT          0x1
+#define NF_CT_EXPECT_INACTIVE           0x2
+#define NF_CT_EXPECT_USERSPACE          0x4
 
 /*
  * TCP flags

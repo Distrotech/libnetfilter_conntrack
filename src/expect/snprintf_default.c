@@ -23,6 +23,7 @@ int __snprintf_expect_default(char *buf,
 			      unsigned int flags) 
 {
 	int ret = 0, size = 0, offset = 0;
+	char *delim = "";
 
 	switch(msg_type) {
 		case NFCT_T_NEW:
@@ -48,8 +49,24 @@ int __snprintf_expect_default(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	/* Delete the last blank space */
-	size--;
+	if (exp->flags & NF_CT_EXPECT_PERMANENT) {
+		ret = snprintf(buf+offset, len, "PERMANENT");
+		BUFFER_SIZE(ret, size, len, offset);
+		delim = ",";
+	}
+	if (exp->flags & NF_CT_EXPECT_INACTIVE) {
+		ret = snprintf(buf+offset, len, "%sINACTIVE", delim);
+		BUFFER_SIZE(ret, size, len, offset);
+		delim = ",";
+	}
+	if (exp->flags & NF_CT_EXPECT_USERSPACE) {
+		ret = snprintf(buf+offset, len, "%sUSERSPACE", delim);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	/* Delete the last blank space if needed */
+	if (len > 0 && buf[size-1] == ' ')
+		size--;
 
 	return size;
 }
