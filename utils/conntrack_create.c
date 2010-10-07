@@ -29,7 +29,6 @@ int main()
 
 	nfct_set_attr_u8(ct, ATTR_TCP_STATE, TCP_CONNTRACK_SYN_SENT);
 	nfct_set_attr_u32(ct, ATTR_TIMEOUT, 100);
-	nfct_set_attr(ct, ATTR_HELPER_NAME, "ftp");
 
 	h = nfct_open(CONNTRACK, 0);
 	if (!h) {

@@ -37,8 +37,9 @@ int main()
 
 	nfct_setobjopt(master, NFCT_SOPT_SETUP_REPLY);
 
-	nfct_set_attr_u8(master, ATTR_TCP_STATE, TCP_CONNTRACK_SYN_SENT);
+	nfct_set_attr_u8(master, ATTR_TCP_STATE, TCP_CONNTRACK_ESTABLISHED);
 	nfct_set_attr_u32(master, ATTR_TIMEOUT, 200);
+	nfct_set_attr(master, ATTR_HELPER_NAME, "ftp");
 
 	h = nfct_open(CONNTRACK, 0);
 	if (!h) {
@@ -63,11 +64,11 @@ int main()
 	}
 
 	nfct_set_attr_u8(expected, ATTR_L3PROTO, AF_INET);
-	nfct_set_attr_u32(expected, ATTR_IPV4_SRC, inet_addr("4.4.4.4"));
-	nfct_set_attr_u32(expected, ATTR_IPV4_DST, inet_addr("5.5.5.5"));
+	nfct_set_attr_u32(expected, ATTR_IPV4_SRC, inet_addr("1.1.1.1"));
+	nfct_set_attr_u32(expected, ATTR_IPV4_DST, inet_addr("2.2.2.2"));
 
 	nfct_set_attr_u8(expected, ATTR_L4PROTO, IPPROTO_TCP);
-	nfct_set_attr_u16(expected, ATTR_PORT_SRC, htons(10240));
+	nfct_set_attr_u16(expected, ATTR_PORT_SRC, 0);
 	nfct_set_attr_u16(expected, ATTR_PORT_DST, htons(10241));
 
 	mask = nfct_new();
@@ -81,7 +82,7 @@ int main()
 	nfct_set_attr_u32(mask, ATTR_IPV4_DST, 0xffffffff);
 
 	nfct_set_attr_u8(mask, ATTR_L4PROTO, IPPROTO_TCP);
-	nfct_set_attr_u16(mask, ATTR_PORT_SRC, 0xffff);
+	nfct_set_attr_u16(mask, ATTR_PORT_SRC, 0x0000);
 	nfct_set_attr_u16(mask, ATTR_PORT_DST, 0xffff);
 
 	/*
