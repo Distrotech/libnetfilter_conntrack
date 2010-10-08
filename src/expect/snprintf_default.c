@@ -29,6 +29,12 @@ int __snprintf_expect_default(char *buf,
 		case NFCT_T_NEW:
 			ret = snprintf(buf, len, "%9s ", "[NEW]");
 			break;
+		case NFCT_T_UPDATE:
+			ret = snprintf(buf, len, "%9s ", "[UPDATE]");
+			break;
+		case NFCT_T_DESTROY:
+			ret = snprintf(buf, len, "%9s ", "[DESTROY]");
+			break;
 		default:
 			break;
 	}
