@@ -1,5 +1,5 @@
 libnetfilter_conntrack - userspace library for the connection tracking system
-(C) 2005-2007 Pablo Neira Ayuso <pablo@netfilter.org>
+(C) 2005-2010 Pablo Neira Ayuso <pablo@netfilter.org>
 =============================================================================
 
 = Connection Tracking System =
@@ -29,6 +29,10 @@ reference section at the bottom of this document.
 libnetfilter_conntrack is an userspace library that provides an interface to 
 the in-kernel connection tracking system.
 
+= License =
+
+libnetfilter_conntrack is released under GPLv2 or any later at your option.
+
 = Prerequirements for libnetfilter_conntrack =
 
 Linux kernel version >= 2.6.18 (http://www.kernel.org) and enable support for:
@@ -40,21 +44,23 @@ Linux kernel version >= 2.6.18 (http://www.kernel.org) and enable support for:
 
 = Documentation =
 
-The libnetfilter_conntrack API is well documented, however we don't have any
-tool yet to automate the document generation. So, you'll have to consult the 
-documentation from the source code.
+You can generate the doxygen-based documentation by invoking:
+	$ doxygen doxygen.cfg
 
 = Examples =
 
 You can find a set of handy examples on the use of libnetfilter_conntrack 
-under the directory utils/ distributed with this library.
+under the directory utils/ distributed with this library. You can compile them
+by invoking:
+	$ make check
 
 = Heads Up =
 
-Currently libnetfilter_conntrack supports two different APIs: The old one that 
-has several limitations and the new one that solves such deficiencies. Thus, 
-make sure you use the new API for your new applications since the old one will
-be removed soon.
+libnetfilter_conntrack used to provided two different APIs: The old one had
+several limitations, for that reason, it was deprecated time ago. The existing
+library only provides the new API that solves former deficiencies. Thus, make
+sure you use recent versions of libnetfilter_conntrack and, in case that
+you are using the old API, consider porting your application to the new one.
 
 = References =
 
