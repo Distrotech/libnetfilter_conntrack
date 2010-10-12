@@ -16,3 +16,4 @@
 /expect_events
 /expect_flush
 /expect_get
+/ctexp_events

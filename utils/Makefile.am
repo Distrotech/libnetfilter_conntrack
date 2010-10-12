@@ -6,7 +6,8 @@ check_PROGRAMS = expect_dump expect_create expect_get expect_delete \
 	       conntrack_delete conntrack_flush conntrack_create_nat \
 	       conntrack_get conntrack_events \
 	       conntrack_master conntrack_filter \
-	       conntrack_grp_create
+	       conntrack_grp_create \
+	       ctexp_events
 
 conntrack_grp_create_SOURCES = conntrack_grp_create.c
 conntrack_grp_create_LDADD = ../src/libnetfilter_conntrack.la
@@ -79,3 +80,7 @@ expect_flush_LDFLAGS = -dynamic -ldl
 expect_events_SOURCES = expect_events.c
 expect_events_LDADD = ../src/libnetfilter_conntrack.la
 expect_events_LDFLAGS = -dynamic -ldl
+
+ctexp_events_SOURCES = ctexp_events.c
+ctexp_events_LDADD = ../src/libnetfilter_conntrack.la
+ctexp_events_LDFLAGS = -dynamic -ldl

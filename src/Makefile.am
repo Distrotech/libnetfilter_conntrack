@@ -15,4 +15,4 @@ libnetfilter_conntrack_la_LIBADD = conntrack/libnfconntrack.la \
 				   ${LIBNFNETLINK_LIBS}
 libnetfilter_conntrack_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink -ldl 	\
 				    -version-info $(LIBVERSION)
-libnetfilter_conntrack_la_SOURCES = main.c
+libnetfilter_conntrack_la_SOURCES = main.c callback.c

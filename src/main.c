@@ -70,7 +70,16 @@ out_free:
  * \param subscriptions ctnetlink groups to subscribe to events
  *
  * This function returns a handler to send commands to and receive replies from
- * kernel-space. On error, NULL is returned and errno is explicitly set.
+ * kernel-space. You can pass the following subsystem IDs:
+ *
+ * - NFNL_SUBSYS_CTNETLINK: if you are only interested in conntrack operations
+ * (excluding expectations).
+ * - NFNL_SUBSYS_CTNETLINK_EXP: if you are only interested in expectation
+ * operations (exclude conntracks).
+ * - NFNL_SUBSYS_NONE: if you are interested in both conntrack and expectation
+ * operations.
+ *
+ * On error, NULL is returned and errno is explicitly set.
  */
 struct nfct_handle *nfct_open(u_int8_t subsys_id, unsigned subscriptions)
 {
@@ -111,11 +120,16 @@ int nfct_close(struct nfct_handle *cth)
 	cth->cb2 = NULL;
 	cth->expect_cb = NULL;
 	cth->expect_cb2 = NULL;
-	free(cth->nfnl_cb.data);
+	free(cth->nfnl_cb_ct.data);
+	free(cth->nfnl_cb_exp.data);
 
-	cth->nfnl_cb.call = NULL; 
-	cth->nfnl_cb.data = NULL;
-	cth->nfnl_cb.attr_count = 0;
+	cth->nfnl_cb_ct.call = NULL;
+	cth->nfnl_cb_ct.data = NULL;
+	cth->nfnl_cb_ct.attr_count = 0;
+
+	cth->nfnl_cb_exp.call = NULL;
+	cth->nfnl_cb_exp.data = NULL;
+	cth->nfnl_cb_exp.attr_count = 0;
 
 	err = nfnl_close(cth->nfnlh);
 	free(cth);

@@ -139,17 +139,17 @@ int nfexp_callback_register(struct nfct_handle *h,
 	container->type = type;
 	container->data = data;
 
-	h->nfnl_cb.call = __expect_callback;
-	h->nfnl_cb.data = container;
-	h->nfnl_cb.attr_count = CTA_EXPECT_MAX;
+	h->nfnl_cb_exp.call = __callback;
+	h->nfnl_cb_exp.data = container;
+	h->nfnl_cb_exp.attr_count = CTA_EXPECT_MAX;
 
 	nfnl_callback_register(h->nfnlssh_exp, 
 			       IPCTNL_MSG_EXP_NEW,
-			       &h->nfnl_cb);
+			       &h->nfnl_cb_exp);
 
 	nfnl_callback_register(h->nfnlssh_exp,
 			       IPCTNL_MSG_EXP_DELETE,
-			       &h->nfnl_cb);
+			       &h->nfnl_cb_exp);
 
 	return 0;
 }
@@ -166,11 +166,11 @@ void nfexp_callback_unregister(struct nfct_handle *h)
 	nfnl_callback_unregister(h->nfnlssh_exp, IPCTNL_MSG_EXP_DELETE);
 
 	h->expect_cb = NULL;
-	free(h->nfnl_cb.data);
+	free(h->nfnl_cb_exp.data);
 
-	h->nfnl_cb.call = NULL;
-	h->nfnl_cb.data = NULL;
-	h->nfnl_cb.attr_count = 0;
+	h->nfnl_cb_exp.call = NULL;
+	h->nfnl_cb_exp.data = NULL;
+	h->nfnl_cb_exp.attr_count = 0;
 }
 
 /**
@@ -214,17 +214,17 @@ int nfexp_callback_register2(struct nfct_handle *h,
 	container->type = type;
 	container->data = data;
 
-	h->nfnl_cb.call = __expect_callback;
-	h->nfnl_cb.data = container;
-	h->nfnl_cb.attr_count = CTA_EXPECT_MAX;
+	h->nfnl_cb_exp.call = __callback;
+	h->nfnl_cb_exp.data = container;
+	h->nfnl_cb_exp.attr_count = CTA_EXPECT_MAX;
 
 	nfnl_callback_register(h->nfnlssh_exp, 
 			       IPCTNL_MSG_EXP_NEW,
-			       &h->nfnl_cb);
+			       &h->nfnl_cb_exp);
 
 	nfnl_callback_register(h->nfnlssh_exp,
 			       IPCTNL_MSG_EXP_DELETE,
-			       &h->nfnl_cb);
+			       &h->nfnl_cb_exp);
 
 	return 0;
 }
@@ -241,11 +241,11 @@ void nfexp_callback_unregister2(struct nfct_handle *h)
 	nfnl_callback_unregister(h->nfnlssh_exp, IPCTNL_MSG_EXP_DELETE);
 
 	h->expect_cb2 = NULL;
-	free(h->nfnl_cb.data);
+	free(h->nfnl_cb_exp.data);
 
-	h->nfnl_cb.call = NULL;
-	h->nfnl_cb.data = NULL;
-	h->nfnl_cb.attr_count = 0;
+	h->nfnl_cb_exp.call = NULL;
+	h->nfnl_cb_exp.data = NULL;
+	h->nfnl_cb_exp.attr_count = 0;
 }
 
 /**

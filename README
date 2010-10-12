@@ -62,6 +62,10 @@ library only provides the new API that solves former deficiencies. Thus, make
 sure you use recent versions of libnetfilter_conntrack and, in case that
 you are using the old API, consider porting your application to the new one.
 
+Since libnetfilter_conntrack >= 0.9.1, you can use the same handler obtained
+via nfct_open() to register conntrack and expectation callbacks (before this
+version, this was not possible).
+
 = References =
 
 [1] Pablo Neira Ayuso. Netfilter's Connection Tracking System:

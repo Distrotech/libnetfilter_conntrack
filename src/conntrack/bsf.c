@@ -8,6 +8,7 @@
 #include "internal/internal.h"
 #include "internal/stack.h"
 #include <linux/filter.h>
+#include <stddef.h>		/* offsetof */
 
 #ifndef SKF_AD_NLATTR
 #define SKF_AD_NLATTR		12
@@ -213,6 +214,33 @@ nfct_bsf_jump_to(struct sock_filter *this, int line, int pos)
 	memcpy(&this[pos], &__code, sizeof(__code));
 	return NEW_POS(__code);
 };
+
+/* this helps to skip messages coming from the ctnetlink expectation subsys. */
+static int
+bsf_cmp_subsys(struct sock_filter *this, int pos, u_int8_t subsys)
+{
+	struct sock_filter __code[] = {
+		[0] = {
+			/* X = offset to nlh->nlmsg_type */
+			.code	= BPF_LDX|BPF_IMM,
+			.k	= offsetof(struct nlmsghdr, nlmsg_type),
+		},
+		[1] = {
+			/* A = skb->data[X+k:B] (subsys_id) */
+			.code	= BPF_LD|BPF_B|BPF_IND,
+			.k	= sizeof(u_int8_t),
+		},
+		[2] = {
+			/* A == subsys ? jump +1 : accept */
+			.code	= BPF_JMP|BPF_JEQ|BPF_K,
+			.k	= subsys,
+			.jt	= 1,
+			.jf	= 0,
+		},
+	};
+	memcpy(&this[pos], &__code, sizeof(__code));
+	return NEW_POS(__code);
+}
 
 static int
 add_state_filter_cta(struct sock_filter *this,
@@ -584,6 +612,8 @@ int __setup_netlink_socket_filter(int fd, struct nfct_filter *f)
 
 	memset(bsf, 0, sizeof(bsf));
 
+	j += bsf_cmp_subsys(&bsf[j], j, NFNL_SUBSYS_CTNETLINK);
+	j += nfct_bsf_ret_verdict(bsf, NFCT_FILTER_ACCEPT, j);
 	j += bsf_add_proto_filter(f, &bsf[j]);
 	j += bsf_add_saddr_ipv4_filter(f, &bsf[j]);
 	j += bsf_add_daddr_ipv4_filter(f, &bsf[j]);

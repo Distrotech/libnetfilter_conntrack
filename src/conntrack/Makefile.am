@@ -4,7 +4,7 @@ AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
 
 noinst_LTLIBRARIES = libnfconntrack.la 
 
-libnfconntrack_la_SOURCES = api.c callback.c \
+libnfconntrack_la_SOURCES = api.c \
 			    getter.c setter.c \
 			    parse.c build.c \
 			    snprintf.c \

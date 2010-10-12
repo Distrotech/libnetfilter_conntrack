@@ -16,7 +16,8 @@ struct nfct_handle {
 	struct nfnl_subsys_handle	*nfnlssh_exp;
 
 	/* callback handler for the new API */
-	struct nfnl_callback		nfnl_cb;
+	struct nfnl_callback		nfnl_cb_ct;
+	struct nfnl_callback		nfnl_cb_exp;
 
 	int			(*cb)(enum nf_conntrack_msg_type type, 
 				      struct nf_conntrack *ct,
