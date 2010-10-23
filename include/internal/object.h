@@ -175,7 +175,13 @@ struct nf_conntrack {
 	struct __nfct_nat 	snat;
 	struct __nfct_nat 	dnat;
 
-#define __NFCT_BITSET			2
+	struct {
+		u_int64_t	start;
+		u_int64_t	stop;
+	} timestamp;
+
+/* we've got more than 64 attributes now, we need 96 bits to store them. */
+#define __NFCT_BITSET			3
 	u_int32_t               set[__NFCT_BITSET];
 };
 

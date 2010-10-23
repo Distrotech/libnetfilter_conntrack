@@ -322,6 +322,16 @@ static const void *get_attr_secctx(const struct nf_conntrack *ct)
 	return ct->secctx;
 }
 
+static const void *get_attr_timestamp_start(const struct nf_conntrack *ct)
+{
+	return &ct->timestamp.start;
+}
+
+static const void *get_attr_timestamp_stop(const struct nf_conntrack *ct)
+{
+	return &ct->timestamp.stop;
+}
+
 const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -386,4 +396,6 @@ const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_TCP_WSCALE_REPL]		= get_attr_tcp_wscale_repl,
 	[ATTR_ZONE]			= get_attr_zone,
 	[ATTR_SECCTX]			= get_attr_secctx,
+	[ATTR_TIMESTAMP_START]		= get_attr_timestamp_start,
+	[ATTR_TIMESTAMP_STOP]		= get_attr_timestamp_stop,
 };

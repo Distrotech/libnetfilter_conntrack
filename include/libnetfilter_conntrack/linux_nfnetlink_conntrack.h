@@ -46,6 +46,7 @@ enum ctattr_type {
 	CTA_SECMARK,		/* obsolete */
 	CTA_ZONE,
 	CTA_SECCTX,
+	CTA_TIMESTAMP,
 	__CTA_MAX
 };
 #define CTA_MAX (__CTA_MAX - 1)
@@ -130,6 +131,14 @@ enum ctattr_counters {
 	__CTA_COUNTERS_MAX
 };
 #define CTA_COUNTERS_MAX (__CTA_COUNTERS_MAX - 1)
+
+enum ctattr_tstamp {
+	CTA_TIMESTAMP_UNSPEC,
+	CTA_TIMESTAMP_START,
+	CTA_TIMESTAMP_STOP,
+	__CTA_TIMESTAMP_MAX
+};
+#define CTA_TIMESTAMP_MAX (__CTA_TIMESTAMP_MAX - 1)
 
 enum ctattr_nat {
 	CTA_NAT_UNSPEC,

@@ -231,6 +231,47 @@ __snprintf_secctx(char *buf, unsigned int len, const struct nf_conntrack *ct)
 	return (snprintf(buf, len, "secctx=%s ", ct->secctx));
 }
 
+static int
+__snprintf_timestamp_start(char *buf, unsigned int len,
+			   const struct nf_conntrack *ct)
+{
+	time_t start = (time_t)(ct->timestamp.start / NSEC_PER_SEC);
+	char *tmp = ctime(&start);
+
+	/* overwrite \n in the ctime() output. */
+	tmp[strlen(tmp)-1] = '\0';
+	return (snprintf(buf, len, "[start=%s] ", tmp));
+}
+
+static int
+__snprintf_timestamp_stop(char *buf, unsigned int len,
+			  const struct nf_conntrack *ct)
+{
+	time_t stop = (time_t)(ct->timestamp.stop / NSEC_PER_SEC);
+	char *tmp = ctime(&stop);
+
+	/* overwrite \n in the ctime() output. */
+	tmp[strlen(tmp)-1] = '\0';
+	return (snprintf(buf, len, "[stop=%s] ", tmp));
+}
+
+static int
+__snprintf_timestamp_delta(char *buf, unsigned int len,
+			   const struct nf_conntrack *ct)
+{
+	time_t delta_time, stop;
+
+	if (ct->timestamp.stop == 0)
+		time(&stop);
+	else
+		stop = (time_t)(ct->timestamp.stop / NSEC_PER_SEC);
+
+	delta_time = stop - (time_t)(ct->timestamp.start / NSEC_PER_SEC);
+
+	return (snprintf(buf, len, "delta-time=%llu ",
+			(unsigned long long)delta_time));
+}
+
 int __snprintf_conntrack_default(char *buf, 
 				 unsigned int len,
 				 const struct nf_conntrack *ct,
@@ -335,6 +376,21 @@ int __snprintf_conntrack_default(char *buf,
 	if (test_bit(ATTR_ZONE, ct->set)) {
 		ret = __snprintf_zone(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+		ret = __snprintf_timestamp_delta(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+	if (flags & NFCT_OF_TIMESTAMP) {
+		if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+			ret = __snprintf_timestamp_start(buf+offset, len, ct);
+			BUFFER_SIZE(ret, size, len, offset);
+		}
+		if (test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+			ret = __snprintf_timestamp_stop(buf+offset, len, ct);
+			BUFFER_SIZE(ret, size, len, offset);
+		}
 	}
 
 	if (test_bit(ATTR_USE, ct->set)) {

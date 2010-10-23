@@ -411,4 +411,6 @@ const set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_TCP_WSCALE_REPL]	= set_attr_tcp_wscale_repl,
 	[ATTR_ZONE]		= set_attr_zone,
 	[ATTR_SECCTX]		= set_attr_do_nothing,
+	[ATTR_TIMESTAMP_START]	= set_attr_do_nothing,
+	[ATTR_TIMESTAMP_STOP]	= set_attr_do_nothing,
 };

@@ -128,6 +128,8 @@ enum nf_conntrack_attr {
 	ATTR_TCP_WSCALE_REPL = 60,		/* u8 bits */
 	ATTR_ZONE,				/* u16 bits */
 	ATTR_SECCTX,				/* string */
+	ATTR_TIMESTAMP_START,			/* u64 bits, linux >= 2.6.38 */
+	ATTR_TIMESTAMP_STOP = 64,		/* u64 bits, linux >= 2.6.38 */
 	ATTR_MAX
 };
 
@@ -344,6 +346,9 @@ enum {
 
 	NFCT_OF_ID_BIT = 2,
 	NFCT_OF_ID = (1 << NFCT_OF_ID_BIT),
+
+	NFCT_OF_TIMESTAMP_BIT = 3,
+	NFCT_OF_TIMESTAMP = (1 << NFCT_OF_TIMESTAMP_BIT),
 };
 
 extern int nfct_snprintf(char *buf, 

@@ -198,6 +198,97 @@ static int __snprintf_counters_xml(char *buf,
 	return size;
 }
 
+static int
+__snprintf_timestamp_start(char *buf, unsigned int len,
+			   const struct nf_conntrack *ct)
+{
+	int ret;
+	unsigned int size = 0, offset = 0;
+
+	ret = snprintf(buf, len, "<start>%llu</start>",
+		       (unsigned long long)ct->timestamp.start);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
+static int
+__snprintf_timestamp_stop(char *buf, unsigned int len,
+			  const struct nf_conntrack *ct)
+{
+	int ret;
+	unsigned int size = 0, offset = 0;
+
+	ret = snprintf(buf, len, "<stop>%llu</stop>",
+		       (unsigned long long)ct->timestamp.stop);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
+static int
+__snprintf_deltatime_now(char *buf, unsigned int len,
+			 const struct nf_conntrack *ct)
+{
+	int ret;
+	unsigned int size = 0, offset = 0;
+	time_t now, delta_time;
+
+	time(&now);
+        delta_time = now - (time_t)(ct->timestamp.start / NSEC_PER_SEC);
+
+	ret = snprintf(buf+offset, len, "<deltatime>%llu</deltatime>",
+		(unsigned long long)delta_time);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
+static int
+__snprintf_deltatime(char *buf, unsigned int len, const struct nf_conntrack *ct)
+{
+	int ret;
+	unsigned int size = 0, offset = 0;
+	time_t delta_time = (time_t)((ct->timestamp.stop -
+				ct->timestamp.start) / NSEC_PER_SEC);
+
+	ret = snprintf(buf+offset, len, "<deltatime>%llu</deltatime>",
+		(unsigned long long)delta_time);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
+static int
+__snprintf_localtime_xml(char *buf, unsigned int len, const struct tm *tm)
+{
+	int ret = 0;
+	unsigned int size = 0, offset = 0;
+
+	ret = snprintf(buf+offset, len, "<hour>%d</hour>", tm->tm_hour);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf+offset, len, "<min>%02d</min>", tm->tm_min);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf+offset, len, "<sec>%02d</sec>", tm->tm_sec);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf+offset, len, "<wday>%d</wday>", tm->tm_wday + 1);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf+offset, len, "<day>%d</day>", tm->tm_mday);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf+offset, len, "<month>%d</month>", tm->tm_mon + 1);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf+offset, len, "<year>%d</year>", 1900 + tm->tm_year);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
 static int __snprintf_tuple_xml(char *buf,
 				unsigned int len,
 				const struct nf_conntrack *ct,
@@ -298,7 +389,9 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_ZONE, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set) ||
-	    test_bit(ATTR_ID, ct->set)) {
+	    test_bit(ATTR_ID, ct->set) ||
+	    test_bit(ATTR_TIMESTAMP_START, ct->set) ||
+	    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
 		ret = snprintf(buf+offset, len, 
 			       "<meta direction=\"independent\">");
 		BUFFER_SIZE(ret, size, len, offset);
@@ -378,6 +471,35 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
+	if (flags & NFCT_OF_TIMESTAMP) {
+		if (test_bit(ATTR_TIMESTAMP_START, ct->set) ||
+		    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+			ret = snprintf(buf+offset, len, "<timestamp>");
+			BUFFER_SIZE(ret, size, len, offset);
+		}
+		if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+	 		ret = __snprintf_timestamp_start(buf+offset, len, ct);
+			BUFFER_SIZE(ret, size, len, offset);
+		}
+		if (test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+	 		ret = __snprintf_timestamp_stop(buf+offset, len, ct);
+			BUFFER_SIZE(ret, size, len, offset);
+		}
+		if (test_bit(ATTR_TIMESTAMP_START, ct->set) ||
+		    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+			ret = snprintf(buf+offset, len, "</timestamp>");
+			BUFFER_SIZE(ret, size, len, offset);
+		}
+	}
+	if (test_bit(ATTR_TIMESTAMP_START, ct->set) &&
+	    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+		ret = __snprintf_deltatime(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	} else if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+		ret = __snprintf_deltatime_now(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
 	if (test_bit(ATTR_TCP_STATE, ct->set) ||
 	    test_bit(ATTR_SCTP_STATE, ct->set) ||
 	    test_bit(ATTR_DCCP_STATE, ct->set) ||
@@ -387,7 +509,9 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_ZONE, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
 	    test_bit(ATTR_STATUS, ct->set) ||
-	    test_bit(ATTR_ID, ct->set)) {
+	    test_bit(ATTR_ID, ct->set) ||
+	    test_bit(ATTR_TIMESTAMP_START, ct->set) ||
+	    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
 	    	ret = snprintf(buf+offset, len, "</meta>");
 		BUFFER_SIZE(ret, size, len, offset);
 	}
@@ -403,28 +527,7 @@ int __snprintf_conntrack_xml(char *buf,
 		ret = snprintf(buf+offset, len, "<when>");
 		BUFFER_SIZE(ret, size, len, offset);
 
-		ret = snprintf(buf+offset, len, "<hour>%d</hour>", tm.tm_hour);
-		BUFFER_SIZE(ret, size, len, offset);
-
-		ret = snprintf(buf+offset, len, "<min>%02d</min>", tm.tm_min);
-		BUFFER_SIZE(ret, size, len, offset);
-
-		ret = snprintf(buf+offset, len, "<sec>%02d</sec>", tm.tm_sec);
-		BUFFER_SIZE(ret, size, len, offset);
-
-		ret = snprintf(buf+offset, len, "<wday>%d</wday>", 
-			       tm.tm_wday + 1);
-		BUFFER_SIZE(ret, size, len, offset);
-
-		ret = snprintf(buf+offset, len, "<day>%d</day>", tm.tm_mday);
-		BUFFER_SIZE(ret, size, len, offset);
-
-		ret = snprintf(buf+offset, len, "<month>%d</month>", 
-			       tm.tm_mon + 1);
-		BUFFER_SIZE(ret, size, len, offset);
-
-		ret = snprintf(buf+offset, len, "<year>%d</year>", 
-			       1900 + tm.tm_year);
+		ret = __snprintf_localtime_xml(buf+offset, len, &tm);
 		BUFFER_SIZE(ret, size, len, offset);
 
 		ret = snprintf(buf+offset, len, "</when>");

@@ -423,6 +423,18 @@ static void copy_attr_secctx(struct nf_conntrack *dest,
 	dest->secctx = strdup(orig->secctx);
 }
 
+static void copy_attr_timestamp_start(struct nf_conntrack *dest,
+				      const struct nf_conntrack *orig)
+{
+	dest->timestamp.start = orig->timestamp.start;
+}
+
+static void copy_attr_timestamp_stop(struct nf_conntrack *dest,
+				     const struct nf_conntrack *orig)
+{
+	dest->timestamp.stop = orig->timestamp.stop;
+}
+
 const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -487,4 +499,6 @@ const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_TCP_WSCALE_REPL]		= copy_attr_tcp_wscale_repl,
 	[ATTR_ZONE]			= copy_attr_zone,
 	[ATTR_SECCTX]			= copy_attr_secctx,
+	[ATTR_TIMESTAMP_START]		= copy_attr_timestamp_start,
+	[ATTR_TIMESTAMP_STOP]		= copy_attr_timestamp_stop,
 };

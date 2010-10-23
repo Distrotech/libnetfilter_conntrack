@@ -453,6 +453,26 @@ int __parse_message_type(const struct nlmsghdr *nlh)
 	return ret;
 }
 
+static void
+__parse_timestamp(const struct nfattr *attr, struct nf_conntrack *ct)
+{
+	struct nfattr *tb[CTA_TIMESTAMP_MAX];
+
+	nfnl_parse_nested(tb, CTA_TIMESTAMP_MAX, attr);
+	if (tb[CTA_TIMESTAMP_START-1]) {
+		u_int64_t tmp;
+		memcpy(&tmp, NFA_DATA(tb[CTA_TIMESTAMP_START-1]), sizeof(tmp));
+		ct->timestamp.start = __be64_to_cpu(tmp);
+		set_bit(ATTR_TIMESTAMP_START, ct->set);
+	}
+	if (tb[CTA_TIMESTAMP_STOP-1]) {
+		u_int64_t tmp;
+		memcpy(&tmp, NFA_DATA(tb[CTA_TIMESTAMP_STOP-1]), sizeof(tmp));
+		ct->timestamp.stop = __be64_to_cpu(tmp);
+		set_bit(ATTR_TIMESTAMP_STOP, ct->set);
+	}
+}
+
 void __parse_conntrack(const struct nlmsghdr *nlh,
 		       struct nfattr *cda[],
 		       struct nf_conntrack *ct)
@@ -538,4 +558,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_SECCTX-1])
 		__parse_secctx(cda[CTA_SECCTX-1], ct);
+
+	if (cda[CTA_TIMESTAMP-1])
+		__parse_timestamp(cda[CTA_TIMESTAMP-1], ct);
 }

@@ -77,4 +77,8 @@
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
 
+#ifndef NSEC_PER_SEC
+#define NSEC_PER_SEC    1000000000L
+#endif
+
 #endif

@@ -356,6 +356,7 @@ void nfct_callback_unregister2(struct nfct_handle *h)
  * 	- ATTR_ID
  * 	- ATTR_*_COUNTER_*
  *	- ATTR_SECCTX
+ *	- ATTR_TIMESTAMP_*
  * The call of this function for such attributes do nothing.
  */
 void nfct_set_attr(struct nf_conntrack *ct,
@@ -970,7 +971,20 @@ int nfct_catch(struct nfct_handle *h)
  * The output flags are:
  * 	- NFCT_OF_SHOW_LAYER3: include layer 3 information in the output, 
  * 	this is *only* required by NFCT_O_DEFAULT.
- * 	- NFCT_OF_TIME: display time.
+ * 	- NFCT_OF_TIME: display current time.
+ * 	- NFCT_OF_ID: display the ID number.
+ * 	- NFCT_OF_TIMESTAMP: display creation and (if exists) deletion time.
+ *
+ * To use NFCT_OF_TIMESTAMP, you have to:
+ * \verbatim
+ *  $ echo 1 > /proc/sys/net/netfilter/nf_conntrack_timestamp
+\endverbatim
+ * This requires a Linux kernel >= 2.6.38.
+ *
+ * Note that NFCT_OF_TIME displays the current time when nfct_snprintf() has
+ * been called. Thus, it can be used to know when a flow was destroy if you
+ * print the message just after you receive the destroy event. If you want
+ * more accurate timestamping, use NFCT_OF_TIMESTAMP.
  *
  * This function returns the size of the information that _would_ have been 
  * written to the buffer, even if there was no room for it. Thus, the
