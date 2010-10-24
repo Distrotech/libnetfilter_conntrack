@@ -294,8 +294,11 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_DCCP_STATE, ct->set) ||
 	    test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
+	    test_bit(ATTR_SECMARK, ct->set) ||
+	    test_bit(ATTR_ZONE, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
-	    test_bit(ATTR_STATUS, ct->set)) {
+	    test_bit(ATTR_STATUS, ct->set) ||
+	    test_bit(ATTR_ID, ct->set)) {
 		ret = snprintf(buf+offset, len, 
 			       "<meta direction=\"independent\">");
 		BUFFER_SIZE(ret, size, len, offset);
@@ -374,8 +377,11 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_DCCP_STATE, ct->set) ||
 	    test_bit(ATTR_TIMEOUT, ct->set) ||
 	    test_bit(ATTR_MARK, ct->set) ||
+	    test_bit(ATTR_SECMARK, ct->set) ||
+	    test_bit(ATTR_ZONE, ct->set) ||
 	    test_bit(ATTR_USE, ct->set) ||
-	    test_bit(ATTR_STATUS, ct->set)) {
+	    test_bit(ATTR_STATUS, ct->set) ||
+	    test_bit(ATTR_ID, ct->set)) {
 	    	ret = snprintf(buf+offset, len, "</meta>");
 		BUFFER_SIZE(ret, size, len, offset);
 	}
