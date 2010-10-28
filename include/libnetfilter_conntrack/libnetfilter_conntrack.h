@@ -588,6 +588,24 @@ extern int nfexp_snprintf(char *buf,
 
 extern int nfexp_catch(struct nfct_handle *h);
 
+/* low level API */
+extern int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
+			      void *req,
+			      size_t size,
+			      u_int16_t type,
+			      u_int16_t flags,
+			      const struct nf_expect *exp);
+
+extern int nfexp_parse_expect(enum nf_conntrack_msg_type type,
+			      const struct nlmsghdr *nlh,
+			      struct nf_expect *exp);
+
+extern int nfexp_build_query(struct nfnl_subsys_handle *ssh,
+			     const enum nf_conntrack_query qt,
+			     const void *data,
+			     void *buffer,
+			     unsigned int size);
+
 /* Bitset representing status of connection. Taken from ip_conntrack.h
  * 
  * Note: For backward compatibility this shouldn't ever change
