@@ -19,14 +19,6 @@ case "$host" in
 esac
 
 dnl Dependencies
-AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
-if test "x$HAVE_PKG_CONFIG" = "x"
-then
-	echo "*** Error: No suitable pkg-config found. ***"
-	echo "    Please install the 'pkg-config' package."
-	exit 1
-fi
-
 PKG_CHECK_MODULES([LIBNFNETLINK], [libnfnetlink >= 1.0.0])
 
 AC_CHECK_HEADERS(arpa/inet.h)
@@ -68,11 +60,6 @@ if test ! -z "$libdir"; then
 	MODULE_DIR="\\\"$libdir/libnetfilter_conntrack/\\\""
 	CFLAGS="$CFLAGS -DLIBNETFILTER_CONNTRACK_DIR=$MODULE_DIR"
 fi
-
-CFLAGS="$CFLAGS $LIBNFNETLINK_CFLAGS"
-LIBNFCONNTRACK_LIBS="$LIBNFNETLINK_LIBS"
-
-AC_SUBST(LIBNFCONNTRACK_LIBS)
 
 dnl Output the makefile
 AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile qa/Makefile include/libnetfilter_conntrack/Makefile include/internal/Makefile src/conntrack/Makefile src/expect/Makefile libnetfilter_conntrack.pc doxygen.cfg)

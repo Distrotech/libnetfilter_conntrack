@@ -6,13 +6,13 @@ include $(top_srcdir)/Make_global.am
 
 SUBDIRS=conntrack expect
 
-AM_CFLAGS = -Wall
-LIBS = @LIBNFCONNTRACK_LIBS@
+AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
 
 lib_LTLIBRARIES = libnetfilter_conntrack.la 
 
 libnetfilter_conntrack_la_LIBADD = conntrack/libnfconntrack.la \
-				   expect/libnfexpect.la
+				   expect/libnfexpect.la \
+				   ${LIBNFNETLINK_LIBS}
 libnetfilter_conntrack_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink -ldl 	\
 				    -version-info $(LIBVERSION)
 libnetfilter_conntrack_la_SOURCES = main.c
