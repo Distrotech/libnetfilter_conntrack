@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 include ()
 {
@@ -35,3 +35,4 @@ run ()
 
 [ "x$1" = "xdistrib" ] && include
 autoreconf -fi
+rm -Rf autom4te.cache
