@@ -1,6 +1,6 @@
 include $(top_srcdir)/Make_global.am
 
-AM_CFLAGS = -fPIC -Wall
+AM_CFLAGS = -Wall
 LIBS = @LIBNFCONNTRACK_LIBS@
 
 noinst_LTLIBRARIES = libnfconntrack.la 
