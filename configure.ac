@@ -28,8 +28,7 @@ AC_CHECK_FUNCS(inet_ntop)
 dnl Again, some systems have it, but not IPv6
 if test "$ac_cv_func_inet_ntop" = "yes" ; then
 AC_MSG_CHECKING(if inet_ntop supports IPv6)
-AC_TRY_RUN(
-   [
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -52,9 +51,9 @@ int main()
      else
         exit(0);
   }
-  ], [ AC_MSG_RESULT(yes)
+  ]])],[ AC_MSG_RESULT(yes)
        AC_DEFINE_UNQUOTED(HAVE_INET_NTOP_IPV6, 1, [Define to 1 if inet_ntop supports IPv6.])
-     ], AC_MSG_RESULT(no),AC_MSG_RESULT(no))
+     ],[AC_MSG_RESULT(no)],[AC_MSG_RESULT(no)])
 fi
 
 if test ! -z "$libdir"; then
