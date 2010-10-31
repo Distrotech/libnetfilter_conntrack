@@ -63,5 +63,8 @@ if test ! -z "$libdir"; then
 fi
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile qa/Makefile include/libnetfilter_conntrack/Makefile include/internal/Makefile src/conntrack/Makefile src/expect/Makefile libnetfilter_conntrack.pc doxygen.cfg)
-
+AC_CONFIG_FILES([Makefile src/Makefile include/Makefile utils/Makefile
+	qa/Makefile include/libnetfilter_conntrack/Makefile
+	include/internal/Makefile src/conntrack/Makefile src/expect/Makefile
+	libnetfilter_conntrack.pc doxygen.cfg])
+AC_OUTPUT
