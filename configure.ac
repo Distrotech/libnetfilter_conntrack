@@ -7,6 +7,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects dist-bzip2 1.6])
 
 AC_PROG_CC
+AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -27,8 +28,7 @@ AC_CHECK_FUNCS(inet_ntop)
 dnl Again, some systems have it, but not IPv6
 if test "$ac_cv_func_inet_ntop" = "yes" ; then
 AC_MSG_CHECKING(if inet_ntop supports IPv6)
-AC_TRY_RUN(
-   [
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -51,9 +51,9 @@ int main()
      else
         exit(0);
   }
-  ], [ AC_MSG_RESULT(yes)
+  ]])],[ AC_MSG_RESULT(yes)
        AC_DEFINE_UNQUOTED(HAVE_INET_NTOP_IPV6, 1, [Define to 1 if inet_ntop supports IPv6.])
-     ], AC_MSG_RESULT(no),AC_MSG_RESULT(no))
+     ],[AC_MSG_RESULT(no)],[AC_MSG_RESULT(no)])
 fi
 
 if test ! -z "$libdir"; then
@@ -62,5 +62,8 @@ if test ! -z "$libdir"; then
 fi
 
 dnl Output the makefile
-AC_OUTPUT(Makefile src/Makefile include/Makefile utils/Makefile qa/Makefile include/libnetfilter_conntrack/Makefile include/internal/Makefile src/conntrack/Makefile src/expect/Makefile libnetfilter_conntrack.pc doxygen.cfg)
-
+AC_CONFIG_FILES([Makefile src/Makefile include/Makefile utils/Makefile
+	qa/Makefile include/libnetfilter_conntrack/Makefile
+	include/internal/Makefile src/conntrack/Makefile src/expect/Makefile
+	libnetfilter_conntrack.pc doxygen.cfg])
+AC_OUTPUT
