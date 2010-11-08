@@ -25,7 +25,9 @@ int main()
 	int ret;
 	struct nfct_handle *h;
 
-	h = nfct_open(EXPECT, NF_NETLINK_CONNTRACK_EXP_NEW);
+	h = nfct_open(EXPECT, NF_NETLINK_CONNTRACK_EXP_NEW |
+			      NF_NETLINK_CONNTRACK_EXP_UPDATE |
+			      NF_NETLINK_CONNTRACK_EXP_DESTROY);
 	if (!h) {
 		perror("nfct_open");
 		return -1;
