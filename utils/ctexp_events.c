@@ -11,7 +11,7 @@ ct_event_cb(enum nf_conntrack_msg_type type,struct nf_conntrack *ct, void *data)
 {
 	char buf[1024];
 
-	nfct_snprintf(buf, 1024, ct, type, NFCT_O_PLAIN, NFCT_OF_TIME);
+	nfct_snprintf(buf, sizeof(buf), ct, type, NFCT_O_PLAIN, NFCT_OF_TIME);
 	printf("[CT] %s\n", buf);
 
 	if (++n == 20)
