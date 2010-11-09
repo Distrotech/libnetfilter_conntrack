@@ -305,7 +305,7 @@ add_state_filter(struct sock_filter *this,
 		 u_int16_t flags,
 		 unsigned int logic)
 {
-	struct {
+	static const struct {
 		unsigned int cta_protoinfo;
 		unsigned int cta_state;
 	} cta[IPPROTO_MAX] = {

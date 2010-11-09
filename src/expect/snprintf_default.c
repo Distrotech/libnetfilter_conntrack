@@ -23,7 +23,7 @@ int __snprintf_expect_default(char *buf,
 			      unsigned int flags) 
 {
 	int ret = 0, size = 0, offset = 0;
-	char *delim = "";
+	const char *delim = "";
 
 	switch(msg_type) {
 		case NFCT_T_NEW:

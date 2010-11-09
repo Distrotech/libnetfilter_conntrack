@@ -8,12 +8,12 @@
 #include "internal/internal.h"
 
 /* these arrays are used by snprintf_default.c and snprintf_xml.c */
-const char *l3proto2str[AF_MAX] = {
+const char *const l3proto2str[AF_MAX] = {
 	[AF_INET]			= "ipv4",
 	[AF_INET6]			= "ipv6",
 };
 
-const char *proto2str[IPPROTO_MAX] = {
+const char *const proto2str[IPPROTO_MAX] = {
 	[IPPROTO_TCP]			= "tcp",
 	[IPPROTO_UDP]			= "udp",
 	[IPPROTO_UDPLITE]		= "udplite",
@@ -24,7 +24,7 @@ const char *proto2str[IPPROTO_MAX] = {
 	[IPPROTO_DCCP]			= "dccp",
 };
 
-const char *states[TCP_CONNTRACK_MAX] = {
+const char *const states[TCP_CONNTRACK_MAX] = {
 	[TCP_CONNTRACK_NONE]		= "NONE",
 	[TCP_CONNTRACK_SYN_SENT]	= "SYN_SENT",
 	[TCP_CONNTRACK_SYN_RECV]	= "SYN_RECV",
@@ -37,7 +37,7 @@ const char *states[TCP_CONNTRACK_MAX] = {
 	[TCP_CONNTRACK_SYN_SENT2]	= "SYN_SENT2",
 };
 
-const char *sctp_states[SCTP_CONNTRACK_MAX] = {
+const char *const sctp_states[SCTP_CONNTRACK_MAX] = {
 	[SCTP_CONNTRACK_NONE]		= "NONE",
 	[SCTP_CONNTRACK_CLOSED]		= "CLOSED",
 	[SCTP_CONNTRACK_COOKIE_WAIT]	= "COOKIE_WAIT",
@@ -48,7 +48,7 @@ const char *sctp_states[SCTP_CONNTRACK_MAX] = {
 	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT] = "SHUTDOWN_ACK_SENT",
 };
 
-const char *dccp_states[DCCP_CONNTRACK_MAX] = {
+const char *const dccp_states[DCCP_CONNTRACK_MAX] = {
 	[DCCP_CONNTRACK_NONE]		= "NONE",
 	[DCCP_CONNTRACK_REQUEST]	= "REQUEST",
 	[DCCP_CONNTRACK_RESPOND]	= "RESPOND",

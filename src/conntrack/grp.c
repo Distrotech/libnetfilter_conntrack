@@ -7,7 +7,7 @@
 
 #include "internal/internal.h"
 
-uint32_t attr_grp_bitmask[ATTR_GRP_MAX][__NFCT_BITSET] = {
+const uint32_t attr_grp_bitmask[ATTR_GRP_MAX][__NFCT_BITSET] = {
 	[ATTR_GRP_ORIG_IPV4] = {
 		[0] = (1 << ATTR_ORIG_IPV4_SRC) |
 		      (1 << ATTR_ORIG_IPV4_DST) |

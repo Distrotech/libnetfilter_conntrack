@@ -28,7 +28,7 @@ static const u_int8_t invmap_icmp[] = {
 #define ICMPV6_NI_REPLY 140
 #endif
 
-static u_int8_t invmap_icmpv6[] = {
+static const u_int8_t invmap_icmpv6[] = {
 	[ICMPV6_ECHO_REQUEST - 128]	= ICMPV6_ECHO_REPLY + 1,
 	[ICMPV6_ECHO_REPLY - 128]	= ICMPV6_ECHO_REQUEST + 1,
 	[ICMPV6_NI_QUERY - 128]		= ICMPV6_NI_QUERY + 1,
@@ -347,7 +347,7 @@ static void set_attr_zone(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_do_nothing(struct nf_conntrack *ct, const void *value) {}
 
-set_attr set_attr_array[ATTR_MAX] = {
+const set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]	= set_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 	= set_attr_orig_ipv4_dst,
 	[ATTR_REPL_IPV4_SRC]	= set_attr_repl_ipv4_src,
