@@ -410,4 +410,5 @@ const set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_TCP_WSCALE_ORIG]	= set_attr_tcp_wscale_orig,
 	[ATTR_TCP_WSCALE_REPL]	= set_attr_tcp_wscale_repl,
 	[ATTR_ZONE]		= set_attr_zone,
+	[ATTR_SECCTX]		= set_attr_do_nothing,
 };

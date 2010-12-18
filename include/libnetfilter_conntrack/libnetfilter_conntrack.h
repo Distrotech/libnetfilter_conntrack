@@ -127,6 +127,7 @@ enum nf_conntrack_attr {
 	ATTR_TCP_WSCALE_ORIG,			/* u8 bits */
 	ATTR_TCP_WSCALE_REPL = 60,		/* u8 bits */
 	ATTR_ZONE,				/* u16 bits */
+	ATTR_SECCTX,				/* string */
 	ATTR_MAX
 };
 

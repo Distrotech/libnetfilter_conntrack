@@ -415,6 +415,14 @@ static void copy_attr_zone(struct nf_conntrack *dest,
 	dest->zone = orig->zone;
 }
 
+static void copy_attr_secctx(struct nf_conntrack *dest,
+			     const struct nf_conntrack *orig)
+{
+	if (dest->secctx)
+		free(dest->secctx);
+	dest->secctx = strdup(orig->secctx);
+}
+
 const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -478,4 +486,5 @@ const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_TCP_WSCALE_ORIG]		= copy_attr_tcp_wscale_orig,
 	[ATTR_TCP_WSCALE_REPL]		= copy_attr_tcp_wscale_repl,
 	[ATTR_ZONE]			= copy_attr_zone,
+	[ATTR_SECCTX]			= copy_attr_secctx,
 };

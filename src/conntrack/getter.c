@@ -317,6 +317,11 @@ static const void *get_attr_zone(const struct nf_conntrack *ct)
 	return &ct->zone;
 }
 
+static const void *get_attr_secctx(const struct nf_conntrack *ct)
+{
+	return ct->secctx;
+}
+
 const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -380,4 +385,5 @@ const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_TCP_WSCALE_ORIG]		= get_attr_tcp_wscale_orig,
 	[ATTR_TCP_WSCALE_REPL]		= get_attr_tcp_wscale_repl,
 	[ATTR_ZONE]			= get_attr_zone,
+	[ATTR_SECCTX]			= get_attr_secctx,
 };

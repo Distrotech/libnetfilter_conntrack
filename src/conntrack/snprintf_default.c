@@ -225,6 +225,12 @@ __snprintf_zone(char *buf, unsigned int len, const struct nf_conntrack *ct)
 	return (snprintf(buf, len, "zone=%u ", ct->zone));
 }
 
+static int
+__snprintf_secctx(char *buf, unsigned int len, const struct nf_conntrack *ct)
+{
+	return (snprintf(buf, len, "secctx=%s ", ct->secctx));
+}
+
 int __snprintf_conntrack_default(char *buf, 
 				 unsigned int len,
 				 const struct nf_conntrack *ct,
@@ -318,6 +324,11 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (test_bit(ATTR_SECMARK, ct->set)) {
 		ret = __snprintf_secmark(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (test_bit(ATTR_SECCTX, ct->set)) {
+		ret = __snprintf_secctx(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

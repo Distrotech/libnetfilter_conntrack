@@ -166,6 +166,9 @@ struct nf_conntrack {
  * length accepted is 16 bytes, this limit is enforced during module load. */
 #define __NFCT_HELPER_NAMELEN		16
 	char 		helper_name[__NFCT_HELPER_NAMELEN];
+/* According to Eric Paris <eparis@redhat.com> this field can be up to 4096
+ * bytes long. For that reason, we allocate this dynamically. */
+	char		*secctx;
 
 	union __nfct_protoinfo 	protoinfo;
 	struct __nfct_counters 	counters[__DIR_MAX];

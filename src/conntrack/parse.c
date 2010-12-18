@@ -422,6 +422,20 @@ __parse_helper(const struct nfattr *attr, struct nf_conntrack *ct)
 	set_bit(ATTR_HELPER_NAME, ct->set);
 }
 
+static void
+__parse_secctx(const struct nfattr *attr, struct nf_conntrack *ct)
+{
+	struct nfattr *tb[CTA_SECCTX_MAX];
+
+	nfnl_parse_nested(tb, CTA_SECCTX_MAX, attr);
+	if (!tb[CTA_SECCTX_NAME-1])
+		return;
+
+	ct->secctx = strdup(NFA_DATA(tb[CTA_SECCTX-1]));
+	if (ct->secctx)
+		set_bit(ATTR_SECCTX, ct->set);
+}
+
 int __parse_message_type(const struct nlmsghdr *nlh)
 {
 	u_int16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
@@ -521,4 +535,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 		ct->zone = ntohs(*(u_int16_t *)NFA_DATA(cda[CTA_ZONE-1]));
 		set_bit(ATTR_ZONE, ct->set);
 	}
+
+	if (cda[CTA_SECCTX-1])
+		__parse_secctx(cda[CTA_SECCTX-1], ct);
 }

@@ -90,6 +90,8 @@ void nfct_destroy(struct nf_conntrack *ct)
 {
 	assert(ct != NULL);
 	free(ct);
+	if (ct->secctx)
+		free(ct->secctx);
 	ct = NULL; /* bugtrap */
 }
 
@@ -353,6 +355,7 @@ void nfct_callback_unregister2(struct nfct_handle *h)
  * 	- ATTR_USE
  * 	- ATTR_ID
  * 	- ATTR_*_COUNTER_*
+ *	- ATTR_SECCTX
  * The call of this function for such attributes do nothing.
  */
 void nfct_set_attr(struct nf_conntrack *ct,
