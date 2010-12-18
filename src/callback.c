@@ -106,6 +106,5 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data)
 		ret = NFNL_CB_CONTINUE;
 		break;
 	}
-out:
 	return ret;
 }
