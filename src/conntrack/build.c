@@ -202,7 +202,7 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 				__be64_to_cpu(ct->protoinfo.dccp.handshake_seq);
 
 			nfnl_addattr_l(&req->nlh, size,
-				       CTA_PROTOINFO_DCCP_SEQ,
+				       CTA_PROTOINFO_DCCP_HANDSHAKE_SEQ,
 				       &handshake_seq,
 				       sizeof(u_int64_t));
 		}
