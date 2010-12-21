@@ -92,7 +92,7 @@ static void get_attr_grp_repl_ctrs(const struct nf_conntrack *ct, void *data)
 	this->bytes = ct->counters[__DIR_REPL].bytes;
 }
 
-get_attr_grp get_attr_grp_array[ATTR_GRP_MAX] = {
+const get_attr_grp get_attr_grp_array[ATTR_GRP_MAX] = {
 	[ATTR_GRP_ORIG_IPV4]		= get_attr_grp_orig_ipv4,
 	[ATTR_GRP_REPL_IPV4]		= get_attr_grp_repl_ipv4,
 	[ATTR_GRP_ORIG_IPV6]		= get_attr_grp_orig_ipv6,

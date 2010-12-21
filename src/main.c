@@ -18,7 +18,7 @@ struct nfct_handle *nfct_open_nfnl(struct nfnl_handle *nfnlh,
 {
 	struct nfct_handle *cth;
 
-	cth = (struct nfct_handle *) malloc(sizeof(struct nfct_handle));
+	cth = malloc(sizeof(struct nfct_handle));
 	if (!cth)
 		return NULL;
 	

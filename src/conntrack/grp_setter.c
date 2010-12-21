@@ -28,7 +28,7 @@ static const u_int8_t invmap_icmp[] = {
 #define ICMPV6_NI_REPLY 140
 #endif
 
-static u_int8_t invmap_icmpv6[] = {
+static const u_int8_t invmap_icmpv6[] = {
 	[ICMPV6_ECHO_REQUEST - 128]	= ICMPV6_ECHO_REPLY + 1,
 	[ICMPV6_ECHO_REPLY - 128]	= ICMPV6_ECHO_REQUEST + 1,
 	[ICMPV6_NI_QUERY - 128]		= ICMPV6_NI_QUERY + 1,
@@ -140,7 +140,7 @@ static void set_attr_grp_do_nothing(struct nf_conntrack *ct, const void *value)
 {
 }
 
-set_attr_grp set_attr_grp_array[ATTR_GRP_MAX] = {
+const set_attr_grp set_attr_grp_array[ATTR_GRP_MAX] = {
 	[ATTR_GRP_ORIG_IPV4]		= set_attr_grp_orig_ipv4,
 	[ATTR_GRP_REPL_IPV4]		= set_attr_grp_repl_ipv4,
 	[ATTR_GRP_ORIG_IPV6]		= set_attr_grp_orig_ipv6,

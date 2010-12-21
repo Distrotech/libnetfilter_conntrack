@@ -1103,7 +1103,7 @@ void nfct_copy(struct nf_conntrack *ct1,
 		return;
 	}
 
-	static int cp_orig_mask[] = {
+	static const int cp_orig_mask[] = {
 		ATTR_ORIG_IPV4_SRC,
 		ATTR_ORIG_IPV4_DST,
 		ATTR_ORIG_IPV6_SRC,
@@ -1128,7 +1128,7 @@ void nfct_copy(struct nf_conntrack *ct1,
 		}
 	}
 
-	static int cp_repl_mask[] = {
+	static const int cp_repl_mask[] = {
 		ATTR_REPL_IPV4_SRC,
 		ATTR_REPL_IPV4_DST,
 		ATTR_REPL_IPV6_SRC,

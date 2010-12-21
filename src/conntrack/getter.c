@@ -317,7 +317,7 @@ static const void *get_attr_zone(const struct nf_conntrack *ct)
 	return &ct->zone;
 }
 
-get_attr get_attr_array[ATTR_MAX] = {
+const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
 	[ATTR_REPL_IPV4_SRC]		= get_attr_repl_ipv4_src,

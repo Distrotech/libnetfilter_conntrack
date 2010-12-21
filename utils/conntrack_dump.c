@@ -10,7 +10,7 @@ static int cb(enum nf_conntrack_msg_type type,
 {
 	char buf[1024];
 
-	nfct_snprintf(buf, 1024, ct, NFCT_T_UNKNOWN, NFCT_O_DEFAULT, NFCT_OF_SHOW_LAYER3);
+	nfct_snprintf(buf, sizeof(buf), ct, NFCT_T_UNKNOWN, NFCT_O_DEFAULT, NFCT_OF_SHOW_LAYER3);
 	printf("%s\n", buf);
 
 	return NFCT_CB_CONTINUE;
