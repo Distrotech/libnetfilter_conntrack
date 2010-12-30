@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 
@@ -16,7 +18,7 @@ static int cb(enum nf_conntrack_msg_type type,
 	return NFCT_CB_CONTINUE;
 }
 
-int main()
+int main(void)
 {
 	int ret;
 	struct nfct_handle *h;

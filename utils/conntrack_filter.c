@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_tcp.h>
@@ -21,14 +23,11 @@ static int event_cb(enum nf_conntrack_msg_type type,
 	return NFCT_CB_CONTINUE;
 }
 
-int main()
+int main(void)
 {
 	int ret;
-	u_int8_t family = AF_INET;
 	struct nfct_handle *h;
 	struct nfct_filter *filter;
-	struct nf_conntrack *ct;
-	char buf[1024];
 
 	h = nfct_open(CONNTRACK, NF_NETLINK_CONNTRACK_NEW | 
 				 NF_NETLINK_CONNTRACK_UPDATE);
