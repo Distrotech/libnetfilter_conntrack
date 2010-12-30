@@ -1,7 +1,5 @@
 include $(top_srcdir)/Make_global.am
 
-AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
-
 noinst_LTLIBRARIES = libnfexpect.la 
 
 libnfexpect_la_SOURCES = api.c \

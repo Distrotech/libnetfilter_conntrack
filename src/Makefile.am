@@ -6,8 +6,6 @@ include $(top_srcdir)/Make_global.am
 
 SUBDIRS=conntrack expect
 
-AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
-
 lib_LTLIBRARIES = libnetfilter_conntrack.la 
 
 libnetfilter_conntrack_la_LIBADD = conntrack/libnfconntrack.la \
