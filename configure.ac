@@ -12,8 +12,6 @@ AM_PROG_LIBTOOL
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
-AC_SUBST(LIBTOOL_DEPS)
-
 case "$host" in 
 *-*-linux*) ;;
 *) AC_MSG_ERROR([Linux only, dude!]);;
