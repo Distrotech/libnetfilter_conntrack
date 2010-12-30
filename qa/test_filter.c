@@ -3,6 +3,9 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
 #include <errno.h>
 
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
@@ -23,7 +26,7 @@ static int event_cb(enum nf_conntrack_msg_type type,
 	return NFCT_CB_CONTINUE;
 }
 
-int main()
+int main(void)
 {
 	int i, ret;
 	struct nfct_handle *h;
@@ -72,4 +75,5 @@ int main()
 
 	ret = nfct_catch(h);
 	printf("test ret=%d (%s)\n", ret, strerror(errno));
+	return EXIT_SUCCESS;
 }

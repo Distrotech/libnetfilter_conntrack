@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
 
@@ -13,14 +14,14 @@
  * this file contains a test to check the set/get/copy/cmp APIs.
  */
 
-static eval_sigterm(int status)
+static void eval_sigterm(int status)
 {
 	switch(WTERMSIG(status)) {
 	case SIGSEGV:
 		printf("received SIGSEV\n");
 		break;
 	case 0:
-		printf("OK\n", WTERMSIG(status));
+		printf("OK\n");
 		break;
 	default:
 		printf("exited with signal: %d\n", WTERMSIG(status));
@@ -28,10 +29,9 @@ static eval_sigterm(int status)
 	}
 }
 
-int main()
+int main(void)
 {
 	int ret, i;
-	struct nfct_handle *h;
 	struct nf_conntrack *ct, *tmp;
 	char data[32];
 	int status;
@@ -99,4 +99,5 @@ int main()
 
 	nfct_destroy(ct);
 	nfct_destroy(tmp);
+	return EXIT_SUCCESS;
 }
