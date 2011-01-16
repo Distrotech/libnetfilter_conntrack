@@ -98,6 +98,8 @@ void nfct_destroy(struct nf_conntrack *ct)
 /**
  * nf_sizeof - return the size in bytes of a certain conntrack object
  * \param ct pointer to the conntrack object
+ *
+ * This function is DEPRECATED, don't use it in your code.
  */
 size_t nfct_sizeof(const struct nf_conntrack *ct)
 {
@@ -118,6 +120,8 @@ size_t nfct_sizeof(const struct nf_conntrack *ct)
  * Note: As for now this function returns the same size that nfct_sizeof(ct)
  * does although _this could change in the future_. Therefore, do not assume
  * that nfct_sizeof(ct) == nfct_maxsize().
+ *
+ * This function is DEPRECATED, don't use it in your code.
  */
 size_t nfct_maxsize(void)
 {

@@ -199,10 +199,10 @@ extern void nfct_destroy(struct nf_conntrack *ct);
 struct nf_conntrack *nfct_clone(const struct nf_conntrack *ct);
 
 /* object size */
-extern size_t nfct_sizeof(const struct nf_conntrack *ct);
+extern __attribute__((deprecated)) size_t nfct_sizeof(const struct nf_conntrack *ct);
 
 /* maximum object size */
-extern size_t nfct_maxsize(void);
+extern __attribute__((deprecated)) size_t nfct_maxsize(void);
 
 /* set option */
 enum {
