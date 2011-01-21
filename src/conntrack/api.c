@@ -89,9 +89,9 @@ struct nf_conntrack *nfct_new(void)
 void nfct_destroy(struct nf_conntrack *ct)
 {
 	assert(ct != NULL);
-	free(ct);
 	if (ct->secctx)
 		free(ct->secctx);
+	free(ct);
 	ct = NULL; /* bugtrap */
 }
 
