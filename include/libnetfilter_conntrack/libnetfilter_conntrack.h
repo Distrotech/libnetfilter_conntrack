@@ -658,9 +658,17 @@ enum ip_conntrack_status {
 	IPS_DYING_BIT = 9,
 	IPS_DYING = (1 << IPS_DYING_BIT),
 
-    /* Connection has fixed timeout. */
+	/* Connection has fixed timeout. */
 	IPS_FIXED_TIMEOUT_BIT = 10,
 	IPS_FIXED_TIMEOUT = (1 << IPS_FIXED_TIMEOUT_BIT),
+
+	/* Conntrack is a template */
+	IPS_TEMPLATE_BIT = 11,
+	IPS_TEMPLATE = (1 << IPS_TEMPLATE_BIT),
+
+	/* Conntrack is a fake untracked entry */
+	IPS_UNTRACKED_BIT = 12,
+	IPS_UNTRACKED = (1 << IPS_UNTRACKED_BIT),
 };
 
 /* expectation flags */
