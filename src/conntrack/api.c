@@ -1099,6 +1099,9 @@ int nfct_cmp(const struct nf_conntrack *ct1,
  * 	and 4 protocol number.
  * 	- NFCT_CP_META: that copies the metainformation 
  * 	(all the attributes >= ATTR_TCP_STATE)
+ *	- NFCT_CP_OVERRIDE: changes the default behaviour of nfct_copy() since
+ *	it overrides the destination object. After the copy, the destination
+ *	is a clone of the origin. This flag provides faster copying.
  */
 void nfct_copy(struct nf_conntrack *ct1,
 	       const struct nf_conntrack *ct2,
@@ -1109,6 +1112,10 @@ void nfct_copy(struct nf_conntrack *ct1,
 	assert(ct1 != NULL);
 	assert(ct2 != NULL);
 
+	if (flags & NFCT_CP_OVERRIDE) {
+		__copy_fast(ct1, ct2);
+		return;
+	}
 	if (flags == NFCT_CP_ALL) {
 		for (i=0; i<ATTR_MAX; i++) {
 			if (test_bit(i, ct2->set)) {

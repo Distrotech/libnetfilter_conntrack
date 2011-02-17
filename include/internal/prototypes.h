@@ -21,6 +21,7 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 int __setobjopt(struct nf_conntrack *ct, unsigned int option);
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option);
 int __compare(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2, unsigned int flags);
+void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct);
 
 int __setup_netlink_socket_filter(int fd, struct nfct_filter *filter);
 

@@ -408,6 +408,7 @@ enum {
 	NFCT_CP_ORIG = (1 << 0),
 	NFCT_CP_REPL = (1 << 1),
 	NFCT_CP_META = (1 << 2),
+	NFCT_CP_OVERRIDE = (1 << 3),
 };
 
 extern void nfct_copy(struct nf_conntrack *dest,

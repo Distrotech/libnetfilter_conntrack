@@ -505,3 +505,11 @@ const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_TIMESTAMP_START]		= copy_attr_timestamp_start,
 	[ATTR_TIMESTAMP_STOP]		= copy_attr_timestamp_stop,
 };
+
+/* this is used by nfct_copy() with the NFCT_CP_OVERRIDE flag set. */
+void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct2)
+{
+	memcpy(ct1, ct2, sizeof(*ct1));
+	/* special case: secctx attribute is allocated dinamically. */
+	copy_attr_secctx(ct1, ct2);
+}
