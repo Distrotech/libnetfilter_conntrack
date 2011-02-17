@@ -418,9 +418,12 @@ static void copy_attr_zone(struct nf_conntrack *dest,
 static void copy_attr_secctx(struct nf_conntrack *dest,
 			     const struct nf_conntrack *orig)
 {
-	if (dest->secctx)
+	if (dest->secctx) {
 		free(dest->secctx);
-	dest->secctx = strdup(orig->secctx);
+		dest->secctx = NULL;
+	}
+	if (orig->secctx)
+		dest->secctx = strdup(orig->secctx);
 }
 
 static void copy_attr_timestamp_start(struct nf_conntrack *dest,
