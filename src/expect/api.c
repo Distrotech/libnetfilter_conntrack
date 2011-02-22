@@ -479,6 +479,43 @@ int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
 	return __build_expect(ssh, req, size, type, flags, exp);
 }
 
+static int
+__build_query_exp(struct nfnl_subsys_handle *ssh,
+		  const enum nf_conntrack_query qt,
+		  const void *data, void *buffer, unsigned int size)
+{
+	struct nfnlhdr *req = buffer;
+	const u_int8_t *family = data;
+
+	assert(ssh != NULL);
+	assert(data != NULL);
+	assert(req != NULL);
+
+	memset(req, 0, size);
+
+	switch(qt) {
+	case NFCT_Q_CREATE:
+		__build_expect(ssh, req, size, IPCTNL_MSG_EXP_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL, data);
+		break;
+	case NFCT_Q_GET:
+		__build_expect(ssh, req, size, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_ACK, data);
+		break;
+	case NFCT_Q_DESTROY:
+		__build_expect(ssh, req, size, IPCTNL_MSG_EXP_DELETE, NLM_F_REQUEST|NLM_F_ACK, data);
+		break;
+	case NFCT_Q_FLUSH:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_DELETE, NLM_F_REQUEST|NLM_F_ACK);
+		break;
+	case NFCT_Q_DUMP:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_DUMP);
+		break;
+	default:
+		errno = ENOTSUP;
+		return -1;
+	}
+	return 1;
+}
+
 /**
  * nfexp_build_query - build a query in netlink message format for ctnetlink
  * \param ssh nfnetlink subsystem handler
@@ -515,36 +552,7 @@ int nfexp_build_query(struct nfnl_subsys_handle *ssh,
 		      void *buffer,
 		      unsigned int size)
 {
-	struct nfnlhdr *req = buffer;
-	const u_int8_t *family = data;
-
-	assert(ssh != NULL);
-	assert(data != NULL);
-	assert(req != NULL);
-
-	memset(req, 0, size);
-
-	switch(qt) {
-	case NFCT_Q_CREATE:
-		nfexp_build_expect(ssh, req, size, IPCTNL_MSG_EXP_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL, data);
-		break;
-	case NFCT_Q_GET:
-		nfexp_build_expect(ssh, req, size, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_ACK, data);
-		break;
-	case NFCT_Q_DESTROY:
-		nfexp_build_expect(ssh, req, size, IPCTNL_MSG_EXP_DELETE, NLM_F_REQUEST|NLM_F_ACK, data);
-		break;
-	case NFCT_Q_FLUSH:
-		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_DELETE, NLM_F_REQUEST|NLM_F_ACK);
-		break;
-	case NFCT_Q_DUMP:
-		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_DUMP);
-		break;
-	default:
-		errno = ENOTSUP;
-		return -1;
-	}
-	return 1;
+	return __build_query_exp(ssh, qt, data, buffer, size);
 }
 
 /**
@@ -631,7 +639,7 @@ int nfexp_query(struct nfct_handle *h,
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (nfexp_build_query(h->nfnlssh_exp, qt, data, &u.req, size) == -1)
+	if (__build_query_exp(h->nfnlssh_exp, qt, data, &u.req, size) == -1)
 		return -1;
 
 	return nfnl_query(h->nfnlh, &u.req.nlh);

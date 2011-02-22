@@ -725,6 +725,53 @@ int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
 	return __build_conntrack(ssh, req, size, type, flags, ct);
 }
 
+static int
+__build_query_ct(struct nfnl_subsys_handle *ssh,
+		 const enum nf_conntrack_query qt,
+		 const void *data, void *buffer, unsigned int size)
+{
+	struct nfnlhdr *req = buffer;
+	const u_int32_t *family = data;
+
+	assert(ssh != NULL);
+	assert(data != NULL);
+	assert(req != NULL);
+
+	memset(req, 0, size);
+
+	switch(qt) {
+	case NFCT_Q_CREATE:
+		__build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL, data);
+		break;
+	case NFCT_Q_UPDATE:
+		__build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_ACK, data);
+		break;
+	case NFCT_Q_DESTROY:
+		__build_conntrack(ssh, req, size, IPCTNL_MSG_CT_DELETE, NLM_F_REQUEST|NLM_F_ACK, data);
+		break;
+	case NFCT_Q_GET:
+		__build_conntrack(ssh, req, size, IPCTNL_MSG_CT_GET, NLM_F_REQUEST|NLM_F_ACK, data);
+		break;
+	case NFCT_Q_FLUSH:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_DELETE, NLM_F_REQUEST|NLM_F_ACK);
+		break;
+	case NFCT_Q_DUMP:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_GET, NLM_F_REQUEST|NLM_F_DUMP);
+		break;
+	case NFCT_Q_DUMP_RESET:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_GET_CTRZERO, NLM_F_REQUEST|NLM_F_DUMP);
+		break;
+	case NFCT_Q_CREATE_UPDATE:
+		__build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK, data);
+		break;
+
+	default:
+		errno = ENOTSUP;
+		return -1;
+	}
+	return 1;
+}
+
 /**
  * nfct_build_query - build a query in netlink message format for ctnetlink
  * \param ssh nfnetlink subsystem handler
@@ -765,46 +812,7 @@ int nfct_build_query(struct nfnl_subsys_handle *ssh,
 		     void *buffer,
 		     unsigned int size)
 {
-	struct nfnlhdr *req = buffer;
-	const u_int32_t *family = data;
-
-	assert(ssh != NULL);
-	assert(data != NULL);
-	assert(req != NULL);
-
-	memset(req, 0, size);
-
-	switch(qt) {
-	case NFCT_Q_CREATE:
-		nfct_build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL, data);
-		break;
-	case NFCT_Q_UPDATE:
-		nfct_build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_ACK, data);
-		break;
-	case NFCT_Q_DESTROY:
-		nfct_build_conntrack(ssh, req, size, IPCTNL_MSG_CT_DELETE, NLM_F_REQUEST|NLM_F_ACK, data);
-		break;
-	case NFCT_Q_GET:
-		nfct_build_conntrack(ssh, req, size, IPCTNL_MSG_CT_GET, NLM_F_REQUEST|NLM_F_ACK, data);
-		break;
-	case NFCT_Q_FLUSH:
-		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_DELETE, NLM_F_REQUEST|NLM_F_ACK);
-		break;
-	case NFCT_Q_DUMP:
-		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_GET, NLM_F_REQUEST|NLM_F_DUMP);
-		break;
-	case NFCT_Q_DUMP_RESET:
-		nfnl_fill_hdr(ssh, &req->nlh, 0, *family, 0, IPCTNL_MSG_CT_GET_CTRZERO, NLM_F_REQUEST|NLM_F_DUMP);
-		break;
-	case NFCT_Q_CREATE_UPDATE:
-		nfct_build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK, data);
-		break;
-
-	default:
-		errno = ENOTSUP;
-		return -1;
-	}
-	return 1;
+	return __build_query_ct(ssh, qt, data, buffer, size);
 }
 
 /**
@@ -891,7 +899,7 @@ int nfct_query(struct nfct_handle *h,
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (nfct_build_query(h->nfnlssh_ct, qt, data, &u.req, size) == -1)
+	if (__build_query_ct(h->nfnlssh_ct, qt, data, &u.req, size) == -1)
 		return -1;
 
 	return nfnl_query(h->nfnlh, &u.req.nlh);
@@ -923,7 +931,7 @@ int nfct_send(struct nfct_handle *h,
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (nfct_build_query(h->nfnlssh_ct, qt, data, &u.req, size) == -1)
+	if (__build_query_ct(h->nfnlssh_ct, qt, data, &u.req, size) == -1)
 		return -1;
 
 	return nfnl_send(h->nfnlh, &u.req.nlh);

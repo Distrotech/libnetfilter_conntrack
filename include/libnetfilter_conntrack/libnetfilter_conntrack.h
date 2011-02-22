@@ -472,18 +472,21 @@ extern int nfct_filter_detach(int fd);
 
 /* low level API: netlink functions */
 
-extern int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
+extern __attribute__((deprecated)) int
+nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
 				void *req,
 				size_t size,
 				u_int16_t type,
 				u_int16_t flags,
 				const struct nf_conntrack *ct);
 
-extern int nfct_parse_conntrack(enum nf_conntrack_msg_type msg,
+extern __attribute__((deprecated))
+int nfct_parse_conntrack(enum nf_conntrack_msg_type msg,
 				const struct nlmsghdr *nlh, 
 				struct nf_conntrack *ct);
 
-extern int nfct_build_query(struct nfnl_subsys_handle *ssh,
+extern __attribute__((deprecated))
+int nfct_build_query(struct nfnl_subsys_handle *ssh,
 			    const enum nf_conntrack_query query,
 			    const void *data,
 			    void *req,
@@ -596,18 +599,21 @@ extern int nfexp_snprintf(char *buf,
 extern int nfexp_catch(struct nfct_handle *h);
 
 /* low level API */
-extern int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
+extern __attribute__((deprecated))
+int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
 			      void *req,
 			      size_t size,
 			      u_int16_t type,
 			      u_int16_t flags,
 			      const struct nf_expect *exp);
 
-extern int nfexp_parse_expect(enum nf_conntrack_msg_type type,
+extern __attribute__((deprecated))
+int nfexp_parse_expect(enum nf_conntrack_msg_type type,
 			      const struct nlmsghdr *nlh,
 			      struct nf_expect *exp);
 
-extern int nfexp_build_query(struct nfnl_subsys_handle *ssh,
+extern __attribute__((deprecated))
+int nfexp_build_query(struct nfnl_subsys_handle *ssh,
 			     const enum nf_conntrack_query qt,
 			     const void *data,
 			     void *buffer,
