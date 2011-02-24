@@ -431,7 +431,7 @@ __parse_secctx(const struct nfattr *attr, struct nf_conntrack *ct)
 	if (!tb[CTA_SECCTX_NAME-1])
 		return;
 
-	ct->secctx = strdup(NFA_DATA(tb[CTA_SECCTX-1]));
+	ct->secctx = strdup(NFA_DATA(tb[CTA_SECCTX_NAME-1]));
 	if (ct->secctx)
 		set_bit(ATTR_SECCTX, ct->set);
 }
