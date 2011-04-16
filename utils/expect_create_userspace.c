@@ -45,6 +45,7 @@ int main(void)
 	h = nfct_open(CONNTRACK, 0);
 	if (!h) {
 		perror("nfct_open");
+		nfct_destroy(master);
 		return -1;
 	}
 
@@ -66,6 +67,7 @@ int main(void)
 	expected = nfct_new();
 	if (!expected) {
 		perror("nfct_new");
+		nfct_destroy(master);
 		exit(EXIT_FAILURE);
 	}
 
@@ -80,6 +82,8 @@ int main(void)
 	mask = nfct_new();
 	if (!mask) {
 		perror("nfct_new");
+		nfct_destroy(master);
+		nfct_destroy(expected);
 		exit(EXIT_FAILURE);
 	}
 
@@ -98,6 +102,9 @@ int main(void)
 	exp = nfexp_new();
 	if (!exp) {
 		perror("nfexp_new");
+		nfct_destroy(master);
+		nfct_destroy(expected);
+		nfct_destroy(mask);
 		exit(EXIT_FAILURE);
 	}
 

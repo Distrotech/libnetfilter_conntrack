@@ -42,6 +42,7 @@ int main(void)
 	exp = nfexp_new();
 	if (!exp) {
 		perror("nfexp_new");
+		nfct_destroy(master);
 		exit(EXIT_FAILURE);
 	}
 
@@ -50,6 +51,7 @@ int main(void)
 	h = nfct_open(EXPECT, 0);
 	if (!h) {
 		perror("nfct_open");
+		nfct_destroy(master);
 		return -1;
 	}
 
@@ -63,6 +65,8 @@ int main(void)
 		printf("(OK)\n");
 
 	nfct_close(h);
+
+	nfct_destroy(master);
 
 	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }

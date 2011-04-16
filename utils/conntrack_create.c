@@ -35,6 +35,7 @@ int main(void)
 	h = nfct_open(CONNTRACK, 0);
 	if (!h) {
 		perror("nfct_open");
+		nfct_destroy(ct);
 		return -1;
 	}
 
@@ -47,6 +48,8 @@ int main(void)
 		printf("(OK)\n");
 
 	nfct_close(h);
+
+	nfct_destroy(ct);
 
 	ret == -1 ? exit(EXIT_FAILURE) : exit(EXIT_SUCCESS);
 }
