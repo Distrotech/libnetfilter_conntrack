@@ -60,7 +60,7 @@ static void setobjopt_undo_dnat(struct nf_conntrack *ct)
 static void setobjopt_undo_spat(struct nf_conntrack *ct)
 {
 	ct->snat.l4min.all = ct->tuple[__DIR_REPL].l4dst.tcp.port;
-	ct->snat.l4max.all = ct->snat.l4max.all;
+	ct->snat.l4max.all = ct->snat.l4min.all;
 	ct->tuple[__DIR_REPL].l4dst.tcp.port =
 			ct->tuple[__DIR_ORIG].l4src.tcp.port;
 	set_bit(ATTR_SNAT_PORT, ct->set);
