@@ -1017,10 +1017,6 @@ int nfct_snprintf(char *buf,
 }
 
 /**
- * @}
- */
-
-/**
  * nfct_compare - compare two conntrack objects
  * \param ct1 pointer to a valid conntrack object
  * \param ct2 pointer to a valid conntrack object
