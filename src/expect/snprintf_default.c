@@ -7,12 +7,21 @@
 
 #include "internal/internal.h"
 
+static int
+__snprintf_expect_timeout(char *buf, unsigned int len,
+			  const struct nf_expect *exp)
+{
+	if (test_bit(ATTR_EXP_TIMEOUT, exp->set))
+		return snprintf(buf, len, "%u ", exp->timeout);
+
+	return 0;
+}
+
 static int __snprintf_expect_proto(char *buf, 
 				   unsigned int len,
 				   const struct nf_expect *exp)
 {
-	 return(snprintf(buf, len, "%u proto=%d ", 
-	 		 exp->timeout, 
+	 return(snprintf(buf, len, "proto=%d ",
 			 exp->expected.tuple[__DIR_ORIG].protonum));
 }
 
@@ -39,6 +48,9 @@ int __snprintf_expect_default(char *buf,
 			break;
 	}
 
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = __snprintf_expect_timeout(buf+offset, len, exp);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = __snprintf_expect_proto(buf+offset, len, exp);
