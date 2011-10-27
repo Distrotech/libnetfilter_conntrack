@@ -37,18 +37,27 @@ void __parse_expect(const struct nlmsghdr *nlh,
 	exp->mask.tuple[__DIR_REPL].l3protonum = nfhdr->nfgen_family;
 	set_bit(ATTR_ORIG_L3PROTO, exp->mask.set);
 
-	if (cda[CTA_EXPECT_TUPLE-1])
+	if (cda[CTA_EXPECT_MASTER-1]) {
+		__parse_tuple(cda[CTA_EXPECT_MASTER-1], 
+			      &exp->master.tuple[__DIR_ORIG],
+			      __DIR_ORIG,
+			      exp->master.set);
+		set_bit(ATTR_EXP_MASTER, exp->set);
+	}
+	if (cda[CTA_EXPECT_TUPLE-1]) {
 		__parse_tuple(cda[CTA_EXPECT_TUPLE-1], 
 			      &exp->expected.tuple[__DIR_ORIG],
 			      __DIR_ORIG,
-			      exp->set);
-
-	if (cda[CTA_EXPECT_MASK-1])
+			      exp->expected.set);
+		set_bit(ATTR_EXP_EXPECTED, exp->set);
+	}
+	if (cda[CTA_EXPECT_MASK-1]) {
 		__parse_tuple(cda[CTA_EXPECT_MASK-1], 
 			      &exp->mask.tuple[__DIR_ORIG], 
 			      __DIR_ORIG,
-			      exp->set);
-
+			      exp->mask.set);
+		set_bit(ATTR_EXP_MASK, exp->set);
+	}
 	if (cda[CTA_EXPECT_TIMEOUT-1]) {
 		exp->timeout = 
 		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_TIMEOUT-1]));
