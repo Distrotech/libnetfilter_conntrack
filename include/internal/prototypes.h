@@ -10,7 +10,7 @@ int __parse_message_type(const struct nlmsghdr *nlh);
 void __parse_conntrack(const struct nlmsghdr *nlh, struct nfattr *cda[], struct nf_conntrack *ct);
 void __parse_tuple(const struct nfattr *attr, struct __nfct_tuple *tuple, int dir, u_int32_t *set);
 int __snprintf_conntrack(char *buf, unsigned int len, const struct nf_conntrack *ct, unsigned int type, unsigned int msg_output, unsigned int flags);
-int __snprintf_address(char *buf, unsigned int len, const struct __nfct_tuple *tuple);
+int __snprintf_address(char *buf, unsigned int len, const struct __nfct_tuple *tuple, const char *src_tag, const char *dst_tag);
 int __snprintf_protocol(char *buf, unsigned int len, const struct nf_conntrack *ct);
 int __snprintf_proto(char *buf, unsigned int len, const struct __nfct_tuple *tuple);
 int __snprintf_conntrack_default(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);

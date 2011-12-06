@@ -66,16 +66,18 @@ static int __snprintf_protoinfo_dccp(char *buf,
 
 static int __snprintf_address_ipv4(char *buf,
 				   unsigned int len,
-				   const struct __nfct_tuple *tuple)
+				   const struct __nfct_tuple *tuple,
+				   const char *src_tag,
+				   const char *dst_tag)
 {
 	int ret, size = 0, offset = 0;
 	struct in_addr src = { .s_addr = tuple->src.v4 };
 	struct in_addr dst = { .s_addr = tuple->dst.v4 };
 
-	ret = snprintf(buf, len, "src=%s ", inet_ntoa(src));
+	ret = snprintf(buf, len, "%s=%s ", src_tag, inet_ntoa(src));
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = snprintf(buf+offset, len, "dst=%s ", inet_ntoa(dst));
+	ret = snprintf(buf+offset, len, "%s=%s ", dst_tag, inet_ntoa(dst));
 	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
@@ -83,7 +85,9 @@ static int __snprintf_address_ipv4(char *buf,
 
 static int __snprintf_address_ipv6(char *buf,
 				   unsigned int len,
-				   const struct __nfct_tuple *tuple)
+				   const struct __nfct_tuple *tuple,
+				   const char *src_tag,
+				   const char *dst_tag)
 {
 	int ret, size = 0, offset = 0;
 	struct in6_addr src;
@@ -96,13 +100,13 @@ static int __snprintf_address_ipv6(char *buf,
 	if (!inet_ntop(AF_INET6, &src, tmp, sizeof(tmp)))
 		return -1;
 
-	ret = snprintf(buf, len, "src=%s ", tmp);
+	ret = snprintf(buf, len, "%s=%s ", src_tag, tmp);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	if (!inet_ntop(AF_INET6, &dst, tmp, sizeof(tmp)))
 		return -1;
 
-	ret = snprintf(buf+offset, len-size, "dst=%s ", tmp);
+	ret = snprintf(buf+offset, len-size, "%s=%s ", dst_tag, tmp);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
@@ -110,16 +114,20 @@ static int __snprintf_address_ipv6(char *buf,
 
 int __snprintf_address(char *buf,
 		       unsigned int len,
-		       const struct __nfct_tuple *tuple)
+		       const struct __nfct_tuple *tuple,
+		       const char *src_tag,
+		       const char *dst_tag)
 {
 	int size = 0;
 
 	switch (tuple->l3protonum) {
 	case AF_INET:
-		size = __snprintf_address_ipv4(buf, len, tuple);
+		size = __snprintf_address_ipv4(buf, len, tuple,
+						src_tag, dst_tag);
 		break;
 	case AF_INET6:
-		size = __snprintf_address_ipv6(buf, len, tuple);
+		size = __snprintf_address_ipv6(buf, len, tuple,
+						src_tag, dst_tag);
 		break;
 	}
 
@@ -324,7 +332,8 @@ int __snprintf_conntrack_default(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	ret = __snprintf_address(buf+offset, len, &ct->tuple[__DIR_ORIG]);
+	ret = __snprintf_address(buf+offset, len, &ct->tuple[__DIR_ORIG],
+				 "src", "dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = __snprintf_proto(buf+offset, len, &ct->tuple[__DIR_ORIG]);
@@ -341,7 +350,8 @@ int __snprintf_conntrack_default(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	ret = __snprintf_address(buf+offset, len, &ct->tuple[__DIR_REPL]);
+	ret = __snprintf_address(buf+offset, len, &ct->tuple[__DIR_REPL],
+				 "src", "dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = __snprintf_proto(buf+offset, len, &ct->tuple[__DIR_REPL]);
