@@ -646,6 +646,38 @@ int nfexp_query(struct nfct_handle *h,
 }
 
 /**
+ * nfexp_send - send a query to ctnetlink
+ * \param h library handler
+ * \param qt query type
+ * \param data data required to send the query
+ *
+ * Like nfexp_query but we do not wait for the reply from ctnetlink.
+ * You can use nfexp_send() and nfexp_catch() to emulate nfexp_query().
+ * This is particularly useful when the socket is non-blocking.
+ *
+ * On error, -1 is returned and errno is explicitely set. On success, 0
+ * is returned.
+ */
+int nfexp_send(struct nfct_handle *h,
+	       const enum nf_conntrack_query qt,
+	       const void *data)
+{
+	size_t size = 4096;	/* enough for now */
+	union {
+		char buffer[size];
+		struct nfnlhdr req;
+	} u;
+
+	assert(h != NULL);
+	assert(data != NULL);
+
+	if (__build_query_exp(h->nfnlssh_exp, qt, data, &u.req, size) == -1)
+		return -1;
+
+	return nfnl_send(h->nfnlh, &u.req.nlh);
+}
+
+/**
  * nfexp_catch - catch events
  * \param h library handler
  *

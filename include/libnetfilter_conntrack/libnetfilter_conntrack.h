@@ -596,6 +596,11 @@ extern int nfexp_snprintf(char *buf,
 			  const unsigned int out_type,
 			  const unsigned int out_flags);
 
+
+extern int nfexp_send(struct nfct_handle *h,
+		      const enum nf_conntrack_query qt,
+		      const void *data);
+
 extern int nfexp_catch(struct nfct_handle *h);
 
 /* low level API */
