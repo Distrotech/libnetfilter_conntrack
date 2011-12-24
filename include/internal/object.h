@@ -269,6 +269,7 @@ struct nf_expect {
 	u_int32_t 		id;
 	u_int16_t		zone;
 	u_int32_t		flags;
+	char 			helper_name[__NFCT_HELPER_NAMELEN];
 
 	u_int32_t 		set[1];
 };

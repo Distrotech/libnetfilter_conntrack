@@ -77,4 +77,9 @@ void __parse_expect(const struct nlmsghdr *nlh,
 		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_FLAGS-1]));
 		set_bit(ATTR_EXP_FLAGS, exp->set);
 	}
+	if (cda[CTA_EXPECT_HELP_NAME-1]) {
+		strncpy(exp->helper_name, NFA_DATA(cda[CTA_EXPECT_HELP_NAME-1]),
+			NFA_PAYLOAD(cda[CTA_EXPECT_HELP_NAME-1]));
+		set_bit(ATTR_EXP_HELPER_NAME, exp->set);
+	}
 }

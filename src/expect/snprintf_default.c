@@ -102,6 +102,11 @@ int __snprintf_expect_default(char *buf,
 				&exp->master.tuple[__DIR_ORIG]);
 	BUFFER_SIZE(ret, size, len, offset);
 
+	if (test_bit(ATTR_EXP_HELPER_NAME, exp->set)) {
+		ret = snprintf(buf+offset, len, "helper=%s", exp->helper_name);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
 	/* Delete the last blank space if needed */
 	if (len > 0 && buf[size-1] == ' ')
 		size--;

@@ -37,6 +37,12 @@ static void set_exp_attr_flags(struct nf_expect *exp, const void *value)
 	exp->flags = *((u_int32_t *) value);
 }
 
+static void set_exp_attr_helper_name(struct nf_expect *exp, const void *value)
+{
+	strncpy(exp->helper_name, value, __NFCT_HELPER_NAMELEN);
+	exp->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+}
+
 const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_MASTER]		= set_exp_attr_master,
 	[ATTR_EXP_EXPECTED]		= set_exp_attr_expected,
@@ -44,4 +50,5 @@ const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_TIMEOUT]		= set_exp_attr_timeout,
 	[ATTR_EXP_ZONE]			= set_exp_attr_zone,
 	[ATTR_EXP_FLAGS]		= set_exp_attr_flags,
+	[ATTR_EXP_HELPER_NAME]		= set_exp_attr_helper_name,
 };
