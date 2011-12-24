@@ -64,6 +64,24 @@ int __snprintf_expect_default(char *buf,
 	ret = __snprintf_proto(buf+offset, len, &exp->expected.tuple[__DIR_ORIG]);
 	BUFFER_SIZE(ret, size, len, offset);
 
+	ret = __snprintf_address(buf+offset, len,
+				 &exp->mask.tuple[__DIR_ORIG],
+				 "mask-src", "mask-dst");
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = __snprintf_proto(buf+offset, len,
+				&exp->mask.tuple[__DIR_ORIG]);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = __snprintf_address(buf+offset, len,
+				 &exp->master.tuple[__DIR_ORIG],
+				 "master-src", "master-dst");
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = __snprintf_proto(buf+offset, len,
+				&exp->master.tuple[__DIR_ORIG]);
+	BUFFER_SIZE(ret, size, len, offset);
+
 	if (test_bit(ATTR_EXP_ZONE, exp->set)) {
 		ret = snprintf(buf+offset, len, "zone=%u ", exp->zone);
 		BUFFER_SIZE(ret, size, len, offset);
@@ -83,24 +101,6 @@ int __snprintf_expect_default(char *buf,
 		ret = snprintf(buf+offset, len, "%sUSERSPACE", delim);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
-
-	ret = __snprintf_address(buf+offset, len,
-				 &exp->mask.tuple[__DIR_ORIG],
-				 "mask-src", "mask-dst");
-	BUFFER_SIZE(ret, size, len, offset);
-
-	ret = __snprintf_proto(buf+offset, len,
-				&exp->mask.tuple[__DIR_ORIG]);
-	BUFFER_SIZE(ret, size, len, offset);
-
-	ret = __snprintf_address(buf+offset, len,
-				 &exp->master.tuple[__DIR_ORIG],
-				 "master-src", "master-dst");
-	BUFFER_SIZE(ret, size, len, offset);
-
-	ret = __snprintf_proto(buf+offset, len,
-				&exp->master.tuple[__DIR_ORIG]);
-	BUFFER_SIZE(ret, size, len, offset);
 
 	if (test_bit(ATTR_EXP_HELPER_NAME, exp->set)) {
 		ret = snprintf(buf+offset, len, "helper=%s", exp->helper_name);
