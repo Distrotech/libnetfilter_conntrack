@@ -6,6 +6,8 @@
 #ifndef _NFCT_OBJECT_H_
 #define _NFCT_OBJECT_H_
 
+#include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+
 /*
  * nfct callback handler object
  */
@@ -161,11 +163,7 @@ struct nf_conntrack {
 	u_int32_t	id;
 	u_int16_t	zone;
 
-/* xt_helper uses a length size of 30 bytes, however, no helper name in
- * the tree has exceeded 16 bytes length. Since 2.6.29, the maximum
- * length accepted is 16 bytes, this limit is enforced during module load. */
-#define __NFCT_HELPER_NAMELEN		16
-	char 		helper_name[__NFCT_HELPER_NAMELEN];
+	char 		helper_name[NFCT_HELPER_NAME_MAX];
 /* According to Eric Paris <eparis@redhat.com> this field can be up to 4096
  * bytes long. For that reason, we allocate this dynamically. */
 	char		*secctx;
@@ -269,7 +267,7 @@ struct nf_expect {
 	u_int32_t 		id;
 	u_int16_t		zone;
 	u_int32_t		flags;
-	char 			helper_name[__NFCT_HELPER_NAMELEN];
+	char 			helper_name[NFCT_HELPER_NAME_MAX];
 
 	u_int32_t 		set[1];
 };

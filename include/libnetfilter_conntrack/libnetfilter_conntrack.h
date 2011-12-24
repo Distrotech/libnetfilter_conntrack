@@ -716,6 +716,11 @@ enum ip_conntrack_status {
 #define NFCT_DIR_REPLY 1
 #define NFCT_DIR_MAX NFCT_DIR_REPLY+1
 
+/* xt_helper uses a length size of 30 bytes, however, no helper name in
+ * the tree has exceeded 16 bytes length. Since 2.6.29, the maximum
+ * length accepted is 16 bytes, this limit is enforced during module load. */
+#define NFCT_HELPER_NAME_MAX	16
+
 #ifdef __cplusplus
 }
 #endif

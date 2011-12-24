@@ -310,8 +310,8 @@ static void set_attr_repl_off_aft(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_helper_name(struct nf_conntrack *ct, const void *value)
 {
-	strncpy(ct->helper_name, value, __NFCT_HELPER_NAMELEN);
-	ct->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+	strncpy(ct->helper_name, value, NFCT_HELPER_NAME_MAX);
+	ct->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
 }
 
 static void set_attr_dccp_state(struct nf_conntrack *ct, const void *value)

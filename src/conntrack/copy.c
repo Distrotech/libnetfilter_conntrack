@@ -405,8 +405,8 @@ static void copy_attr_repl_off_aft(struct nf_conntrack *dest,
 static void copy_attr_helper_name(struct nf_conntrack *dest,
 				  const struct nf_conntrack *orig)
 {
-	strncpy(dest->helper_name, orig->helper_name, __NFCT_HELPER_NAMELEN);
-	dest->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+	strncpy(dest->helper_name, orig->helper_name, NFCT_HELPER_NAME_MAX);
+	dest->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
 }
 
 static void copy_attr_zone(struct nf_conntrack *dest,

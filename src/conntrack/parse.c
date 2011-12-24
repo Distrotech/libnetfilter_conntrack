@@ -417,8 +417,8 @@ __parse_helper(const struct nfattr *attr, struct nf_conntrack *ct)
 
 	strncpy(ct->helper_name, 
 		NFA_DATA(tb[CTA_HELP_NAME-1]),
-		__NFCT_HELPER_NAMELEN);
-	ct->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+		NFCT_HELPER_NAME_MAX);
+	ct->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
 	set_bit(ATTR_HELPER_NAME, ct->set);
 }
 

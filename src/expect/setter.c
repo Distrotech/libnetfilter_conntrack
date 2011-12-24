@@ -39,8 +39,8 @@ static void set_exp_attr_flags(struct nf_expect *exp, const void *value)
 
 static void set_exp_attr_helper_name(struct nf_expect *exp, const void *value)
 {
-	strncpy(exp->helper_name, value, __NFCT_HELPER_NAMELEN);
-	exp->helper_name[__NFCT_HELPER_NAMELEN-1] = '\0';
+	strncpy(exp->helper_name, value, NFCT_HELPER_NAME_MAX);
+	exp->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
 }
 
 const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
