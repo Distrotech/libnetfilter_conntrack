@@ -1,9 +1,4 @@
 /*
- * (C) 2006 by Pablo Neira Ayuso <pablo@netfilter.org>
- *
- * This software may be used and distributed according to the terms
- * of the GNU General Public License, incorporated herein by reference.
- * 
  * WARNING: Do *NOT* ever include this file, only for internal use!
  * 	    Use the set/get API in order to set/get the conntrack attributes
  */

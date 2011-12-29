@@ -1,5 +1,5 @@
 libnetfilter_conntrack - userspace library for the connection tracking system
-(C) 2005-2010 Pablo Neira Ayuso <pablo@netfilter.org>
+(C) 2005-2011 Pablo Neira Ayuso <pablo@netfilter.org>
 =============================================================================
 
 = Connection Tracking System =
