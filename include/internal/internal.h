@@ -76,4 +76,10 @@
 #define NSEC_PER_SEC    1000000000L
 #endif
 
+/* extracted from include/linux/netfilter/nf_conntrack_tcp.h .*/
+struct nf_ct_tcp_flags {
+	u_int8_t flags;
+	u_int8_t mask;
+};
+
 #endif

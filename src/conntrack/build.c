@@ -132,13 +132,13 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_FLAGS_ORIGINAL,
 				       &ct->protoinfo.tcp.flags[0], 
-				       sizeof(u_int16_t));
+				       sizeof(struct nf_ct_tcp_flags));
 		if (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
 		    test_bit(ATTR_TCP_MASK_REPL, ct->set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_FLAGS_REPLY,
 				       &ct->protoinfo.tcp.flags[1], 
-				       sizeof(u_int16_t));
+				       sizeof(struct nf_ct_tcp_flags));
 		if (test_bit(ATTR_TCP_WSCALE_ORIG, ct->set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,

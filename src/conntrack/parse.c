@@ -219,7 +219,7 @@ static void __parse_protoinfo_tcp(const struct nfattr *attr,
 	if (tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]) {
 		memcpy(&ct->protoinfo.tcp.flags[0], 
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]),
-		       sizeof(u_int16_t));
+		       sizeof(struct nf_ct_tcp_flags));
 		set_bit(ATTR_TCP_FLAGS_ORIG, ct->set);
 		set_bit(ATTR_TCP_MASK_ORIG, ct->set);
 	}
@@ -227,7 +227,7 @@ static void __parse_protoinfo_tcp(const struct nfattr *attr,
 	if (tb[CTA_PROTOINFO_TCP_FLAGS_REPLY-1]) {
 		memcpy(&ct->protoinfo.tcp.flags[1], 
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_REPLY-1]),
-		       sizeof(u_int16_t));
+		       sizeof(struct nf_ct_tcp_flags));
 		set_bit(ATTR_TCP_FLAGS_REPL, ct->set);
 		set_bit(ATTR_TCP_MASK_REPL, ct->set);
 	}
