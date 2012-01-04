@@ -40,47 +40,47 @@ static const u_int8_t invmap_icmpv6[] = {
 static void set_attr_grp_orig_ipv4(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv4 *this = value;
-	ct->tuple[__DIR_ORIG].src.v4 = this->src;
-	ct->tuple[__DIR_ORIG].dst.v4 = this->dst;
-	ct->tuple[__DIR_ORIG].l3protonum = AF_INET;
+	ct->head.orig.src.v4 = this->src;
+	ct->head.orig.dst.v4 = this->dst;
+	ct->head.orig.l3protonum = AF_INET;
 }
 
 static void set_attr_grp_repl_ipv4(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv4 *this = value;
-	ct->tuple[__DIR_REPL].src.v4 = this->src;
-	ct->tuple[__DIR_REPL].dst.v4 = this->dst;
-	ct->tuple[__DIR_REPL].l3protonum = AF_INET;
+	ct->repl.src.v4 = this->src;
+	ct->repl.dst.v4 = this->dst;
+	ct->repl.l3protonum = AF_INET;
 }
 
 static void set_attr_grp_orig_ipv6(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv6 *this = value;
-	memcpy(&ct->tuple[__DIR_ORIG].src.v6, this->src, sizeof(u_int32_t)*4);
-	memcpy(&ct->tuple[__DIR_ORIG].dst.v6, this->dst, sizeof(u_int32_t)*4);
-	ct->tuple[__DIR_ORIG].l3protonum = AF_INET6;
+	memcpy(&ct->head.orig.src.v6, this->src, sizeof(u_int32_t)*4);
+	memcpy(&ct->head.orig.dst.v6, this->dst, sizeof(u_int32_t)*4);
+	ct->head.orig.l3protonum = AF_INET6;
 }
 
 static void set_attr_grp_repl_ipv6(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv6 *this = value;
-	memcpy(&ct->tuple[__DIR_REPL].src.v6, this->src, sizeof(u_int32_t)*4);
-	memcpy(&ct->tuple[__DIR_REPL].dst.v6, this->dst, sizeof(u_int32_t)*4);
-	ct->tuple[__DIR_REPL].l3protonum = AF_INET6;
+	memcpy(&ct->repl.src.v6, this->src, sizeof(u_int32_t)*4);
+	memcpy(&ct->repl.dst.v6, this->dst, sizeof(u_int32_t)*4);
+	ct->repl.l3protonum = AF_INET6;
 }
 
 static void set_attr_grp_orig_port(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_port *this = value;
-	ct->tuple[__DIR_ORIG].l4src.all = this->sport;
-	ct->tuple[__DIR_ORIG].l4dst.all = this->dport;
+	ct->head.orig.l4src.all = this->sport;
+	ct->head.orig.l4dst.all = this->dport;
 }
 
 static void set_attr_grp_repl_port(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_port *this = value;
-	ct->tuple[__DIR_REPL].l4src.all = this->sport;
-	ct->tuple[__DIR_REPL].l4dst.all = this->dport;
+	ct->repl.l4src.all = this->sport;
+	ct->repl.l4dst.all = this->dport;
 }
 
 static void set_attr_grp_icmp(struct nf_conntrack *ct, const void *value)
@@ -88,9 +88,9 @@ static void set_attr_grp_icmp(struct nf_conntrack *ct, const void *value)
 	u_int8_t rtype;
 	const struct nfct_attr_grp_icmp *this = value;
 
-	ct->tuple[__DIR_ORIG].l4dst.icmp.type = this->type;
+	ct->head.orig.l4dst.icmp.type = this->type;
 
-	switch(ct->tuple[__DIR_ORIG].l3protonum) {
+	switch(ct->head.orig.l3protonum) {
 		case AF_INET:
 			rtype = invmap_icmp[this->type];
 			break;
@@ -104,38 +104,38 @@ static void set_attr_grp_icmp(struct nf_conntrack *ct, const void *value)
 	}
 
 	if (rtype)
-		ct->tuple[__DIR_REPL].l4dst.icmp.type = rtype - 1;
+		ct->repl.l4dst.icmp.type = rtype - 1;
 	else
-		ct->tuple[__DIR_REPL].l4dst.icmp.type = 255;	/* -EINVAL */
+		ct->repl.l4dst.icmp.type = 255;	/* -EINVAL */
 
-	ct->tuple[__DIR_ORIG].l4dst.icmp.code = this->code;
-	ct->tuple[__DIR_REPL].l4dst.icmp.code = this->code;
+	ct->head.orig.l4dst.icmp.code = this->code;
+	ct->repl.l4dst.icmp.code = this->code;
 
-	ct->tuple[__DIR_ORIG].l4src.icmp.id = this->id;
-	ct->tuple[__DIR_REPL].l4src.icmp.id = this->id;
+	ct->head.orig.l4src.icmp.id = this->id;
+	ct->repl.l4src.icmp.id = this->id;
 }
 
 static void set_attr_grp_master_ipv4(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv4 *this = value;
-	ct->tuple[__DIR_MASTER].src.v4 = this->src;
-	ct->tuple[__DIR_MASTER].dst.v4 = this->dst;
-	ct->tuple[__DIR_MASTER].l3protonum = AF_INET;
+	ct->master.src.v4 = this->src;
+	ct->master.dst.v4 = this->dst;
+	ct->master.l3protonum = AF_INET;
 }
 
 static void set_attr_grp_master_ipv6(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv6 *this = value;
-	memcpy(&ct->tuple[__DIR_MASTER].src.v6, this->src, sizeof(u_int32_t)*4);
-	memcpy(&ct->tuple[__DIR_MASTER].dst.v6, this->dst, sizeof(u_int32_t)*4);
-	ct->tuple[__DIR_MASTER].l3protonum = AF_INET6;
+	memcpy(&ct->master.src.v6, this->src, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.dst.v6, this->dst, sizeof(u_int32_t)*4);
+	ct->master.l3protonum = AF_INET6;
 }
 
 static void set_attr_grp_master_port(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_port *this = value;
-	ct->tuple[__DIR_MASTER].l4src.all = this->sport;
-	ct->tuple[__DIR_MASTER].l4dst.all = this->dport;
+	ct->master.l4src.all = this->sport;
+	ct->master.l4dst.all = this->dport;
 }
 
 static void set_attr_grp_do_nothing(struct nf_conntrack *ct, const void *value)

@@ -24,7 +24,7 @@ static int __snprintf_expect_proto(char *buf,
 				   const struct nf_expect *exp)
 {
 	 return(snprintf(buf, len, "proto=%d ",
-			 exp->expected.tuple[__DIR_ORIG].protonum));
+			 exp->expected.orig.protonum));
 }
 
 int __snprintf_expect_default(char *buf, 
@@ -58,30 +58,27 @@ int __snprintf_expect_default(char *buf,
 	ret = __snprintf_expect_proto(buf+offset, len, exp);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_address(buf+offset, len,
-				 &exp->expected.tuple[__DIR_ORIG],
+	ret = __snprintf_address(buf+offset, len, &exp->expected.orig,
 				 "src", "dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_proto(buf+offset, len, &exp->expected.tuple[__DIR_ORIG]);
+	ret = __snprintf_proto(buf+offset, len, &exp->expected.orig);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_address(buf+offset, len,
-				 &exp->mask.tuple[__DIR_ORIG],
+	ret = __snprintf_address(buf+offset, len, &exp->mask.orig,
 				 "mask-src", "mask-dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = __snprintf_proto(buf+offset, len,
-				&exp->mask.tuple[__DIR_ORIG]);
+				&exp->mask.orig);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_address(buf+offset, len,
-				 &exp->master.tuple[__DIR_ORIG],
+	ret = __snprintf_address(buf+offset, len, &exp->master.orig,
 				 "master-src", "master-dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = __snprintf_proto(buf+offset, len,
-				&exp->master.tuple[__DIR_ORIG]);
+				&exp->master.orig);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	if (test_bit(ATTR_EXP_ZONE, exp->set)) {

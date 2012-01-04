@@ -11,137 +11,137 @@
 
 static const void *get_attr_orig_ipv4_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].src.v4;
+	return &ct->head.orig.src.v4;
 }
 
 static const void *get_attr_orig_ipv4_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].dst.v4;
+	return &ct->head.orig.dst.v4;
 }
 
 static const void *get_attr_repl_ipv4_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].src.v4;
+	return &ct->repl.src.v4;
 }
 
 static const void *get_attr_repl_ipv4_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].dst.v4;
+	return &ct->repl.dst.v4;
 }
 
 static const void *get_attr_orig_ipv6_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].src.v6;
+	return &ct->head.orig.src.v6;
 }
 
 static const void *get_attr_orig_ipv6_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].dst.v6;
+	return &ct->head.orig.dst.v6;
 }
 
 static const void *get_attr_repl_ipv6_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].src.v6;
+	return &ct->repl.src.v6;
 }
 
 static const void *get_attr_repl_ipv6_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].dst.v6;
+	return &ct->repl.dst.v6;
 }
 
 static const void *get_attr_orig_port_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].l4src.all; 
+	return &ct->head.orig.l4src.all;
 }
 
 static const void *get_attr_orig_port_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].l4dst.all; 
+	return &ct->head.orig.l4dst.all;
 }
 
 static const void *get_attr_repl_port_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].l4src.all; 
+	return &ct->repl.l4src.all;
 }
 
 static const void *get_attr_repl_port_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].l4dst.all;
+	return &ct->repl.l4dst.all;
 }
 
 static const void *get_attr_icmp_type(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].l4dst.icmp.type;
+	return &ct->head.orig.l4dst.icmp.type;
 }
 
 static const void *get_attr_icmp_code(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].l4dst.icmp.code;
+	return &ct->head.orig.l4dst.icmp.code;
 }
 
 static const void *get_attr_icmp_id(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].l4src.icmp.id;
+	return &ct->head.orig.l4src.icmp.id;
 }
 
 static const void *get_attr_orig_l3proto(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].l3protonum;
+	return &ct->head.orig.l3protonum;
 }
 
 static const void *get_attr_repl_l3proto(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].l3protonum;
+	return &ct->repl.l3protonum;
 }
 
 static const void *get_attr_orig_l4proto(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].protonum;
+	return &ct->head.orig.protonum;
 }
 
 static const void *get_attr_repl_l4proto(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].protonum;
+	return &ct->repl.protonum;
 }
 
 static const void *get_attr_master_ipv4_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].src.v4;
+	return &ct->master.src.v4;
 }
 
 static const void *get_attr_master_ipv4_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].dst.v4;
+	return &ct->master.dst.v4;
 }
 
 static const void *get_attr_master_ipv6_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].src.v6;
+	return &ct->master.src.v6;
 }
 
 static const void *get_attr_master_ipv6_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].dst.v6;
+	return &ct->master.dst.v6;
 }
 
 static const void *get_attr_master_port_src(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].l4src.all; 
+	return &ct->master.l4src.all;
 }
 
 static const void *get_attr_master_port_dst(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].l4dst.all; 
+	return &ct->master.l4dst.all;
 }
 
 static const void *get_attr_master_l3proto(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].l3protonum;
+	return &ct->master.l3protonum;
 }
 
 static const void *get_attr_master_l4proto(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_MASTER].protonum;
+	return &ct->master.protonum;
 }
 
 static const void *get_attr_tcp_state(const struct nf_conntrack *ct)
@@ -266,32 +266,32 @@ static const void *get_attr_id(const struct nf_conntrack *ct)
 
 static const void *get_attr_orig_cor_pos(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].natseq.correction_pos;
+	return &ct->natseq[__DIR_ORIG].correction_pos;
 }
 
 static const void *get_attr_orig_off_bfr(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].natseq.offset_before;
+	return &ct->natseq[__DIR_ORIG].offset_before;
 }
 
 static const void *get_attr_orig_off_aft(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_ORIG].natseq.offset_after;
+	return &ct->natseq[__DIR_ORIG].offset_after;
 }
 
 static const void *get_attr_repl_cor_pos(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].natseq.correction_pos;
+	return &ct->natseq[__DIR_REPL].correction_pos;
 }
 
 static const void *get_attr_repl_off_bfr(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].natseq.offset_before;
+	return &ct->natseq[__DIR_REPL].offset_before;
 }
 
 static const void *get_attr_repl_off_aft(const struct nf_conntrack *ct)
 {
-	return &ct->tuple[__DIR_REPL].natseq.offset_after;
+	return &ct->natseq[__DIR_REPL].offset_after;
 }
 
 static const void *get_attr_helper_name(const struct nf_conntrack *ct)

@@ -109,18 +109,12 @@ struct __nfct_tuple {
 	u_int8_t		protonum;
 	union __nfct_l4_src	l4src;
 	union __nfct_l4_dst	l4dst;
-
-	struct {
-		u_int32_t 	correction_pos;
-		u_int32_t 	offset_before;
-		u_int32_t 	offset_after;
-	} natseq;
 };
 
 #define __DIR_ORIG 		0
 #define __DIR_REPL 		1
+#define __DIR_MAX		__DIR_REPL+1
 #define __DIR_MASTER 		2
-#define __DIR_MAX 		__DIR_MASTER+1
 
 union __nfct_protoinfo {
 	struct {
@@ -152,9 +146,18 @@ struct __nfct_nat {
 	union __nfct_l4_src 	l4min, l4max;
 };
 
+struct nfct_tuple_head {
+	struct __nfct_tuple 	orig;
+
+#define __NFCT_BITSET			3
+	u_int32_t               set[__NFCT_BITSET];
+};
+
 struct nf_conntrack {
-	struct __nfct_tuple 	tuple[__DIR_MAX];
-	
+	struct nfct_tuple_head 	head;
+	struct __nfct_tuple	repl;
+	struct __nfct_tuple	master;
+
 	u_int32_t 	timeout;
 	u_int32_t	mark;
 	u_int32_t	secmark;
@@ -174,13 +177,15 @@ struct nf_conntrack {
 	struct __nfct_nat 	dnat;
 
 	struct {
+		u_int32_t 	correction_pos;
+		u_int32_t 	offset_before;
+		u_int32_t 	offset_after;
+	} natseq[__DIR_MAX];
+
+	struct {
 		u_int64_t	start;
 		u_int64_t	stop;
 	} timestamp;
-
-/* we've got more than 64 attributes now, we need 96 bits to store them. */
-#define __NFCT_BITSET			3
-	u_int32_t               set[__NFCT_BITSET];
 };
 
 /*
@@ -260,9 +265,10 @@ struct nfct_filter {
  */
 
 struct nf_expect {
-	struct nf_conntrack 	master;
-	struct nf_conntrack 	expected;
-	struct nf_conntrack 	mask;
+	struct nfct_tuple_head	master;
+	struct nfct_tuple_head	expected;
+	struct nfct_tuple_head	mask;
+
 	u_int32_t 		timeout;
 	u_int32_t 		id;
 	u_int16_t		zone;

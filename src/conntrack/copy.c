@@ -12,184 +12,178 @@
 static void copy_attr_orig_ipv4_src(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].src.v4 = orig->tuple[__DIR_ORIG].src.v4;
+	dest->head.orig.src.v4 = orig->head.orig.src.v4;
 }
 
 static void copy_attr_orig_ipv4_dst(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].dst.v4 = orig->tuple[__DIR_ORIG].dst.v4;
+	dest->head.orig.dst.v4 = orig->head.orig.dst.v4;
 }
 
 static void copy_attr_repl_ipv4_src(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].src.v4 = orig->tuple[__DIR_REPL].src.v4;
+	dest->repl.src.v4 = orig->repl.src.v4;
 }
 
 static void copy_attr_repl_ipv4_dst(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].dst.v4 = orig->tuple[__DIR_REPL].dst.v4;
+	dest->repl.dst.v4 = orig->repl.dst.v4;
 }
 
 static void copy_attr_orig_ipv6_src(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	memcpy(&dest->tuple[__DIR_ORIG].src,
-	       &orig->tuple[__DIR_ORIG].src,
+	memcpy(&dest->head.orig.src,
+	       &orig->head.orig.src,
 	       sizeof(union __nfct_address));
 }
 
 static void copy_attr_orig_ipv6_dst(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	memcpy(&dest->tuple[__DIR_ORIG].dst,
-	       &orig->tuple[__DIR_ORIG].dst,
+	memcpy(&dest->head.orig.dst,
+	       &orig->head.orig.dst,
 	       sizeof(union __nfct_address));
 }
 
 static void copy_attr_repl_ipv6_src(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	memcpy(&dest->tuple[__DIR_REPL].src,
-	       &orig->tuple[__DIR_REPL].src,
+	memcpy(&dest->repl.src,
+	       &orig->repl.src,
 	       sizeof(union __nfct_address));
 }
 
 static void copy_attr_repl_ipv6_dst(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	memcpy(&dest->tuple[__DIR_REPL].dst,
-	       &orig->tuple[__DIR_REPL].dst,
+	memcpy(&dest->repl.dst,
+	       &orig->repl.dst,
 	       sizeof(union __nfct_address));
 }
 
 static void copy_attr_orig_port_src(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].l4src.all = orig->tuple[__DIR_ORIG].l4src.all;
+	dest->head.orig.l4src.all = orig->head.orig.l4src.all;
 }
 
 static void copy_attr_orig_port_dst(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].l4dst.all = orig->tuple[__DIR_ORIG].l4dst.all;
+	dest->head.orig.l4dst.all = orig->head.orig.l4dst.all;
 }
 
 static void copy_attr_repl_port_src(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].l4src.all = orig->tuple[__DIR_REPL].l4src.all;
+	dest->repl.l4src.all = orig->repl.l4src.all;
 }
 
 static void copy_attr_repl_port_dst(struct nf_conntrack *dest,
 				    const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].l4dst.all = orig->tuple[__DIR_REPL].l4dst.all;
+	dest->repl.l4dst.all = orig->repl.l4dst.all;
 }
 
 static void copy_attr_icmp_type(struct nf_conntrack *dest,
 				const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].l4dst.icmp.type = 
-		orig->tuple[__DIR_ORIG].l4dst.icmp.type;
+	dest->head.orig.l4dst.icmp.type = 
+		orig->head.orig.l4dst.icmp.type;
 
 }
 
 static void copy_attr_icmp_code(struct nf_conntrack *dest,
 				const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].l4dst.icmp.code = 
-		orig->tuple[__DIR_ORIG].l4dst.icmp.code;
+	dest->head.orig.l4dst.icmp.code = 
+		orig->head.orig.l4dst.icmp.code;
 
 }
 
 static void copy_attr_icmp_id(struct nf_conntrack *dest,
 			      const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].l4src.icmp.id = 
-		orig->tuple[__DIR_ORIG].l4src.icmp.id;
+	dest->head.orig.l4src.icmp.id = 
+		orig->head.orig.l4src.icmp.id;
 }
 
 static void copy_attr_orig_l3proto(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].l3protonum = orig->tuple[__DIR_ORIG].l3protonum;
+	dest->head.orig.l3protonum = orig->head.orig.l3protonum;
 }
 
 static void copy_attr_repl_l3proto(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].l3protonum = orig->tuple[__DIR_REPL].l3protonum;
+	dest->repl.l3protonum = orig->repl.l3protonum;
 }
 
 static void copy_attr_orig_l4proto(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].protonum = orig->tuple[__DIR_ORIG].protonum;
+	dest->head.orig.protonum = orig->head.orig.protonum;
 }
 
 static void copy_attr_repl_l4proto(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].protonum = orig->tuple[__DIR_REPL].protonum;
+	dest->repl.protonum = orig->repl.protonum;
 }
 
 static void copy_attr_master_ipv4_src(struct nf_conntrack *dest,
 				      const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_MASTER].src.v4 = orig->tuple[__DIR_MASTER].src.v4;
+	dest->master.src.v4 = orig->master.src.v4;
 }
 
 static void copy_attr_master_ipv4_dst(struct nf_conntrack *dest,
 				      const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_MASTER].dst.v4 = orig->tuple[__DIR_MASTER].dst.v4;
+	dest->master.dst.v4 = orig->master.dst.v4;
 }
 
 static void copy_attr_master_ipv6_src(struct nf_conntrack *dest,
 				      const struct nf_conntrack *orig)
 {
-	memcpy(&dest->tuple[__DIR_MASTER].src,
-	       &orig->tuple[__DIR_MASTER].src,
+	memcpy(&dest->master.src, &orig->master.src,
 	       sizeof(union __nfct_address));
 }
 
 static void copy_attr_master_ipv6_dst(struct nf_conntrack *dest,
 				      const struct nf_conntrack *orig)
 {
-	memcpy(&dest->tuple[__DIR_MASTER].dst,
-	       &orig->tuple[__DIR_MASTER].dst,
+	memcpy(&dest->master.dst, &orig->master.dst,
 	       sizeof(union __nfct_address));
 }
 
 static void copy_attr_master_port_src(struct nf_conntrack *dest,
 				      const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_MASTER].l4src.all =
-		orig->tuple[__DIR_MASTER].l4src.all;
+	dest->master.l4src.all = orig->master.l4src.all;
 }
 
 static void copy_attr_master_port_dst(struct nf_conntrack *dest,
 				      const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_MASTER].l4dst.all =
-		orig->tuple[__DIR_MASTER].l4dst.all;
+	dest->master.l4dst.all = orig->master.l4dst.all;
 }
 
 static void copy_attr_master_l3proto(struct nf_conntrack *dest,
 				     const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_MASTER].l3protonum =
-		orig->tuple[__DIR_MASTER].l3protonum;
+	dest->master.l3protonum = orig->master.l3protonum;
 }
 
 static void copy_attr_master_l4proto(struct nf_conntrack *dest,
 				     const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_MASTER].protonum =
-		orig->tuple[__DIR_MASTER].protonum;
+	dest->master.protonum = orig->master.protonum;
 }
 
 static void copy_attr_tcp_state(struct nf_conntrack *dest,
@@ -365,43 +359,43 @@ static void copy_attr_id(struct nf_conntrack *dest,
 static void copy_attr_orig_cor_pos(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].natseq.correction_pos =
-		orig->tuple[__DIR_ORIG].natseq.correction_pos;
+	dest->natseq[__DIR_ORIG].correction_pos =
+		orig->natseq[__DIR_ORIG].correction_pos;
 }
 
 static void copy_attr_orig_off_bfr(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].natseq.offset_before =
-		orig->tuple[__DIR_ORIG].natseq.offset_before;
+	dest->natseq[__DIR_ORIG].offset_before =
+		orig->natseq[__DIR_ORIG].offset_before;
 }
 
 static void copy_attr_orig_off_aft(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_ORIG].natseq.offset_after =
-		orig->tuple[__DIR_ORIG].natseq.offset_after;
+	dest->natseq[__DIR_ORIG].offset_after =
+		orig->natseq[__DIR_ORIG].offset_after;
 }
 
 static void copy_attr_repl_cor_pos(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].natseq.correction_pos =
-		orig->tuple[__DIR_REPL].natseq.correction_pos;
+	dest->natseq[__DIR_REPL].correction_pos =
+		orig->natseq[__DIR_REPL].correction_pos;
 }
 
 static void copy_attr_repl_off_bfr(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].natseq.offset_before =
-		orig->tuple[__DIR_REPL].natseq.offset_before;
+	dest->natseq[__DIR_REPL].offset_before =
+		orig->natseq[__DIR_REPL].offset_before;
 }
 
 static void copy_attr_repl_off_aft(struct nf_conntrack *dest,
 				   const struct nf_conntrack *orig)
 {
-	dest->tuple[__DIR_REPL].natseq.offset_after =
-		orig->tuple[__DIR_REPL].natseq.offset_after;
+	dest->natseq[__DIR_REPL].offset_after =
+		orig->natseq[__DIR_REPL].offset_after;
 }
 
 static void copy_attr_helper_name(struct nf_conntrack *dest,

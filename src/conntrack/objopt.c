@@ -11,27 +11,34 @@
 
 static void __autocomplete(struct nf_conntrack *ct, int dir)
 {
-	int other = (dir == __DIR_ORIG) ? __DIR_REPL : __DIR_ORIG;
+	struct __nfct_tuple *this = NULL, *other = NULL;
 
-	ct->tuple[dir].l3protonum = ct->tuple[other].l3protonum;
-	ct->tuple[dir].protonum = ct->tuple[other].protonum;
+	switch(dir) {
+	case __DIR_ORIG:
+		this = &ct->head.orig;
+		other = &ct->repl;
+		break;
+	case __DIR_REPL:
+		this = &ct->repl;
+		other = &ct->head.orig;
+		break;
+	}
 
-	memcpy(&ct->tuple[dir].src.v6, 
-	       &ct->tuple[other].dst.v6,
-	       sizeof(union __nfct_address));
-	memcpy(&ct->tuple[dir].dst.v6, 
-	       &ct->tuple[other].src.v6,
-	       sizeof(union __nfct_address));
+	this->l3protonum = other->l3protonum;
+	this->protonum = other->protonum;
 
-	switch(ct->tuple[dir].protonum) {
+	memcpy(&this->src.v6, &other->dst.v6, sizeof(union __nfct_address));
+	memcpy(&this->dst.v6, &other->src.v6, sizeof(union __nfct_address));
+
+	switch(this->protonum) {
 	case IPPROTO_UDP:
 	case IPPROTO_TCP:
 	case IPPROTO_SCTP:
 	case IPPROTO_DCCP:
 	case IPPROTO_GRE:
 	case IPPROTO_UDPLITE:
-		ct->tuple[dir].l4src.all = ct->tuple[other].l4dst.all;
-		ct->tuple[dir].l4dst.all = ct->tuple[other].l4src.all;
+		this->l4src.all = other->l4dst.all;
+		this->l4dst.all = other->l4src.all;
 		break;
 	case IPPROTO_ICMP:
 	case IPPROTO_ICMPV6:
@@ -40,41 +47,41 @@ static void __autocomplete(struct nf_conntrack *ct, int dir)
 	}
 
 	/* XXX: this is safe but better convert bitset to uint64_t */
-        ct->set[0] |= TS_ORIG | TS_REPL;
+        ct->head.set[0] |= TS_ORIG | TS_REPL;
 }
 
 static void setobjopt_undo_snat(struct nf_conntrack *ct)
 {
-	ct->snat.min_ip = ct->tuple[__DIR_REPL].dst.v4;
+	ct->snat.min_ip = ct->repl.dst.v4;
 	ct->snat.max_ip = ct->snat.min_ip;
-	ct->tuple[__DIR_REPL].dst.v4 = ct->tuple[__DIR_ORIG].src.v4;
-	set_bit(ATTR_SNAT_IPV4, ct->set);
+	ct->repl.dst.v4 = ct->head.orig.src.v4;
+	set_bit(ATTR_SNAT_IPV4, ct->head.set);
 }
 
 static void setobjopt_undo_dnat(struct nf_conntrack *ct)
 {
-	ct->dnat.min_ip = ct->tuple[__DIR_REPL].src.v4;
+	ct->dnat.min_ip = ct->repl.src.v4;
 	ct->dnat.max_ip = ct->dnat.min_ip;
-	ct->tuple[__DIR_REPL].src.v4 = ct->tuple[__DIR_ORIG].dst.v4;
-	set_bit(ATTR_DNAT_IPV4, ct->set);
+	ct->repl.src.v4 = ct->head.orig.dst.v4;
+	set_bit(ATTR_DNAT_IPV4, ct->head.set);
 }
 
 static void setobjopt_undo_spat(struct nf_conntrack *ct)
 {
-	ct->snat.l4min.all = ct->tuple[__DIR_REPL].l4dst.tcp.port;
+	ct->snat.l4min.all = ct->repl.l4dst.tcp.port;
 	ct->snat.l4max.all = ct->snat.l4min.all;
-	ct->tuple[__DIR_REPL].l4dst.tcp.port =
-			ct->tuple[__DIR_ORIG].l4src.tcp.port;
-	set_bit(ATTR_SNAT_PORT, ct->set);
+	ct->repl.l4dst.tcp.port =
+			ct->head.orig.l4src.tcp.port;
+	set_bit(ATTR_SNAT_PORT, ct->head.set);
 }
 
 static void setobjopt_undo_dpat(struct nf_conntrack *ct)
 {
-	ct->dnat.l4min.all = ct->tuple[__DIR_REPL].l4src.tcp.port;
+	ct->dnat.l4min.all = ct->repl.l4src.tcp.port;
 	ct->dnat.l4max.all = ct->dnat.l4min.all;
-	ct->tuple[__DIR_REPL].l4src.tcp.port =
-			ct->tuple[__DIR_ORIG].l4dst.tcp.port;
-	set_bit(ATTR_DNAT_PORT, ct->set);
+	ct->repl.l4src.tcp.port =
+			ct->head.orig.l4dst.tcp.port;
+	set_bit(ATTR_DNAT_PORT, ct->head.set);
 }
 
 static void setobjopt_setup_orig(struct nf_conntrack *ct)
@@ -107,34 +114,34 @@ int __setobjopt(struct nf_conntrack *ct, unsigned int option)
 
 static int getobjopt_is_snat(const struct nf_conntrack *ct)
 {
-	return ((test_bit(ATTR_STATUS, ct->set) ?
+	return ((test_bit(ATTR_STATUS, ct->head.set) ?
 		ct->status & IPS_SRC_NAT_DONE : 1) &&
-		ct->tuple[__DIR_REPL].dst.v4 != 
-		ct->tuple[__DIR_ORIG].src.v4);
+		ct->repl.dst.v4 != 
+		ct->head.orig.src.v4);
 }
 
 static int getobjopt_is_dnat(const struct nf_conntrack *ct)
 {
-	return ((test_bit(ATTR_STATUS, ct->set) ?
+	return ((test_bit(ATTR_STATUS, ct->head.set) ?
 		ct->status & IPS_DST_NAT_DONE : 1) &&
-		ct->tuple[__DIR_REPL].src.v4 !=
-		ct->tuple[__DIR_ORIG].dst.v4);
+		ct->repl.src.v4 !=
+		ct->head.orig.dst.v4);
 }
 
 static int getobjopt_is_spat(const struct nf_conntrack *ct)
 {
-	return ((test_bit(ATTR_STATUS, ct->set) ?
+	return ((test_bit(ATTR_STATUS, ct->head.set) ?
 		ct->status & IPS_SRC_NAT_DONE : 1) &&
-		ct->tuple[__DIR_REPL].l4dst.tcp.port !=
-		ct->tuple[__DIR_ORIG].l4src.tcp.port);
+		ct->repl.l4dst.tcp.port !=
+		ct->head.orig.l4src.tcp.port);
 }
 
 static int getobjopt_is_dpat(const struct nf_conntrack *ct)
 {
-	return ((test_bit(ATTR_STATUS, ct->set) ?
+	return ((test_bit(ATTR_STATUS, ct->head.set) ?
 		ct->status & IPS_DST_NAT_DONE : 1) &&
-		ct->tuple[__DIR_REPL].l4src.tcp.port !=
-		ct->tuple[__DIR_ORIG].l4dst.tcp.port);
+		ct->repl.l4src.tcp.port !=
+		ct->head.orig.l4dst.tcp.port);
 }
 
 static const getobjopt getobjopt_array[__NFCT_GOPT_MAX] = {

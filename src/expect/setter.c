@@ -11,17 +11,17 @@
 
 static void set_exp_attr_master(struct nf_expect *exp, const void *value)
 {
-	exp->master = *((struct nf_conntrack *) value);
+	exp->master = *((struct nfct_tuple_head *) value);
 }
 
 static void set_exp_attr_expected(struct nf_expect *exp, const void *value)
 {
-	exp->expected = *((struct nf_conntrack *) value);
+	exp->expected = *((struct nfct_tuple_head *) value);
 }
 
 static void set_exp_attr_mask(struct nf_expect *exp, const void *value)
 {
-	exp->mask = *((struct nf_conntrack *) value);
+	exp->mask = *((struct nfct_tuple_head *) value);
 }
 
 static void set_exp_attr_timeout(struct nf_expect *exp, const void *value)

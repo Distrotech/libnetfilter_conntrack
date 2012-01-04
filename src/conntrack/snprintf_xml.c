@@ -298,8 +298,16 @@ static int __snprintf_tuple_xml(char *buf,
 {
 	int ret;
 	unsigned int size = 0, offset = 0;
-	const struct __nfct_tuple *tuple = &ct->tuple[dir];
+	const struct __nfct_tuple *tuple = NULL;
 
+	switch(dir) {
+	case __DIR_ORIG:
+		tuple = &ct->head.orig;
+		break;
+	case __DIR_REPL:
+		tuple = &ct->repl;
+		break;
+	}
 	ret = snprintf(buf, len, "<meta direction=\"%s\">",
 		       dir == __DIR_ORIG ? "original" : "reply");
 	BUFFER_SIZE(ret, size, len, offset);
@@ -332,8 +340,8 @@ static int __snprintf_tuple_xml(char *buf,
 	ret = snprintf(buf+offset, len, "</layer4>");
 	BUFFER_SIZE(ret, size, len, offset);
 
-	if (test_bit(ATTR_ORIG_COUNTER_PACKETS, ct->set) &&
-	    test_bit(ATTR_ORIG_COUNTER_BYTES, ct->set)) {
+	if (test_bit(ATTR_ORIG_COUNTER_PACKETS, ct->head.set) &&
+	    test_bit(ATTR_ORIG_COUNTER_BYTES, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<counters>");
 		BUFFER_SIZE(ret, size, len, offset);
 
@@ -382,24 +390,24 @@ int __snprintf_conntrack_xml(char *buf,
 	ret = __snprintf_tuple_xml(buf+offset, len, ct, __DIR_REPL);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	if (test_bit(ATTR_TCP_STATE, ct->set) ||
-	    test_bit(ATTR_SCTP_STATE, ct->set) ||
-	    test_bit(ATTR_DCCP_STATE, ct->set) ||
-	    test_bit(ATTR_TIMEOUT, ct->set) ||
-	    test_bit(ATTR_MARK, ct->set) ||
-	    test_bit(ATTR_SECMARK, ct->set) ||
-	    test_bit(ATTR_ZONE, ct->set) ||
-	    test_bit(ATTR_USE, ct->set) ||
-	    test_bit(ATTR_STATUS, ct->set) ||
-	    test_bit(ATTR_ID, ct->set) ||
-	    test_bit(ATTR_TIMESTAMP_START, ct->set) ||
-	    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+	if (test_bit(ATTR_TCP_STATE, ct->head.set) ||
+	    test_bit(ATTR_SCTP_STATE, ct->head.set) ||
+	    test_bit(ATTR_DCCP_STATE, ct->head.set) ||
+	    test_bit(ATTR_TIMEOUT, ct->head.set) ||
+	    test_bit(ATTR_MARK, ct->head.set) ||
+	    test_bit(ATTR_SECMARK, ct->head.set) ||
+	    test_bit(ATTR_ZONE, ct->head.set) ||
+	    test_bit(ATTR_USE, ct->head.set) ||
+	    test_bit(ATTR_STATUS, ct->head.set) ||
+	    test_bit(ATTR_ID, ct->head.set) ||
+	    test_bit(ATTR_TIMESTAMP_START, ct->head.set) ||
+	    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 		ret = snprintf(buf+offset, len, 
 			       "<meta direction=\"independent\">");
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_TCP_STATE, ct->set)) {
+	if (test_bit(ATTR_TCP_STATE, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<state>%s</state>",
 			       ct->protoinfo.tcp.state < TCP_CONNTRACK_MAX ?
 			       states[ct->protoinfo.tcp.state] :
@@ -407,7 +415,7 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_SCTP_STATE, ct->set)) {
+	if (test_bit(ATTR_SCTP_STATE, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<state>%s</state>",
 			       ct->protoinfo.sctp.state < SCTP_CONNTRACK_MAX ?
 			       states[ct->protoinfo.sctp.state] :
@@ -415,7 +423,7 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_DCCP_STATE, ct->set)) {
+	if (test_bit(ATTR_DCCP_STATE, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<state>%s</state>",
 			       ct->protoinfo.sctp.state < DCCP_CONNTRACK_MAX ?
 			       states[ct->protoinfo.dccp.state] :
@@ -423,97 +431,97 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_TIMEOUT, ct->set)) {
+	if (test_bit(ATTR_TIMEOUT, ct->head.set)) {
 		ret = snprintf(buf+offset, len,
 				"<timeout>%u</timeout>", ct->timeout);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_MARK, ct->set)) {
+	if (test_bit(ATTR_MARK, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<mark>%u</mark>", ct->mark);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_SECMARK, ct->set)) {
+	if (test_bit(ATTR_SECMARK, ct->head.set)) {
 		ret = snprintf(buf+offset, len, 
 				"<secmark>%u</secmark>", ct->secmark);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_SECCTX, ct->set)) {
+	if (test_bit(ATTR_SECCTX, ct->head.set)) {
 		ret = snprintf(buf+offset, len,
 				"<secctx>%s</secctx>", ct->secctx);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_ZONE, ct->set)) {
+	if (test_bit(ATTR_ZONE, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<zone>%u</zone>", ct->zone);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_USE, ct->set)) {
+	if (test_bit(ATTR_USE, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<use>%u</use>", ct->use);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_ID, ct->set)) {
+	if (test_bit(ATTR_ID, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<id>%u</id>", ct->id);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_STATUS, ct->set)
+	if (test_bit(ATTR_STATUS, ct->head.set)
 	    && ct->status & IPS_ASSURED) {
 		ret = snprintf(buf+offset, len, "<assured/>");
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_STATUS, ct->set) 
+	if (test_bit(ATTR_STATUS, ct->head.set) 
 	    && !(ct->status & IPS_SEEN_REPLY)) {
 		ret = snprintf(buf+offset, len, "<unreplied/>");
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (flags & NFCT_OF_TIMESTAMP) {
-		if (test_bit(ATTR_TIMESTAMP_START, ct->set) ||
-		    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+		if (test_bit(ATTR_TIMESTAMP_START, ct->head.set) ||
+		    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 			ret = snprintf(buf+offset, len, "<timestamp>");
 			BUFFER_SIZE(ret, size, len, offset);
 		}
-		if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+		if (test_bit(ATTR_TIMESTAMP_START, ct->head.set)) {
 	 		ret = __snprintf_timestamp_start(buf+offset, len, ct);
 			BUFFER_SIZE(ret, size, len, offset);
 		}
-		if (test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+		if (test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 	 		ret = __snprintf_timestamp_stop(buf+offset, len, ct);
 			BUFFER_SIZE(ret, size, len, offset);
 		}
-		if (test_bit(ATTR_TIMESTAMP_START, ct->set) ||
-		    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+		if (test_bit(ATTR_TIMESTAMP_START, ct->head.set) ||
+		    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 			ret = snprintf(buf+offset, len, "</timestamp>");
 			BUFFER_SIZE(ret, size, len, offset);
 		}
 	}
-	if (test_bit(ATTR_TIMESTAMP_START, ct->set) &&
-	    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+	if (test_bit(ATTR_TIMESTAMP_START, ct->head.set) &&
+	    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 		ret = __snprintf_deltatime(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
-	} else if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+	} else if (test_bit(ATTR_TIMESTAMP_START, ct->head.set)) {
 		ret = __snprintf_deltatime_now(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_TCP_STATE, ct->set) ||
-	    test_bit(ATTR_SCTP_STATE, ct->set) ||
-	    test_bit(ATTR_DCCP_STATE, ct->set) ||
-	    test_bit(ATTR_TIMEOUT, ct->set) ||
-	    test_bit(ATTR_MARK, ct->set) ||
-	    test_bit(ATTR_SECMARK, ct->set) ||
-	    test_bit(ATTR_ZONE, ct->set) ||
-	    test_bit(ATTR_USE, ct->set) ||
-	    test_bit(ATTR_STATUS, ct->set) ||
-	    test_bit(ATTR_ID, ct->set) ||
-	    test_bit(ATTR_TIMESTAMP_START, ct->set) ||
-	    test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+	if (test_bit(ATTR_TCP_STATE, ct->head.set) ||
+	    test_bit(ATTR_SCTP_STATE, ct->head.set) ||
+	    test_bit(ATTR_DCCP_STATE, ct->head.set) ||
+	    test_bit(ATTR_TIMEOUT, ct->head.set) ||
+	    test_bit(ATTR_MARK, ct->head.set) ||
+	    test_bit(ATTR_SECMARK, ct->head.set) ||
+	    test_bit(ATTR_ZONE, ct->head.set) ||
+	    test_bit(ATTR_USE, ct->head.set) ||
+	    test_bit(ATTR_STATUS, ct->head.set) ||
+	    test_bit(ATTR_ID, ct->head.set) ||
+	    test_bit(ATTR_TIMESTAMP_START, ct->head.set) ||
+	    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 	    	ret = snprintf(buf+offset, len, "</meta>");
 		BUFFER_SIZE(ret, size, len, offset);
 	}

@@ -39,71 +39,71 @@ static const u_int8_t invmap_icmpv6[] = {
 
 static void set_attr_orig_ipv4_src(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].src.v4 = *((u_int32_t *) value);
+	ct->head.orig.src.v4 = *((u_int32_t *) value);
 }
 
 static void set_attr_orig_ipv4_dst(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].dst.v4 = *((u_int32_t *) value);
+	ct->head.orig.dst.v4 = *((u_int32_t *) value);
 }
 
 static void set_attr_repl_ipv4_src(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].src.v4 = *((u_int32_t *) value);
+	ct->repl.src.v4 = *((u_int32_t *) value);
 }
 
 static void set_attr_repl_ipv4_dst(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].dst.v4 = *((u_int32_t *) value);
+	ct->repl.dst.v4 = *((u_int32_t *) value);
 }
 
 static void set_attr_orig_ipv6_src(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->tuple[__DIR_ORIG].src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->head.orig.src.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_orig_ipv6_dst(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->tuple[__DIR_ORIG].dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->head.orig.dst.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_repl_ipv6_src(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->tuple[__DIR_REPL].src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->repl.src.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_repl_ipv6_dst(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->tuple[__DIR_REPL].dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->repl.dst.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_orig_port_src(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].l4src.all = *((u_int16_t *) value);
+	ct->head.orig.l4src.all = *((u_int16_t *) value);
 }
 
 static void set_attr_orig_port_dst(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].l4dst.all = *((u_int16_t *) value);
+	ct->head.orig.l4dst.all = *((u_int16_t *) value);
 }
 
 static void set_attr_repl_port_src(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].l4src.all = *((u_int16_t *) value);
+	ct->repl.l4src.all = *((u_int16_t *) value);
 }
 
 static void set_attr_repl_port_dst(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].l4dst.all = *((u_int16_t *) value);
+	ct->repl.l4dst.all = *((u_int16_t *) value);
 }
 
 static void set_attr_icmp_type(struct nf_conntrack *ct, const void *value)
 {
 	u_int8_t rtype;
 
-	ct->tuple[__DIR_ORIG].l4dst.icmp.type = *((u_int8_t *) value);
+	ct->head.orig.l4dst.icmp.type = *((u_int8_t *) value);
 
-	switch(ct->tuple[__DIR_ORIG].l3protonum) {
+	switch(ct->head.orig.l3protonum) {
 		case AF_INET:
 			rtype = invmap_icmp[*((u_int8_t *) value)];
 			break;
@@ -117,42 +117,42 @@ static void set_attr_icmp_type(struct nf_conntrack *ct, const void *value)
 	}
 
 	if (rtype)
-		ct->tuple[__DIR_REPL].l4dst.icmp.type = rtype - 1;
+		ct->repl.l4dst.icmp.type = rtype - 1;
 	else
-		ct->tuple[__DIR_REPL].l4dst.icmp.type = 255;	/* will fail with -EINVAL */
+		ct->repl.l4dst.icmp.type = 255;	/* will fail with -EINVAL */
 
 }
 
 static void set_attr_icmp_code(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].l4dst.icmp.code = *((u_int8_t *) value);
-	ct->tuple[__DIR_REPL].l4dst.icmp.code = *((u_int8_t *) value);
+	ct->head.orig.l4dst.icmp.code = *((u_int8_t *) value);
+	ct->repl.l4dst.icmp.code = *((u_int8_t *) value);
 }
 
 static void set_attr_icmp_id(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].l4src.icmp.id = *((u_int16_t *) value);
-	ct->tuple[__DIR_REPL].l4src.icmp.id = *((u_int16_t *) value);
+	ct->head.orig.l4src.icmp.id = *((u_int16_t *) value);
+	ct->repl.l4src.icmp.id = *((u_int16_t *) value);
 }
 
 static void set_attr_orig_l3proto(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].l3protonum = *((u_int8_t *) value);
+	ct->head.orig.l3protonum = *((u_int8_t *) value);
 }
 
 static void set_attr_repl_l3proto(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].l3protonum = *((u_int8_t *) value);
+	ct->repl.l3protonum = *((u_int8_t *) value);
 }
 
 static void set_attr_orig_l4proto(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].protonum = *((u_int8_t *) value);
+	ct->head.orig.protonum = *((u_int8_t *) value);
 }
 
 static void set_attr_repl_l4proto(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].protonum = *((u_int8_t *) value);
+	ct->repl.protonum = *((u_int8_t *) value);
 }
 
 static void set_attr_tcp_state(struct nf_conntrack *ct, const void *value)
@@ -242,72 +242,72 @@ static void set_attr_id(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_master_ipv4_src(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_MASTER].src.v4 = *((u_int32_t *) value);
+	ct->master.src.v4 = *((u_int32_t *) value);
 }
 
 static void set_attr_master_ipv4_dst(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_MASTER].dst.v4 = *((u_int32_t *) value);
+	ct->master.dst.v4 = *((u_int32_t *) value);
 }
 
 static void set_attr_master_ipv6_src(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->tuple[__DIR_MASTER].dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.dst.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_master_ipv6_dst(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->tuple[__DIR_MASTER].src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.src.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_master_port_src(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_MASTER].l4src.all = *((u_int16_t *) value);
+	ct->master.l4src.all = *((u_int16_t *) value);
 }
 
 static void set_attr_master_port_dst(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_MASTER].l4dst.all = *((u_int16_t *) value);
+	ct->master.l4dst.all = *((u_int16_t *) value);
 }
 
 static void set_attr_master_l3proto(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_MASTER].l3protonum = *((u_int8_t *) value);
+	ct->master.l3protonum = *((u_int8_t *) value);
 }
 
 static void set_attr_master_l4proto(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_MASTER].protonum = *((u_int8_t *) value);
+	ct->master.protonum = *((u_int8_t *) value);
 }
 
 static void set_attr_orig_cor_pos(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].natseq.correction_pos = *((u_int32_t *) value);
+	ct->natseq[__DIR_ORIG].correction_pos = *((u_int32_t *) value);
 }
 
 static void set_attr_orig_off_bfr(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].natseq.offset_before = *((u_int32_t *) value);
+	ct->natseq[__DIR_ORIG].offset_before = *((u_int32_t *) value);
 }
 
 static void set_attr_orig_off_aft(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_ORIG].natseq.offset_after = *((u_int32_t *) value);
+	ct->natseq[__DIR_ORIG].offset_after = *((u_int32_t *) value);
 }
 
 static void set_attr_repl_cor_pos(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].natseq.correction_pos = *((u_int32_t *) value);
+	ct->natseq[__DIR_REPL].correction_pos = *((u_int32_t *) value);
 }
 
 static void set_attr_repl_off_bfr(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].natseq.offset_before = *((u_int32_t *) value);
+	ct->natseq[__DIR_REPL].offset_before = *((u_int32_t *) value);
 }
 
 static void set_attr_repl_off_aft(struct nf_conntrack *ct, const void *value)
 {
-	ct->tuple[__DIR_REPL].natseq.offset_after = *((u_int32_t *) value);
+	ct->natseq[__DIR_REPL].offset_after = *((u_int32_t *) value);
 }
 
 static void set_attr_helper_name(struct nf_conntrack *ct, const void *value)

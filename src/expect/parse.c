@@ -33,32 +33,32 @@ void __parse_expect(const struct nlmsghdr *nlh,
 	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);
 
 	/* XXX: this is ugly, clean it up, please */
-	exp->expected.tuple[__DIR_ORIG].l3protonum = nfhdr->nfgen_family;
+	exp->expected.orig.l3protonum = nfhdr->nfgen_family;
 	set_bit(ATTR_ORIG_L3PROTO, exp->expected.set);
 
-	exp->mask.tuple[__DIR_ORIG].l3protonum = nfhdr->nfgen_family;
+	exp->mask.orig.l3protonum = nfhdr->nfgen_family;
 	set_bit(ATTR_ORIG_L3PROTO, exp->mask.set);
 
-	exp->master.tuple[__DIR_ORIG].l3protonum = nfhdr->nfgen_family;
+	exp->master.orig.l3protonum = nfhdr->nfgen_family;
 	set_bit(ATTR_ORIG_L3PROTO, exp->master.set);
 
 	if (cda[CTA_EXPECT_MASTER-1]) {
 		__parse_tuple(cda[CTA_EXPECT_MASTER-1], 
-			      &exp->master.tuple[__DIR_ORIG],
+			      &exp->master.orig,
 			      __DIR_ORIG,
 			      exp->master.set);
 		set_bit(ATTR_EXP_MASTER, exp->set);
 	}
 	if (cda[CTA_EXPECT_TUPLE-1]) {
 		__parse_tuple(cda[CTA_EXPECT_TUPLE-1], 
-			      &exp->expected.tuple[__DIR_ORIG],
+			      &exp->expected.orig,
 			      __DIR_ORIG,
 			      exp->expected.set);
 		set_bit(ATTR_EXP_EXPECTED, exp->set);
 	}
 	if (cda[CTA_EXPECT_MASK-1]) {
 		__parse_tuple(cda[CTA_EXPECT_MASK-1], 
-			      &exp->mask.tuple[__DIR_ORIG], 
+			      &exp->mask.orig,
 			      __DIR_ORIG,
 			      exp->mask.set);
 		set_bit(ATTR_EXP_MASK, exp->set);

@@ -14,9 +14,9 @@ static int __snprintf_l3protocol(char *buf,
 				 const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "%-8s %u ", 
-		l3proto2str[ct->tuple[__DIR_ORIG].l3protonum] == NULL ?
-		"unknown" : l3proto2str[ct->tuple[__DIR_ORIG].l3protonum], 
-		 ct->tuple[__DIR_ORIG].l3protonum));
+		l3proto2str[ct->head.orig.l3protonum] == NULL ?
+		"unknown" : l3proto2str[ct->head.orig.l3protonum], 
+		 ct->head.orig.l3protonum));
 }
 
 int __snprintf_protocol(char *buf,
@@ -24,9 +24,9 @@ int __snprintf_protocol(char *buf,
 			const struct nf_conntrack *ct)
 {
 	return (snprintf(buf, len, "%-8s %u ", 
-		proto2str[ct->tuple[__DIR_ORIG].protonum] == NULL ?
-		"unknown" : proto2str[ct->tuple[__DIR_ORIG].protonum], 
-		 ct->tuple[__DIR_ORIG].protonum));
+		proto2str[ct->head.orig.protonum] == NULL ?
+		"unknown" : proto2str[ct->head.orig.protonum], 
+		 ct->head.orig.protonum));
 }
 
 static int __snprintf_timeout(char *buf,
@@ -314,103 +314,103 @@ int __snprintf_conntrack_default(char *buf,
 	ret = __snprintf_protocol(buf+offset, len, ct);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	if (test_bit(ATTR_TIMEOUT, ct->set)) {
+	if (test_bit(ATTR_TIMEOUT, ct->head.set)) {
 		ret = __snprintf_timeout(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-        if (test_bit(ATTR_TCP_STATE, ct->set)) {
+        if (test_bit(ATTR_TCP_STATE, ct->head.set)) {
 		ret = __snprintf_protoinfo(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_SCTP_STATE, ct->set)) {
+	if (test_bit(ATTR_SCTP_STATE, ct->head.set)) {
 		ret = __snprintf_protoinfo_sctp(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_DCCP_STATE, ct->set)) {
+	if (test_bit(ATTR_DCCP_STATE, ct->head.set)) {
 		ret = __snprintf_protoinfo_dccp(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	ret = __snprintf_address(buf+offset, len, &ct->tuple[__DIR_ORIG],
+	ret = __snprintf_address(buf+offset, len, &ct->head.orig,
 				 "src", "dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_proto(buf+offset, len, &ct->tuple[__DIR_ORIG]);
+	ret = __snprintf_proto(buf+offset, len, &ct->head.orig);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	if (test_bit(ATTR_ORIG_COUNTER_PACKETS, ct->set) &&
-	    test_bit(ATTR_ORIG_COUNTER_BYTES, ct->set)) {
+	if (test_bit(ATTR_ORIG_COUNTER_PACKETS, ct->head.set) &&
+	    test_bit(ATTR_ORIG_COUNTER_BYTES, ct->head.set)) {
 		ret = __snprintf_counters(buf+offset, len, ct, __DIR_ORIG);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_STATUS, ct->set)) {
+	if (test_bit(ATTR_STATUS, ct->head.set)) {
 		ret = __snprintf_status_not_seen_reply(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	ret = __snprintf_address(buf+offset, len, &ct->tuple[__DIR_REPL],
+	ret = __snprintf_address(buf+offset, len, &ct->repl,
 				 "src", "dst");
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_proto(buf+offset, len, &ct->tuple[__DIR_REPL]);
+	ret = __snprintf_proto(buf+offset, len, &ct->repl);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	if (test_bit(ATTR_REPL_COUNTER_PACKETS, ct->set) &&
-	    test_bit(ATTR_REPL_COUNTER_BYTES, ct->set)) {
+	if (test_bit(ATTR_REPL_COUNTER_PACKETS, ct->head.set) &&
+	    test_bit(ATTR_REPL_COUNTER_BYTES, ct->head.set)) {
 		ret = __snprintf_counters(buf+offset, len, ct, __DIR_REPL);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_STATUS, ct->set)) {
+	if (test_bit(ATTR_STATUS, ct->head.set)) {
 		ret = __snprintf_status_assured(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_MARK, ct->set)) {
+	if (test_bit(ATTR_MARK, ct->head.set)) {
 		ret = __snprintf_mark(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_SECMARK, ct->set)) {
+	if (test_bit(ATTR_SECMARK, ct->head.set)) {
 		ret = __snprintf_secmark(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_SECCTX, ct->set)) {
+	if (test_bit(ATTR_SECCTX, ct->head.set)) {
 		ret = __snprintf_secctx(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_ZONE, ct->set)) {
+	if (test_bit(ATTR_ZONE, ct->head.set)) {
 		ret = __snprintf_zone(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+	if (test_bit(ATTR_TIMESTAMP_START, ct->head.set)) {
 		ret = __snprintf_timestamp_delta(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 	if (flags & NFCT_OF_TIMESTAMP) {
-		if (test_bit(ATTR_TIMESTAMP_START, ct->set)) {
+		if (test_bit(ATTR_TIMESTAMP_START, ct->head.set)) {
 			ret = __snprintf_timestamp_start(buf+offset, len, ct);
 			BUFFER_SIZE(ret, size, len, offset);
 		}
-		if (test_bit(ATTR_TIMESTAMP_STOP, ct->set)) {
+		if (test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 			ret = __snprintf_timestamp_stop(buf+offset, len, ct);
 			BUFFER_SIZE(ret, size, len, offset);
 		}
 	}
 
-	if (test_bit(ATTR_USE, ct->set)) {
+	if (test_bit(ATTR_USE, ct->head.set)) {
 		ret = __snprintf_use(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
-	if (flags & NFCT_OF_ID && test_bit(ATTR_ID, ct->set)) {
+	if (flags & NFCT_OF_ID && test_bit(ATTR_ID, ct->head.set)) {
 		ret = __snprintf_id(buf+offset, len, ct);
 		BUFFER_SIZE(ret, size, len, offset);
 	}

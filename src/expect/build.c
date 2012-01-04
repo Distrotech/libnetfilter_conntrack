@@ -45,9 +45,9 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 	u_int8_t l3num;
 
 	if (test_bit(ATTR_ORIG_L3PROTO, exp->master.set))
-		l3num = exp->master.tuple[__DIR_ORIG].l3protonum;
+		l3num = exp->master.orig.l3protonum;
 	else if (test_bit(ATTR_ORIG_L3PROTO, exp->expected.set))
-		l3num = exp->expected.tuple[__DIR_ORIG].l3protonum;
+		l3num = exp->expected.orig.l3protonum;
 	else
 		return -1;
 
@@ -56,24 +56,15 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 	nfnl_fill_hdr(ssh, &req->nlh, 0, l3num, 0, type, flags);
 
 	if (test_bit(ATTR_EXP_EXPECTED, exp->set)) {
-		__build_tuple(req,
-			      size,
-			      &exp->expected.tuple[__DIR_ORIG],
-			      CTA_EXPECT_TUPLE);
+		__build_tuple(req, size, &exp->expected.orig, CTA_EXPECT_TUPLE);
 	}
 
 	if (test_bit(ATTR_EXP_MASTER, exp->set)) {
-		__build_tuple(req,
-			      size,
-			      &exp->master.tuple[__DIR_ORIG],
-			      CTA_EXPECT_MASTER);
+		__build_tuple(req, size, &exp->master.orig, CTA_EXPECT_MASTER);
 	}
 
 	if (test_bit(ATTR_EXP_MASK, exp->set)) {
-		__build_tuple(req,
-			      size,
-			      &exp->mask.tuple[__DIR_ORIG],
-			      CTA_EXPECT_MASK);
+		__build_tuple(req, size, &exp->mask.orig, CTA_EXPECT_MASK);
 	}
 
 	if (test_bit(ATTR_EXP_TIMEOUT, exp->set))

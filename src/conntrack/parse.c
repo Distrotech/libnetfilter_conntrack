@@ -199,37 +199,37 @@ static void __parse_protoinfo_tcp(const struct nfattr *attr,
 	if (tb[CTA_PROTOINFO_TCP_STATE-1]) {
                 ct->protoinfo.tcp.state =
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_TCP_STATE-1]);
-		set_bit(ATTR_TCP_STATE, ct->set);
+		set_bit(ATTR_TCP_STATE, ct->head.set);
 	}
 
 	if (tb[CTA_PROTOINFO_TCP_WSCALE_ORIGINAL-1]) {
 		memcpy(&ct->protoinfo.tcp.wscale[__DIR_ORIG],
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_WSCALE_ORIGINAL-1]),
 		       sizeof(u_int8_t));
-		set_bit(ATTR_TCP_WSCALE_ORIG, ct->set);
+		set_bit(ATTR_TCP_WSCALE_ORIG, ct->head.set);
 	}
 
 	if (tb[CTA_PROTOINFO_TCP_WSCALE_REPLY-1]) {
 		memcpy(&ct->protoinfo.tcp.wscale[__DIR_REPL],
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_WSCALE_REPLY-1]),
 		       sizeof(u_int8_t));
-		set_bit(ATTR_TCP_WSCALE_REPL, ct->set);
+		set_bit(ATTR_TCP_WSCALE_REPL, ct->head.set);
 	}
 
 	if (tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]) {
 		memcpy(&ct->protoinfo.tcp.flags[0], 
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL-1]),
 		       sizeof(struct nf_ct_tcp_flags));
-		set_bit(ATTR_TCP_FLAGS_ORIG, ct->set);
-		set_bit(ATTR_TCP_MASK_ORIG, ct->set);
+		set_bit(ATTR_TCP_FLAGS_ORIG, ct->head.set);
+		set_bit(ATTR_TCP_MASK_ORIG, ct->head.set);
 	}
 
 	if (tb[CTA_PROTOINFO_TCP_FLAGS_REPLY-1]) {
 		memcpy(&ct->protoinfo.tcp.flags[1], 
 		       NFA_DATA(tb[CTA_PROTOINFO_TCP_FLAGS_REPLY-1]),
 		       sizeof(struct nf_ct_tcp_flags));
-		set_bit(ATTR_TCP_FLAGS_REPL, ct->set);
-		set_bit(ATTR_TCP_MASK_REPL, ct->set);
+		set_bit(ATTR_TCP_FLAGS_REPL, ct->head.set);
+		set_bit(ATTR_TCP_MASK_REPL, ct->head.set);
 	}
 }
 
@@ -243,19 +243,19 @@ static void __parse_protoinfo_sctp(const struct nfattr *attr,
 	if (tb[CTA_PROTOINFO_SCTP_STATE-1]) {
                 ct->protoinfo.sctp.state =
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_STATE-1]);
-		set_bit(ATTR_SCTP_STATE, ct->set);
+		set_bit(ATTR_SCTP_STATE, ct->head.set);
 	}
 
 	if (tb[CTA_PROTOINFO_SCTP_VTAG_ORIGINAL-1]) {
 		ct->protoinfo.sctp.vtag[__DIR_ORIG] = 
 			ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_VTAG_ORIGINAL-1]));
-		set_bit(ATTR_SCTP_VTAG_ORIG, ct->set);
+		set_bit(ATTR_SCTP_VTAG_ORIG, ct->head.set);
 	}
 
 	if (tb[CTA_PROTOINFO_SCTP_VTAG_REPLY-1]) {
 		ct->protoinfo.sctp.vtag[__DIR_REPL] = 
 			ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_PROTOINFO_SCTP_VTAG_REPLY-1]));
-		set_bit(ATTR_SCTP_VTAG_REPL, ct->set);
+		set_bit(ATTR_SCTP_VTAG_REPL, ct->head.set);
 	}
 
 }
@@ -270,12 +270,12 @@ static void __parse_protoinfo_dccp(const struct nfattr *attr,
 	if (tb[CTA_PROTOINFO_DCCP_STATE-1]) {
                 ct->protoinfo.dccp.state =
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_DCCP_STATE-1]);
-		set_bit(ATTR_DCCP_STATE, ct->set);
+		set_bit(ATTR_DCCP_STATE, ct->head.set);
 	}
 	if (tb[CTA_PROTOINFO_DCCP_ROLE-1]) {
                 ct->protoinfo.dccp.role =
                         *(u_int8_t *)NFA_DATA(tb[CTA_PROTOINFO_DCCP_ROLE-1]);
-		set_bit(ATTR_DCCP_ROLE, ct->set);
+		set_bit(ATTR_DCCP_ROLE, ct->head.set);
 	}
 	if (tb[CTA_PROTOINFO_DCCP_HANDSHAKE_SEQ-1]) {
 		u_int64_t tmp;
@@ -283,7 +283,7 @@ static void __parse_protoinfo_dccp(const struct nfattr *attr,
 		       NFA_DATA(tb[CTA_PROTOINFO_DCCP_HANDSHAKE_SEQ-1]),
 		       sizeof(tmp));
 		ct->protoinfo.dccp.handshake_seq = __be64_to_cpu(tmp);
-		set_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->set);
+		set_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->head.set);
 	}
 }
 
@@ -328,10 +328,10 @@ static void __parse_counters(const struct nfattr *attr,
 
 		switch(dir) {
 		case __DIR_ORIG:
-			set_bit(ATTR_ORIG_COUNTER_PACKETS, ct->set);
+			set_bit(ATTR_ORIG_COUNTER_PACKETS, ct->head.set);
 			break;
 		case __DIR_REPL:
-			set_bit(ATTR_REPL_COUNTER_PACKETS, ct->set);
+			set_bit(ATTR_REPL_COUNTER_PACKETS, ct->head.set);
 			break;
 		}
 	}
@@ -352,10 +352,10 @@ static void __parse_counters(const struct nfattr *attr,
 
 		switch(dir) {
 		case __DIR_ORIG:
-			set_bit(ATTR_ORIG_COUNTER_BYTES, ct->set);
+			set_bit(ATTR_ORIG_COUNTER_BYTES, ct->head.set);
 			break;
 		case __DIR_REPL:
-			set_bit(ATTR_REPL_COUNTER_BYTES, ct->set);
+			set_bit(ATTR_REPL_COUNTER_BYTES, ct->head.set);
 			break;
 		}
 	}
@@ -369,40 +369,40 @@ __parse_nat_seq(const struct nfattr *attr, struct nf_conntrack *ct, int dir)
 	nfnl_parse_nested(tb, CTA_NAT_SEQ_MAX, attr);
 
 	if (tb[CTA_NAT_SEQ_CORRECTION_POS-1]) {
-		ct->tuple[dir].natseq.correction_pos =
-		ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_CORRECTION_POS-1]));
+		ct->natseq[dir].correction_pos =
+			ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_CORRECTION_POS-1]));
 		switch(dir) {
 		case __DIR_ORIG:
-			set_bit(ATTR_ORIG_NAT_SEQ_CORRECTION_POS, ct->set);
+			set_bit(ATTR_ORIG_NAT_SEQ_CORRECTION_POS, ct->head.set);
 			break;
 		case __DIR_REPL:
-			set_bit(ATTR_REPL_NAT_SEQ_CORRECTION_POS, ct->set);
+			set_bit(ATTR_REPL_NAT_SEQ_CORRECTION_POS, ct->head.set);
 			break;
 		}
 	}
 					
 	if (tb[CTA_NAT_SEQ_OFFSET_BEFORE-1]) {
-		ct->tuple[dir].natseq.offset_before =
+		ct->natseq[dir].offset_before =
 		ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_OFFSET_BEFORE-1]));
 		switch(dir) {
 		case __DIR_ORIG:
-			set_bit(ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE, ct->set);
+			set_bit(ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE, ct->head.set);
 			break;
 		case __DIR_REPL:
-			set_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->set);
+			set_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->head.set);
 			break;
 		}
 	}
 
 	if (tb[CTA_NAT_SEQ_OFFSET_AFTER-1]) {
-		ct->tuple[dir].natseq.offset_after =
+		ct->natseq[dir].offset_after =
 		ntohl(*(u_int32_t *)NFA_DATA(tb[CTA_NAT_SEQ_OFFSET_AFTER-1]));
 		switch(dir) {
 		case __DIR_ORIG:
-			set_bit(ATTR_ORIG_NAT_SEQ_OFFSET_AFTER, ct->set);
+			set_bit(ATTR_ORIG_NAT_SEQ_OFFSET_AFTER, ct->head.set);
 			break;
 		case __DIR_REPL:
-			set_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->set);
+			set_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->head.set);
 			break;
 		}
 	}
@@ -421,7 +421,7 @@ __parse_helper(const struct nfattr *attr, struct nf_conntrack *ct)
 		NFA_DATA(tb[CTA_HELP_NAME-1]),
 		NFCT_HELPER_NAME_MAX);
 	ct->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
-	set_bit(ATTR_HELPER_NAME, ct->set);
+	set_bit(ATTR_HELPER_NAME, ct->head.set);
 }
 
 static void
@@ -435,7 +435,7 @@ __parse_secctx(const struct nfattr *attr, struct nf_conntrack *ct)
 
 	ct->secctx = strdup(NFA_DATA(tb[CTA_SECCTX_NAME-1]));
 	if (ct->secctx)
-		set_bit(ATTR_SECCTX, ct->set);
+		set_bit(ATTR_SECCTX, ct->head.set);
 }
 
 int __parse_message_type(const struct nlmsghdr *nlh)
@@ -465,13 +465,13 @@ __parse_timestamp(const struct nfattr *attr, struct nf_conntrack *ct)
 		u_int64_t tmp;
 		memcpy(&tmp, NFA_DATA(tb[CTA_TIMESTAMP_START-1]), sizeof(tmp));
 		ct->timestamp.start = __be64_to_cpu(tmp);
-		set_bit(ATTR_TIMESTAMP_START, ct->set);
+		set_bit(ATTR_TIMESTAMP_START, ct->head.set);
 	}
 	if (tb[CTA_TIMESTAMP_STOP-1]) {
 		u_int64_t tmp;
 		memcpy(&tmp, NFA_DATA(tb[CTA_TIMESTAMP_STOP-1]), sizeof(tmp));
 		ct->timestamp.stop = __be64_to_cpu(tmp);
-		set_bit(ATTR_TIMESTAMP_STOP, ct->set);
+		set_bit(ATTR_TIMESTAMP_STOP, ct->head.set);
 	}
 }
 
@@ -482,27 +482,27 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 	struct nfgenmsg *nfhdr = NLMSG_DATA(nlh);
 
 	if (cda[CTA_TUPLE_ORIG-1]) {
-		ct->tuple[__DIR_ORIG].l3protonum = nfhdr->nfgen_family;
-		set_bit(ATTR_ORIG_L3PROTO, ct->set);
+		ct->head.orig.l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_ORIG_L3PROTO, ct->head.set);
 
 		__parse_tuple(cda[CTA_TUPLE_ORIG-1], 
-			      &ct->tuple[__DIR_ORIG], __DIR_ORIG, ct->set);
+			      &ct->head.orig, __DIR_ORIG, ct->head.set);
 	}
 
 	if (cda[CTA_TUPLE_REPLY-1]) {
-		ct->tuple[__DIR_REPL].l3protonum = nfhdr->nfgen_family;
-		set_bit(ATTR_REPL_L3PROTO, ct->set);
+		ct->repl.l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_REPL_L3PROTO, ct->head.set);
 
 		__parse_tuple(cda[CTA_TUPLE_REPLY-1], 
-			      &ct->tuple[__DIR_REPL], __DIR_REPL, ct->set);
+			      &ct->repl, __DIR_REPL, ct->head.set);
 	}
 
 	if (cda[CTA_TUPLE_MASTER-1]) {
-		ct->tuple[__DIR_MASTER].l3protonum = nfhdr->nfgen_family;
-		set_bit(ATTR_MASTER_L3PROTO, ct->set);
+		ct->master.l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_MASTER_L3PROTO, ct->head.set);
 
 		__parse_tuple(cda[CTA_TUPLE_MASTER-1], 
-			      &ct->tuple[__DIR_MASTER], __DIR_MASTER, ct->set);
+			      &ct->master, __DIR_MASTER, ct->head.set);
 	}
 
 	if (cda[CTA_NAT_SEQ_ADJ_ORIG-1])
@@ -513,7 +513,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_STATUS-1]) {
 		ct->status = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_STATUS-1]));
-		set_bit(ATTR_STATUS, ct->set);
+		set_bit(ATTR_STATUS, ct->head.set);
 	}
 
 	if (cda[CTA_PROTOINFO-1])
@@ -521,17 +521,17 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_TIMEOUT-1]) {
 		ct->timeout = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_TIMEOUT-1]));
-		set_bit(ATTR_TIMEOUT, ct->set);
+		set_bit(ATTR_TIMEOUT, ct->head.set);
 	}
 	
 	if (cda[CTA_MARK-1]) {
 		ct->mark = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_MARK-1]));
-		set_bit(ATTR_MARK, ct->set);
+		set_bit(ATTR_MARK, ct->head.set);
 	}
 
 	if (cda[CTA_SECMARK-1]) {
 		ct->secmark = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_SECMARK-1]));
-		set_bit(ATTR_SECMARK, ct->set);
+		set_bit(ATTR_SECMARK, ct->head.set);
 	}
 
 	if (cda[CTA_COUNTERS_ORIG-1])
@@ -542,12 +542,12 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_USE-1]) {
 		ct->use = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_USE-1]));
-		set_bit(ATTR_USE, ct->set);
+		set_bit(ATTR_USE, ct->head.set);
 	}
 
 	if (cda[CTA_ID-1]) {
 		ct->id = ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_ID-1]));
-		set_bit(ATTR_ID, ct->set);
+		set_bit(ATTR_ID, ct->head.set);
 	}
 
 	if (cda[CTA_HELP-1])
@@ -555,7 +555,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_ZONE-1]) {
 		ct->zone = ntohs(*(u_int16_t *)NFA_DATA(cda[CTA_ZONE-1]));
-		set_bit(ATTR_ZONE, ct->set);
+		set_bit(ATTR_ZONE, ct->head.set);
 	}
 
 	if (cda[CTA_SECCTX-1])

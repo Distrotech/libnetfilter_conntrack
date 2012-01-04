@@ -106,45 +106,45 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 {
 	struct nfattr *nest, *nest_proto;
 
-	switch(ct->tuple[__DIR_ORIG].protonum) {
+	switch(ct->head.orig.protonum) {
 	case IPPROTO_TCP:
 		/* Preliminary attribute check to avoid sending an empty
 		 * CTA_PROTOINFO_TCP nest, which results in EINVAL in
 		 * Linux kernel <= 2.6.25. */
-		if (!(test_bit(ATTR_TCP_STATE, ct->set) ||
-		      test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) ||
-		      test_bit(ATTR_TCP_FLAGS_REPL, ct->set) ||
-		      test_bit(ATTR_TCP_MASK_ORIG, ct->set) ||
-		      test_bit(ATTR_TCP_MASK_REPL, ct->set) ||
-		      test_bit(ATTR_TCP_WSCALE_ORIG, ct->set) ||
-		      test_bit(ATTR_TCP_WSCALE_REPL, ct->set))) {
+		if (!(test_bit(ATTR_TCP_STATE, ct->head.set) ||
+		      test_bit(ATTR_TCP_FLAGS_ORIG, ct->head.set) ||
+		      test_bit(ATTR_TCP_FLAGS_REPL, ct->head.set) ||
+		      test_bit(ATTR_TCP_MASK_ORIG, ct->head.set) ||
+		      test_bit(ATTR_TCP_MASK_REPL, ct->head.set) ||
+		      test_bit(ATTR_TCP_WSCALE_ORIG, ct->head.set) ||
+		      test_bit(ATTR_TCP_WSCALE_REPL, ct->head.set))) {
 			break;
 		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_TCP);
-		if (test_bit(ATTR_TCP_STATE, ct->set))
+		if (test_bit(ATTR_TCP_STATE, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_STATE,
 				       &ct->protoinfo.tcp.state,
 				       sizeof(u_int8_t));
-		if (test_bit(ATTR_TCP_FLAGS_ORIG, ct->set) &&
-		    test_bit(ATTR_TCP_MASK_ORIG, ct->set))
+		if (test_bit(ATTR_TCP_FLAGS_ORIG, ct->head.set) &&
+		    test_bit(ATTR_TCP_MASK_ORIG, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_FLAGS_ORIGINAL,
 				       &ct->protoinfo.tcp.flags[0], 
 				       sizeof(struct nf_ct_tcp_flags));
-		if (test_bit(ATTR_TCP_FLAGS_REPL, ct->set) &&
-		    test_bit(ATTR_TCP_MASK_REPL, ct->set))
+		if (test_bit(ATTR_TCP_FLAGS_REPL, ct->head.set) &&
+		    test_bit(ATTR_TCP_MASK_REPL, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_FLAGS_REPLY,
 				       &ct->protoinfo.tcp.flags[1], 
 				       sizeof(struct nf_ct_tcp_flags));
-		if (test_bit(ATTR_TCP_WSCALE_ORIG, ct->set))
+		if (test_bit(ATTR_TCP_WSCALE_ORIG, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,
 				       &ct->protoinfo.tcp.wscale[__DIR_ORIG],
 				       sizeof(u_int8_t));
-		if (test_bit(ATTR_TCP_WSCALE_REPL, ct->set))
+		if (test_bit(ATTR_TCP_WSCALE_REPL, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_WSCALE_REPLY,
 				       &ct->protoinfo.tcp.wscale[__DIR_REPL],
@@ -154,23 +154,23 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 		break;
 	case IPPROTO_SCTP:
 		/* See comment above on TCP. */
-		if (!(test_bit(ATTR_SCTP_STATE, ct->set) ||
-		      test_bit(ATTR_SCTP_VTAG_ORIG, ct->set) ||
-		      test_bit(ATTR_SCTP_VTAG_REPL, ct->set))) {
+		if (!(test_bit(ATTR_SCTP_STATE, ct->head.set) ||
+		      test_bit(ATTR_SCTP_VTAG_ORIG, ct->head.set) ||
+		      test_bit(ATTR_SCTP_VTAG_REPL, ct->head.set))) {
 			break;
 		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_SCTP);
-		if (test_bit(ATTR_SCTP_STATE, ct->set))
+		if (test_bit(ATTR_SCTP_STATE, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_SCTP_STATE,
 				       &ct->protoinfo.sctp.state,
 				       sizeof(u_int8_t));
-		if (test_bit(ATTR_SCTP_VTAG_ORIG, ct->set))
+		if (test_bit(ATTR_SCTP_VTAG_ORIG, ct->head.set))
 			nfnl_addattr32(&req->nlh, size,
 				    CTA_PROTOINFO_SCTP_VTAG_ORIGINAL,
 				    htonl(ct->protoinfo.sctp.vtag[__DIR_ORIG]));
-		if (test_bit(ATTR_SCTP_VTAG_REPL, ct->set))
+		if (test_bit(ATTR_SCTP_VTAG_REPL, ct->head.set))
 			nfnl_addattr32(&req->nlh, size,
 				    CTA_PROTOINFO_SCTP_VTAG_REPLY,
 				    htonl(ct->protoinfo.sctp.vtag[__DIR_REPL]));
@@ -179,24 +179,24 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 		break;
 	case IPPROTO_DCCP:
 		/* See comment above on TCP. */
-		if (!(test_bit(ATTR_DCCP_STATE, ct->set) ||
-		      test_bit(ATTR_DCCP_ROLE, ct->set) ||
-		      test_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->set))) {
+		if (!(test_bit(ATTR_DCCP_STATE, ct->head.set) ||
+		      test_bit(ATTR_DCCP_ROLE, ct->head.set) ||
+		      test_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->head.set))) {
 			break;
 		}
 		nest = nfnl_nest(&req->nlh, size, CTA_PROTOINFO);
 		nest_proto = nfnl_nest(&req->nlh, size, CTA_PROTOINFO_DCCP);
-		if (test_bit(ATTR_DCCP_STATE, ct->set))
+		if (test_bit(ATTR_DCCP_STATE, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_DCCP_STATE,
 				       &ct->protoinfo.dccp.state,
 				       sizeof(u_int8_t));
-		if (test_bit(ATTR_DCCP_ROLE, ct->set))
+		if (test_bit(ATTR_DCCP_ROLE, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_DCCP_ROLE,
 				       &ct->protoinfo.dccp.role,
 				       sizeof(u_int8_t));
-		if (test_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->set)) {
+		if (test_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->head.set)) {
 			/* FIXME: use __cpu_to_be64() instead which is the
 			 * correct operation. This is a semantic abuse but
 			 * we have no function to do it in libnfnetlink. */
@@ -224,15 +224,15 @@ __nat_seq_adj(struct nfnlhdr *req,
 	nfnl_addattr32(&req->nlh, 
 		       size, 
 		       CTA_NAT_SEQ_CORRECTION_POS,
-		       htonl(ct->tuple[dir].natseq.correction_pos));
+		       htonl(ct->natseq[dir].correction_pos));
 	nfnl_addattr32(&req->nlh, 
 		       size, 
 		       CTA_NAT_SEQ_OFFSET_BEFORE,
-		       htonl(ct->tuple[dir].natseq.offset_before));
+		       htonl(ct->natseq[dir].offset_before));
 	nfnl_addattr32(&req->nlh, 
 		       size, 
 		       CTA_NAT_SEQ_OFFSET_AFTER,
-		       htonl(ct->tuple[dir].natseq.offset_after));
+		       htonl(ct->natseq[dir].offset_after));
 }
 
 static void 
@@ -259,7 +259,7 @@ static void __build_protonat(struct nfnlhdr *req,
 
 	nest = nfnl_nest(&req->nlh, size, CTA_NAT_PROTO);
 
-	switch (ct->tuple[__DIR_ORIG].protonum) {
+	switch (ct->head.orig.protonum) {
 	case IPPROTO_TCP:
 	case IPPROTO_UDP:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTONAT_PORT_MIN,
@@ -405,9 +405,9 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      u_int16_t flags,
 		      const struct nf_conntrack *ct)
 {
-	u_int8_t l3num = ct->tuple[__DIR_ORIG].l3protonum;
+	u_int8_t l3num = ct->head.orig.l3protonum;
 
-	if (!test_bit(ATTR_ORIG_L3PROTO, ct->set)) {
+	if (!test_bit(ATTR_ORIG_L3PROTO, ct->head.set)) {
 		errno = EINVAL;
 		return -1;
 	}
@@ -416,48 +416,43 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 
 	nfnl_fill_hdr(ssh, &req->nlh, 0, l3num, 0, type, flags);
 
-	if (test_bit(ATTR_ORIG_IPV4_SRC, ct->set) ||
-	    test_bit(ATTR_ORIG_IPV4_DST, ct->set) ||
-	    test_bit(ATTR_ORIG_IPV6_SRC, ct->set) ||
-	    test_bit(ATTR_ORIG_IPV6_DST, ct->set) ||
-	    test_bit(ATTR_ORIG_PORT_SRC, ct->set) ||
-	    test_bit(ATTR_ORIG_PORT_DST, ct->set) ||
-	    test_bit(ATTR_ORIG_L3PROTO, ct->set)  ||
-	    test_bit(ATTR_ORIG_L4PROTO, ct->set)  ||
-	    test_bit(ATTR_ICMP_TYPE, ct->set) 	  ||
-	    test_bit(ATTR_ICMP_CODE, ct->set)	  ||
-	    test_bit(ATTR_ICMP_ID, ct->set))
-		__build_tuple(req, size,
-			      &ct->tuple[__DIR_ORIG], 
-			      CTA_TUPLE_ORIG);
+	if (test_bit(ATTR_ORIG_IPV4_SRC, ct->head.set) ||
+	    test_bit(ATTR_ORIG_IPV4_DST, ct->head.set) ||
+	    test_bit(ATTR_ORIG_IPV6_SRC, ct->head.set) ||
+	    test_bit(ATTR_ORIG_IPV6_DST, ct->head.set) ||
+	    test_bit(ATTR_ORIG_PORT_SRC, ct->head.set) ||
+	    test_bit(ATTR_ORIG_PORT_DST, ct->head.set) ||
+	    test_bit(ATTR_ORIG_L3PROTO, ct->head.set)  ||
+	    test_bit(ATTR_ORIG_L4PROTO, ct->head.set)  ||
+	    test_bit(ATTR_ICMP_TYPE, ct->head.set) 	  ||
+	    test_bit(ATTR_ICMP_CODE, ct->head.set)	  ||
+	    test_bit(ATTR_ICMP_ID, ct->head.set))
+		__build_tuple(req, size, &ct->head.orig, CTA_TUPLE_ORIG);
 
-	if (test_bit(ATTR_REPL_IPV4_SRC, ct->set) ||
-	    test_bit(ATTR_REPL_IPV4_DST, ct->set) ||
-	    test_bit(ATTR_REPL_IPV6_SRC, ct->set) ||
-	    test_bit(ATTR_REPL_IPV6_DST, ct->set) ||
-	    test_bit(ATTR_REPL_PORT_SRC, ct->set) ||
-	    test_bit(ATTR_REPL_PORT_DST, ct->set) ||
-	    test_bit(ATTR_REPL_L3PROTO, ct->set)  ||
-	    test_bit(ATTR_REPL_L4PROTO, ct->set)  ||
-	    test_bit(ATTR_ICMP_TYPE, ct->set) 	  ||
-	    test_bit(ATTR_ICMP_CODE, ct->set)	  ||
-	    test_bit(ATTR_ICMP_ID, ct->set))
-		__build_tuple(req, size, 
-			      &ct->tuple[__DIR_REPL],
-			      CTA_TUPLE_REPLY);
+	if (test_bit(ATTR_REPL_IPV4_SRC, ct->head.set) ||
+	    test_bit(ATTR_REPL_IPV4_DST, ct->head.set) ||
+	    test_bit(ATTR_REPL_IPV6_SRC, ct->head.set) ||
+	    test_bit(ATTR_REPL_IPV6_DST, ct->head.set) ||
+	    test_bit(ATTR_REPL_PORT_SRC, ct->head.set) ||
+	    test_bit(ATTR_REPL_PORT_DST, ct->head.set) ||
+	    test_bit(ATTR_REPL_L3PROTO, ct->head.set)  ||
+	    test_bit(ATTR_REPL_L4PROTO, ct->head.set)  ||
+	    test_bit(ATTR_ICMP_TYPE, ct->head.set) 	  ||
+	    test_bit(ATTR_ICMP_CODE, ct->head.set)	  ||
+	    test_bit(ATTR_ICMP_ID, ct->head.set))
+		__build_tuple(req, size, &ct->repl, CTA_TUPLE_REPLY);
 
-	if (test_bit(ATTR_MASTER_IPV4_SRC, ct->set) ||
-	    test_bit(ATTR_MASTER_IPV4_DST, ct->set) ||
-	    test_bit(ATTR_MASTER_IPV6_SRC, ct->set) ||
-	    test_bit(ATTR_MASTER_IPV6_DST, ct->set) ||
-	    test_bit(ATTR_MASTER_PORT_SRC, ct->set) ||
-	    test_bit(ATTR_MASTER_PORT_DST, ct->set) ||
-	    test_bit(ATTR_MASTER_L3PROTO, ct->set) ||
-	    test_bit(ATTR_MASTER_L4PROTO, ct->set))
-	    	__build_tuple(req, size, 
-			      &ct->tuple[__DIR_MASTER], CTA_TUPLE_MASTER);
+	if (test_bit(ATTR_MASTER_IPV4_SRC, ct->head.set) ||
+	    test_bit(ATTR_MASTER_IPV4_DST, ct->head.set) ||
+	    test_bit(ATTR_MASTER_IPV6_SRC, ct->head.set) ||
+	    test_bit(ATTR_MASTER_IPV6_DST, ct->head.set) ||
+	    test_bit(ATTR_MASTER_PORT_SRC, ct->head.set) ||
+	    test_bit(ATTR_MASTER_PORT_DST, ct->head.set) ||
+	    test_bit(ATTR_MASTER_L3PROTO, ct->head.set) ||
+	    test_bit(ATTR_MASTER_L4PROTO, ct->head.set))
+	    	__build_tuple(req, size, &ct->master, CTA_TUPLE_MASTER);
 
-	if (test_bit(ATTR_STATUS, ct->set))
+	if (test_bit(ATTR_STATUS, ct->head.set))
 		__build_status(req, size, ct);
 	else {
 		/* build IPS_CONFIRMED if we're creating a new conntrack */
@@ -465,47 +460,47 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 			__build_status(req, size, ct);
 	}
 
-	if (test_bit(ATTR_TIMEOUT, ct->set))
+	if (test_bit(ATTR_TIMEOUT, ct->head.set))
 		__build_timeout(req, size, ct);
 
-	if (test_bit(ATTR_MARK, ct->set))
+	if (test_bit(ATTR_MARK, ct->head.set))
 		__build_mark(req, size, ct);
 
-	if (test_bit(ATTR_SECMARK, ct->set))
+	if (test_bit(ATTR_SECMARK, ct->head.set))
 		__build_secmark(req, size, ct);
 
 	__build_protoinfo(req, size, ct);
 
-	if (test_bit(ATTR_SNAT_IPV4, ct->set) && 
-	    test_bit(ATTR_SNAT_PORT, ct->set))
+	if (test_bit(ATTR_SNAT_IPV4, ct->head.set) && 
+	    test_bit(ATTR_SNAT_PORT, ct->head.set))
 		__build_snat(req, size, ct);
-	else if (test_bit(ATTR_SNAT_IPV4, ct->set))
+	else if (test_bit(ATTR_SNAT_IPV4, ct->head.set))
 		__build_snat_ipv4(req, size, ct);
-	else if (test_bit(ATTR_SNAT_PORT, ct->set))
+	else if (test_bit(ATTR_SNAT_PORT, ct->head.set))
 		__build_snat_port(req, size, ct);
 
-	if (test_bit(ATTR_DNAT_IPV4, ct->set) &&
-	    test_bit(ATTR_DNAT_PORT, ct->set))
+	if (test_bit(ATTR_DNAT_IPV4, ct->head.set) &&
+	    test_bit(ATTR_DNAT_PORT, ct->head.set))
 		__build_dnat(req, size, ct);
-	else if (test_bit(ATTR_DNAT_IPV4, ct->set))
+	else if (test_bit(ATTR_DNAT_IPV4, ct->head.set))
 		__build_dnat_ipv4(req, size, ct);
-	else if (test_bit(ATTR_DNAT_PORT, ct->set))
+	else if (test_bit(ATTR_DNAT_PORT, ct->head.set))
 		__build_dnat_port(req, size, ct);
 
-	if (test_bit(ATTR_ORIG_NAT_SEQ_CORRECTION_POS, ct->set) &&
-	    test_bit(ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE, ct->set) &&
-	    test_bit(ATTR_ORIG_NAT_SEQ_OFFSET_AFTER, ct->set))
+	if (test_bit(ATTR_ORIG_NAT_SEQ_CORRECTION_POS, ct->head.set) &&
+	    test_bit(ATTR_ORIG_NAT_SEQ_OFFSET_BEFORE, ct->head.set) &&
+	    test_bit(ATTR_ORIG_NAT_SEQ_OFFSET_AFTER, ct->head.set))
 	    	__build_nat_seq_adj(req, size, ct, __DIR_ORIG);
 
-	if (test_bit(ATTR_REPL_NAT_SEQ_CORRECTION_POS, ct->set) &&
-	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->set) &&
-	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->set))
+	if (test_bit(ATTR_REPL_NAT_SEQ_CORRECTION_POS, ct->head.set) &&
+	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_BEFORE, ct->head.set) &&
+	    test_bit(ATTR_REPL_NAT_SEQ_OFFSET_AFTER, ct->head.set))
 	    	__build_nat_seq_adj(req, size, ct, __DIR_REPL);
 
-	if (test_bit(ATTR_HELPER_NAME, ct->set))
+	if (test_bit(ATTR_HELPER_NAME, ct->head.set))
 		__build_helper_name(req, size, ct);
 
-	if (test_bit(ATTR_ZONE, ct->set))
+	if (test_bit(ATTR_ZONE, ct->head.set))
 		__build_zone(req, size, ct);
 
 	return 0;
