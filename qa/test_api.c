@@ -33,6 +33,7 @@ int main(void)
 {
 	int ret, i;
 	struct nf_conntrack *ct, *tmp;
+	struct nf_expect *exp;
 	char data[32];
 	const char *val;
 	int status;
@@ -129,7 +130,58 @@ int main(void)
 		eval_sigterm(status);
 	}
 
+	exp = nfexp_new();
+	if (!exp) {
+		perror("nfexp_new");
+		return 0;
+	}
+
+	printf("== test expect set API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		for (i=0; i<ATTR_EXP_MAX; i++)
+			nfexp_set_attr(exp, i, data);
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
+	for (i=0; i<ATTR_EXP_MAX; i++)
+		nfexp_set_attr(exp, i, data);
+
+	printf("== test expect get API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		for (i=0; i<ATTR_EXP_MAX; i++)
+			nfexp_get_attr(exp, i);
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
+	printf("== validate expect set API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		for (i=0; i<ATTR_EXP_MAX; i++) {
+			data[0] = (uint8_t) i;
+			nfexp_set_attr(exp, i, data);
+			val = nfexp_get_attr(exp, i);
+			if (val[0] != data[0]) {
+				printf("ERROR: set/get operations don't match "
+				       "for attribute %d (%x != %x)\n",
+					i, val[0], data[0]);
+			}
+		}
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
 	nfct_destroy(ct);
 	nfct_destroy(tmp);
+	nfexp_destroy(exp);
 	return EXIT_SUCCESS;
 }
