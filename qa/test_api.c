@@ -34,6 +34,7 @@ int main(void)
 	int ret, i;
 	struct nf_conntrack *ct, *tmp;
 	char data[32];
+	const char *val;
 	int status;
 
 	/* initialize fake data for testing purposes */
@@ -70,6 +71,37 @@ int main(void)
 	if (ret == 0) {
 		for (i=0; i<ATTR_MAX; i++)
 			nfct_get_attr(ct, i);
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
+	printf("== validate set API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		for (i=0; i<ATTR_MAX; i++) {
+			data[0] = (uint8_t) i;
+			nfct_set_attr(ct, i, data);
+			val = nfct_get_attr(ct, i);
+			/* These attributes cannot be set, ignore them. */
+			switch(i) {
+			case ATTR_ORIG_COUNTER_PACKETS:
+			case ATTR_REPL_COUNTER_PACKETS:
+			case ATTR_ORIG_COUNTER_BYTES:
+			case ATTR_REPL_COUNTER_BYTES:
+			case ATTR_USE:
+			case ATTR_SECCTX:
+			case ATTR_TIMESTAMP_START:
+			case ATTR_TIMESTAMP_STOP:
+				continue;
+			}
+			if (val[0] != data[0]) {
+				printf("ERROR: set/get operations don't match "
+				       "for attribute %d (%x != %x)\n",
+					i, val[0], data[0]);
+			}
+		}
 		exit(0);
 	} else {
 		wait(&status);
