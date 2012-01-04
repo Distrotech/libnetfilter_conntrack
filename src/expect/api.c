@@ -99,6 +99,40 @@ struct nf_expect *nfexp_clone(const struct nf_expect *exp)
 }
 
 /**
+ * nfexp_cmp - compare two expectation objects
+ * \param exp1 pointer to a valid expectation object
+ * \param exp2 pointer to a valid expectation object
+ * \param flags flags
+ *
+ * This function only compare attribute set in both objects, by default
+ * the comparison is not strict, ie. if a certain attribute is not set in one
+ * of the objects, then such attribute is not used in the comparison.
+ * If you want more strict comparisons, you can use the appropriate flags
+ * to modify this behaviour (see NFCT_CMP_STRICT and NFCT_CMP_MASK).
+ *
+ * The available flags are:
+ *      - NFCT_CMP_STRICT: the compared objects must have the same attributes
+ *      and the same values, otherwise it returns that the objects are
+ *      different.
+ *      - NFCT_CMP_MASK: the first object is used as mask, this means that
+ *      if an attribute is present in exp1 but not in exp2, this function
+ *      returns that the objects are different.
+ *
+ * Other existing flags that are used by nfct_cmp() are ignored.
+ *
+ * If both conntrack object are equal, this function returns 1, otherwise
+ * 0 is returned.
+ */
+int nfexp_cmp(const struct nf_expect *exp1, const struct nf_expect *exp2,
+	      unsigned int flags)
+{
+        assert(exp1 != NULL);
+        assert(exp2 != NULL);
+
+        return __cmp_expect(exp1, exp2, flags);
+}
+
+/**
  * @}
  */
 

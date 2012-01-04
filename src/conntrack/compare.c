@@ -144,9 +144,9 @@ cmp_orig_ipv6_dst(const struct nf_conntrack *ct1,
 		sizeof(struct in6_addr)) == 0);
 }
 
-static int cmp_orig(const struct nf_conntrack *ct1,
-		    const struct nf_conntrack *ct2,
-		    unsigned int flags)
+int __cmp_orig(const struct nf_conntrack *ct1,
+	       const struct nf_conntrack *ct2,
+	       unsigned int flags)
 {
 	if (!__cmp(ATTR_ORIG_L3PROTO, ct1, ct2, flags, cmp_orig_l3proto))
 		return 0;
@@ -399,10 +399,10 @@ int __compare(const struct nf_conntrack *ct1,
 {
 	if ((flags & ~(NFCT_CMP_MASK|NFCT_CMP_STRICT)) == NFCT_CMP_ALL)
 		return cmp_meta(ct1, ct2, flags) &&
-		       cmp_orig(ct1, ct2, flags) &&
+		       __cmp_orig(ct1, ct2, flags) &&
 		       cmp_repl(ct1, ct2, flags);
 
-	if (flags & NFCT_CMP_ORIG && !cmp_orig(ct1, ct2, flags))
+	if (flags & NFCT_CMP_ORIG && !__cmp_orig(ct1, ct2, flags))
 		return 0;
 
 	if (flags & NFCT_CMP_REPL && !cmp_repl(ct1, ct2, flags))

@@ -21,6 +21,7 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 int __setobjopt(struct nf_conntrack *ct, unsigned int option);
 int __getobjopt(const struct nf_conntrack *ct, unsigned int option);
 int __compare(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2, unsigned int flags);
+int __cmp_orig(const struct nf_conntrack *ct1, const struct nf_conntrack *ct2, unsigned int flags);
 void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct);
 
 int __setup_netlink_socket_filter(int fd, struct nfct_filter *filter);
@@ -32,6 +33,7 @@ int __build_expect(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t s
 int __parse_expect_message_type(const struct nlmsghdr *nlh);
 void __parse_expect(const struct nlmsghdr *nlh, struct nfattr *cda[], struct nf_expect *exp);
 int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
+int __cmp_expect(const struct nf_expect *exp1, const struct nf_expect *exp2, unsigned int flags);
 int __snprintf_expect(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int type, unsigned int msg_output, unsigned int flags);
 int __snprintf_expect_default(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int msg_type, unsigned int flags);
 

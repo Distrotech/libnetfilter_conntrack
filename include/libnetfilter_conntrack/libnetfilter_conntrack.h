@@ -599,6 +599,10 @@ extern int nfexp_snprintf(char *buf,
 			  const unsigned int out_type,
 			  const unsigned int out_flags);
 
+/* compare */
+extern int nfexp_cmp(const struct nf_expect *exp1,
+		     const struct nf_expect *exp2,
+		     unsigned int flags);
 
 extern int nfexp_send(struct nfct_handle *h,
 		      const enum nf_conntrack_query qt,

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <errno.h>
 
@@ -33,7 +34,7 @@ int main(void)
 {
 	int ret, i;
 	struct nf_conntrack *ct, *tmp;
-	struct nf_expect *exp;
+	struct nf_expect *exp, *tmp_exp;
 	char data[32];
 	const char *val;
 	int status;
@@ -135,6 +136,11 @@ int main(void)
 		perror("nfexp_new");
 		return 0;
 	}
+	tmp_exp = nfexp_new();
+	if (!tmp_exp) {
+		perror("nfexp_new");
+		return 0;
+	}
 
 	printf("== test expect set API ==\n");
 	ret = fork();
@@ -180,8 +186,22 @@ int main(void)
 		eval_sigterm(status);
 	}
 
+	/* XXX: missing nfexp_copy API. */
+	memcpy(tmp_exp, exp, nfexp_maxsize());
+
+	printf("== test expect cmp API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		nfexp_cmp(tmp_exp, exp, 0);
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
 	nfct_destroy(ct);
 	nfct_destroy(tmp);
 	nfexp_destroy(exp);
+	nfexp_destroy(tmp_exp);
 	return EXIT_SUCCESS;
 }
