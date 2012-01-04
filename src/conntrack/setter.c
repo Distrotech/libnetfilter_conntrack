@@ -252,12 +252,12 @@ static void set_attr_master_ipv4_dst(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_master_ipv6_src(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->master.dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.src.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_master_ipv6_dst(struct nf_conntrack *ct, const void *value)
 {
-	memcpy(&ct->master.src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.dst.v6, value, sizeof(u_int32_t)*4);
 }
 
 static void set_attr_master_port_src(struct nf_conntrack *ct, const void *value)
