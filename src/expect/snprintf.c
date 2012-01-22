@@ -22,6 +22,9 @@ int __snprintf_expect(char *buf,
 	case NFCT_O_DEFAULT:
 		size = __snprintf_expect_default(buf, len, exp, type, flags);
 		break;
+	case NFCT_O_XML:
+		size = __snprintf_expect_xml(buf, len, exp, type, flags);
+		break;
 	default:
 		errno = ENOENT;
 		return -1;

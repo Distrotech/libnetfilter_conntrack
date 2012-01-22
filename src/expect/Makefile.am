@@ -7,4 +7,5 @@ libnfexpect_la_SOURCES = api.c \
 			 getter.c setter.c \
 			 parse.c build.c \
 			 snprintf.c \
-			 snprintf_default.c
+			 snprintf_default.c \
+			 snprintf_xml.c

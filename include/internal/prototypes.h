@@ -16,6 +16,17 @@ int __snprintf_proto(char *buf, unsigned int len, const struct __nfct_tuple *tup
 int __snprintf_conntrack_default(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);
 int __snprintf_conntrack_xml(char *buf, unsigned int len, const struct nf_conntrack *ct, const unsigned int msg_type, const unsigned int flags);
 
+enum __nfct_addr {
+	__ADDR_SRC = 0,
+	__ADDR_DST,
+};
+int __snprintf_addr_xml(char *buf, unsigned int len, const struct __nfct_tuple *tuple, enum __nfct_addr type);
+int __snprintf_proto_xml(char *buf, unsigned int len, const struct __nfct_tuple *tuple, enum __nfct_addr type);
+int __snprintf_localtime_xml(char *buf, unsigned int len, const struct tm *tm);
+
+const char *__proto2str(u_int8_t protonum);
+const char *__l3proto2str(u_int8_t protonum);
+
 int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 
 int __setobjopt(struct nf_conntrack *ct, unsigned int option);
@@ -36,5 +47,6 @@ int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 int __cmp_expect(const struct nf_expect *exp1, const struct nf_expect *exp2, unsigned int flags);
 int __snprintf_expect(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int type, unsigned int msg_output, unsigned int flags);
 int __snprintf_expect_default(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int msg_type, unsigned int flags);
+int __snprintf_expect_xml(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int msg_type, unsigned int flags);
 
 #endif

@@ -53,17 +53,12 @@
  * </flow>
  */
 
-enum {
-	__ADDR_SRC = 0,
-	__ADDR_DST,
-};
-
-static const char *__proto2str(u_int8_t protonum)
+const char *__proto2str(u_int8_t protonum)
 {
 	return proto2str[protonum] ? proto2str[protonum] : "unknown";
 }
 
-static const char *__l3proto2str(u_int8_t protonum)
+const char *__l3proto2str(u_int8_t protonum)
 {
 	return l3proto2str[protonum] ? l3proto2str[protonum] : "unknown";
 }
@@ -97,24 +92,16 @@ static int __snprintf_ipv6_xml(char *buf,
 	return snprintf(buf, len, "%s", tmp);
 }
 
-static int __snprintf_addr_xml(char *buf,
-			       unsigned int len,
-			       const struct __nfct_tuple *tuple, 
-			       unsigned int type)
+int __snprintf_addr_xml(char *buf, unsigned int len,
+			const struct __nfct_tuple *tuple,
+			enum __nfct_addr type)
 {
 	int ret;
 	unsigned int size = 0, offset = 0;
+	const char *tag = (type == __ADDR_SRC) ? "src" : "dst";
 
-	switch(type) {
-	case __ADDR_SRC:
-		ret = snprintf(buf, len, "<src>");
-		BUFFER_SIZE(ret, size, len, offset);
-		break;
-	case __ADDR_DST:
-		ret = snprintf(buf+offset, len, "<dst>");
-		BUFFER_SIZE(ret, size, len, offset);
-		break;
-	}
+	ret = snprintf(buf, len, "<%s>", tag);
+	BUFFER_SIZE(ret, size, len, offset);
 
 	switch (tuple->l3protonum) {
 	case AF_INET:
@@ -127,24 +114,15 @@ static int __snprintf_addr_xml(char *buf,
 		break;
 	}
 
-	switch(type) {
-	case __ADDR_SRC:
-		ret = snprintf(buf+offset, len, "</src>");
-		BUFFER_SIZE(ret, size, len, offset);
-		break;
-	case __ADDR_DST:
-		ret = snprintf(buf+offset, len, "</dst>");
-		BUFFER_SIZE(ret, size, len, offset);
-		break;
-	}
+	ret = snprintf(buf+offset, len, "</%s>", tag);
+	BUFFER_SIZE(ret, size, len, offset);
 
 	return size;
 }
 
-static int __snprintf_proto_xml(char *buf,
-				unsigned int len,
-				const struct __nfct_tuple *tuple, 
-				unsigned int type)
+int __snprintf_proto_xml(char *buf, unsigned int len,
+			 const struct __nfct_tuple *tuple,
+			 enum __nfct_addr type)
 {
 	int ret = 0;
 	unsigned int size = 0, offset = 0;
@@ -261,7 +239,7 @@ __snprintf_deltatime(char *buf, unsigned int len, const struct nf_conntrack *ct)
 	return size;
 }
 
-static int
+int
 __snprintf_localtime_xml(char *buf, unsigned int len, const struct tm *tm)
 {
 	int ret = 0;
@@ -317,10 +295,10 @@ static int __snprintf_tuple_xml(char *buf,
 		       tuple->l3protonum, __l3proto2str(tuple->l3protonum));
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_addr_xml(buf+offset, len, tuple, __DIR_ORIG);
+	ret = __snprintf_addr_xml(buf+offset, len, tuple, __ADDR_SRC);
 	BUFFER_SIZE(ret, size, len, offset);
 
-	ret = __snprintf_addr_xml(buf+offset, len, tuple, __DIR_REPL);
+	ret = __snprintf_addr_xml(buf+offset, len, tuple, __ADDR_DST);
 	BUFFER_SIZE(ret, size, len, offset);
 
 	ret = snprintf(buf+offset, len, "</layer3>");
