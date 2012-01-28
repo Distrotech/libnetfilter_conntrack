@@ -19,6 +19,16 @@ __snprintf_expect_timeout(char *buf, unsigned int len,
 	return 0;
 }
 
+static int
+__snprintf_expect_class(char *buf, unsigned int len,
+			  const struct nf_expect *exp)
+{
+	if (test_bit(ATTR_EXP_CLASS, exp->set))
+		return snprintf(buf, len, "class=%u ", exp->class);
+
+	return 0;
+}
+
 static int __snprintf_expect_proto(char *buf, 
 				   unsigned int len,
 				   const struct nf_expect *exp)
@@ -100,6 +110,9 @@ int __snprintf_expect_default(char *buf,
 		ret = snprintf(buf+offset, len, "%sUSERSPACE", delim);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
+
+	ret = __snprintf_expect_class(buf+offset, len, exp);
+	BUFFER_SIZE(ret, size, len, offset);
 
 	if (test_bit(ATTR_EXP_HELPER_NAME, exp->set)) {
 		ret = snprintf(buf+offset, len, "helper=%s", exp->helper_name);

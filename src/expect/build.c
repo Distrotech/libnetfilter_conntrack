@@ -28,6 +28,13 @@ static void __build_flags(struct nfnlhdr *req,
 	nfnl_addattr32(&req->nlh, size, CTA_EXPECT_FLAGS,htonl(exp->flags));
 }
 
+static void __build_class(struct nfnlhdr *req,
+			  size_t size,
+			  const struct nf_expect *exp)
+{
+	nfnl_addattr32(&req->nlh, size, CTA_EXPECT_CLASS, htonl(exp->class));
+}
+
 static void __build_helper_name(struct nfnlhdr *req, size_t size,
 			 const struct nf_expect *exp)
 {
@@ -73,6 +80,8 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 		__build_flags(req, size, exp);
 	if (test_bit(ATTR_EXP_ZONE, exp->set))
 		__build_zone(req, size, exp);
+	if (test_bit(ATTR_EXP_CLASS, exp->set))
+		__build_class(req, size, exp);
 	if (test_bit(ATTR_EXP_HELPER_NAME, exp->set))
 		__build_helper_name(req, size, exp);
 

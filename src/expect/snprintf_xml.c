@@ -70,6 +70,11 @@ snprintf_expect_meta_xml(char *buf, size_t len,
 				exp->timeout);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
+	if (test_bit(ATTR_EXP_CLASS, exp->set)) {
+		ret = snprintf(buf+offset, len, "<class>%u</class>",
+				exp->class);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
 	if (test_bit(ATTR_EXP_ZONE, exp->set)) {
 		ret = snprintf(buf+offset, len, "<zone>%u</zone>", exp->zone);
 		BUFFER_SIZE(ret, size, len, offset);
