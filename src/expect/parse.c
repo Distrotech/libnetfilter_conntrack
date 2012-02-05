@@ -89,4 +89,24 @@ void __parse_expect(const struct nlmsghdr *nlh,
 		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_CLASS-1]));
 		set_bit(ATTR_EXP_CLASS, exp->set);
 	}
+	if (cda[CTA_EXPECT_NAT-1]) {
+		struct nfattr *tb[CTA_EXPECT_NAT_MAX];
+
+		nfnl_parse_nested(tb, CTA_EXPECT_NAT_MAX,
+					cda[CTA_EXPECT_NAT-1]);
+
+		if (tb[CTA_EXPECT_NAT_TUPLE-1]) {
+			__parse_tuple(tb[CTA_EXPECT_NAT_TUPLE-1],
+				      &exp->nat.orig,
+				      __DIR_ORIG,
+				      exp->nat.set);
+			set_bit(ATTR_EXP_NAT_TUPLE, exp->set);
+		}
+		if (tb[CTA_EXPECT_NAT_DIR-1]) {
+			exp->nat_dir =
+			      ntohl(*((u_int32_t *)
+				NFA_DATA(tb[CTA_EXPECT_NAT_DIR-1])));
+			set_bit(ATTR_EXP_NAT_DIR, exp->set);
+		}
+	}
 }

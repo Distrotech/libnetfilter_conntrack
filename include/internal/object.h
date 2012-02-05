@@ -268,6 +268,7 @@ struct nf_expect {
 	struct nfct_tuple_head	master;
 	struct nfct_tuple_head	expected;
 	struct nfct_tuple_head	mask;
+	struct nfct_tuple_head	nat;
 
 	u_int32_t 		timeout;
 	u_int32_t 		id;
@@ -275,6 +276,7 @@ struct nf_expect {
 	u_int32_t		flags;
 	u_int32_t		class;
 	char 			helper_name[NFCT_HELPER_NAME_MAX];
+	u_int32_t		nat_dir;
 
 	u_int32_t 		set[1];
 };

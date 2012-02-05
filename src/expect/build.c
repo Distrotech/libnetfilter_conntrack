@@ -74,6 +74,17 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 		__build_tuple(req, size, &exp->mask.orig, CTA_EXPECT_MASK);
 	}
 
+	if (test_bit(ATTR_EXP_NAT_TUPLE, exp->set) &&
+	    test_bit(ATTR_EXP_NAT_DIR, exp->set)) {
+		struct nfattr *nest;
+
+		nest = nfnl_nest(&req->nlh, size, CTA_EXPECT_NAT);
+		__build_tuple(req, size, &exp->nat.orig, CTA_EXPECT_NAT_TUPLE);
+		nfnl_addattr32(&req->nlh, size, CTA_EXPECT_NAT_DIR,
+				htonl(exp->nat_dir));
+		nfnl_nest_end(&req->nlh, nest);
+	}
+
 	if (test_bit(ATTR_EXP_TIMEOUT, exp->set))
 		__build_timeout(req, size, exp);
 	if (test_bit(ATTR_EXP_FLAGS, exp->set))

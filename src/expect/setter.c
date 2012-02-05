@@ -50,6 +50,16 @@ static void set_exp_attr_helper_name(struct nf_expect *exp, const void *value)
 	exp->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
 }
 
+static void set_exp_attr_nat_dir(struct nf_expect *exp, const void *value)
+{
+	exp->nat_dir = *((u_int32_t *) value);
+}
+
+static void set_exp_attr_nat_tuple(struct nf_expect *exp, const void *value)
+{
+	exp->nat = *((struct nfct_tuple_head *) value);
+}
+
 const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_MASTER]		= set_exp_attr_master,
 	[ATTR_EXP_EXPECTED]		= set_exp_attr_expected,
@@ -59,4 +69,6 @@ const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_FLAGS]		= set_exp_attr_flags,
 	[ATTR_EXP_HELPER_NAME]		= set_exp_attr_helper_name,
 	[ATTR_EXP_CLASS]		= set_exp_attr_class,
+	[ATTR_EXP_NAT_TUPLE]		= set_exp_attr_nat_tuple,
+	[ATTR_EXP_NAT_DIR]		= set_exp_attr_nat_dir,
 };
