@@ -39,7 +39,7 @@ static void __build_helper_name(struct nfnlhdr *req, size_t size,
 			 const struct nf_expect *exp)
 {
 	nfnl_addattr_l(&req->nlh, size, CTA_EXPECT_HELP_NAME,
-			exp->helper_name, strlen(exp->helper_name));
+			exp->helper_name, strlen(exp->helper_name)+1);
 }
 
 static void __build_expectfn(struct nfnlhdr *req,
