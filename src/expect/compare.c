@@ -30,17 +30,17 @@ static int exp_cmp(int attr,
 }
 
 static int
-cmp_exp_flags(const struct nf_expect *exp1, const struct nf_expect *exp,
+cmp_exp_flags(const struct nf_expect *exp1, const struct nf_expect *exp2,
 	      unsigned int flags)
 {
-	return (exp->flags == exp->flags);
+	return (exp1->flags == exp2->flags);
 }
 
 static int
-cmp_exp_class(const struct nf_expect *exp1, const struct nf_expect *exp,
+cmp_exp_class(const struct nf_expect *exp1, const struct nf_expect *exp2,
 	      unsigned int flags)
 {
-	return (exp->class == exp->class);
+	return (exp1->class == exp2->class);
 }
 
 int __cmp_expect(const struct nf_expect *exp1,
