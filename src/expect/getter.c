@@ -59,6 +59,11 @@ static const void *get_exp_attr_nat_tuple(const struct nf_expect *exp)
 	return &exp->nat;
 }
 
+static const void *get_exp_attr_expectfn(const struct nf_expect *exp)
+{
+	return exp->expectfn;
+}
+
 const get_exp_attr get_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_MASTER]		= get_exp_attr_master,
 	[ATTR_EXP_EXPECTED]		= get_exp_attr_expected,
@@ -70,4 +75,5 @@ const get_exp_attr get_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_CLASS]		= get_exp_attr_class,
 	[ATTR_EXP_NAT_TUPLE]		= get_exp_attr_nat_tuple,
 	[ATTR_EXP_NAT_DIR]		= get_exp_attr_nat_dir,
+	[ATTR_EXP_FN]			= get_exp_attr_expectfn,
 };

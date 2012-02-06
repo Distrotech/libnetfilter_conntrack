@@ -42,6 +42,13 @@ static void __build_helper_name(struct nfnlhdr *req, size_t size,
 			exp->helper_name, strlen(exp->helper_name));
 }
 
+static void __build_expectfn(struct nfnlhdr *req,
+			     size_t size, const struct nf_expect *exp)
+{
+	nfnl_addattr_l(&req->nlh, size, CTA_EXPECT_FN,
+			exp->expectfn, strlen(exp->expectfn)+1);
+}
+
 int __build_expect(struct nfnl_subsys_handle *ssh,
 		   struct nfnlhdr *req,
 		   size_t size,
@@ -95,6 +102,8 @@ int __build_expect(struct nfnl_subsys_handle *ssh,
 		__build_class(req, size, exp);
 	if (test_bit(ATTR_EXP_HELPER_NAME, exp->set))
 		__build_helper_name(req, size, exp);
+	if (test_bit(ATTR_EXP_FN, exp->set))
+		__build_expectfn(req, size, exp);
 
 	return 0;
 }

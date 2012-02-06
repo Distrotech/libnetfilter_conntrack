@@ -109,4 +109,9 @@ void __parse_expect(const struct nlmsghdr *nlh,
 			set_bit(ATTR_EXP_NAT_DIR, exp->set);
 		}
 	}
+	if (cda[CTA_EXPECT_FN-1]) {
+		strcpy(exp->expectfn, NFA_DATA(cda[CTA_EXPECT_FN-1]));
+		exp->expectfn[__NFCT_EXPECTFN_MAX-1] = '\0';
+		set_bit(ATTR_EXP_FN, exp->set);
+	}
 }

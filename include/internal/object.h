@@ -264,6 +264,8 @@ struct nfct_filter {
  * expectation object
  */
 
+#define __NFCT_EXPECTFN_MAX	24	/* maximum symbol length. */
+
 struct nf_expect {
 	struct nfct_tuple_head	master;
 	struct nfct_tuple_head	expected;
@@ -277,6 +279,7 @@ struct nf_expect {
 	u_int32_t		class;
 	char 			helper_name[NFCT_HELPER_NAME_MAX];
 	u_int32_t		nat_dir;
+	char			expectfn[__NFCT_EXPECTFN_MAX];
 
 	u_int32_t 		set[1];
 };

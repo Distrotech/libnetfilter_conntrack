@@ -60,6 +60,12 @@ static void set_exp_attr_nat_tuple(struct nf_expect *exp, const void *value)
 	exp->nat = *((struct nfct_tuple_head *) value);
 }
 
+static void set_exp_attr_expectfn(struct nf_expect *exp, const void *value)
+{
+	strncpy(exp->expectfn, value, __NFCT_EXPECTFN_MAX);
+	exp->expectfn[__NFCT_EXPECTFN_MAX-1] = '\0';
+}
+
 const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_MASTER]		= set_exp_attr_master,
 	[ATTR_EXP_EXPECTED]		= set_exp_attr_expected,
@@ -71,4 +77,5 @@ const set_exp_attr set_exp_attr_array[ATTR_EXP_MAX] = {
 	[ATTR_EXP_CLASS]		= set_exp_attr_class,
 	[ATTR_EXP_NAT_TUPLE]		= set_exp_attr_nat_tuple,
 	[ATTR_EXP_NAT_DIR]		= set_exp_attr_nat_dir,
+	[ATTR_EXP_FN]			= set_exp_attr_expectfn,
 };
