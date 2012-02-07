@@ -110,7 +110,11 @@ int __snprintf_expect_default(char *buf,
 		ret = snprintf(buf+offset, len, "%sUSERSPACE", delim);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
-
+	/* extra space not to stick to next field. */
+	if (exp->flags) {
+		ret = snprintf(buf+offset, len, " ");
+		BUFFER_SIZE(ret, size, len, offset);
+	}
 	ret = __snprintf_expect_class(buf+offset, len, exp);
 	BUFFER_SIZE(ret, size, len, offset);
 
