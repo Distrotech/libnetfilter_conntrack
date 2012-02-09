@@ -13,6 +13,8 @@ extern const get_exp_attr	get_exp_attr_array[];
 
 extern const uint32_t attr_grp_bitmask[ATTR_GRP_MAX][__NFCT_BITSET];
 
+extern const set_filter_dump_attr	set_filter_dump_attr_array[];
+
 /* for the snprintf infrastructure */
 extern const char *const l3proto2str[AF_MAX];
 extern const char *const proto2str[IPPROTO_MAX];

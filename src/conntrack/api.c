@@ -766,7 +766,14 @@ __build_query_ct(struct nfnl_subsys_handle *ssh,
 	case NFCT_Q_CREATE_UPDATE:
 		__build_conntrack(ssh, req, size, IPCTNL_MSG_CT_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK, data);
 		break;
-
+	case NFCT_Q_DUMP_FILTER:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, AF_UNSPEC, 0, IPCTNL_MSG_CT_GET, NLM_F_REQUEST|NLM_F_DUMP);
+		__build_filter_dump(req, size, data);
+		break;
+	case NFCT_Q_DUMP_FILTER_RESET:
+		nfnl_fill_hdr(ssh, &req->nlh, 0, AF_UNSPEC, 0, IPCTNL_MSG_CT_GET_CTRZERO, NLM_F_REQUEST|NLM_F_DUMP);
+		__build_filter_dump(req, size, data);
+		break;
 	default:
 		errno = ENOTSUP;
 		return -1;
@@ -802,6 +809,8 @@ __build_query_ct(struct nfnl_subsys_handle *ssh,
  * 	- NFCT_Q_FLUSH: flush the conntrack table
  * 	- NFCT_Q_DUMP: dump the conntrack table
  * 	- NFCT_Q_DUMP_RESET: dump the conntrack table and reset counters
+ * 	- NFCT_Q_DUMP_FILTER: dump the conntrack table
+ * 	- NFCT_Q_DUMP_FILTER_RESET: dump the conntrack table and reset counters
  *
  * Pass a valid pointer to the protocol family (u_int32_t)
  *
@@ -1351,6 +1360,75 @@ int nfct_filter_detach(int fd)
 	int val = 0;
 
 	return setsockopt(fd, SOL_SOCKET, SO_DETACH_FILTER, &val, sizeof(val));
+}
+
+/**
+ * @}
+ */
+
+/**
+ * \defgroup dumpfilter Kernel-space filtering for dumping
+ *
+ * @{
+ */
+
+/**
+ * nfct_filter_dump_create - create a dump filter
+ *
+ * This function returns a valid pointer on success, otherwise NULL is
+ * returned and errno is appropriately set.
+ */
+struct nfct_filter_dump *nfct_filter_dump_create(void)
+{
+	return calloc(sizeof(struct nfct_filter_dump), 1);
+}
+
+/**
+ * nfct_filter_dump_destroy - destroy a dump filter
+ * \param filter filter that we want to destroy
+ *
+ * This function releases the memory that is used by the filter object.
+ */
+void nfct_filter_dump_destroy(struct nfct_filter_dump *filter)
+{
+	assert(filter != NULL);
+	free(filter);
+	filter = NULL;
+}
+
+/**
+ * nfct_filter_dump_attr_set - set filter attribute
+ * \param filter dump filter object that we want to modify
+ * \param type filter attribute type
+ * \param value pointer to the value of the filter attribute
+ */
+void nfct_filter_dump_set_attr(struct nfct_filter_dump *filter_dump,
+			       const enum nfct_filter_dump_attr type,
+			       const void *value)
+{
+	assert(filter_dump != NULL);
+	assert(value != NULL);
+
+	if (unlikely(type >= NFCT_FILTER_DUMP_MAX))
+		return;
+
+	if (set_filter_dump_attr_array[type]) {
+		set_filter_dump_attr_array[type](filter_dump, value);
+		filter_dump->set |= (1 << type);
+	}
+}
+
+/**
+ * nfct_filter_dump_attr_set_u8 - set u8 dump filter attribute
+ * \param filter dump filter object that we want to modify
+ * \param type filter attribute type
+ * \param value value of the filter attribute using unsigned int (32 bits).
+ */
+void nfct_filter_dump_set_attr_u8(struct nfct_filter_dump *filter_dump,
+				  const enum nfct_filter_dump_attr type,
+				  u_int8_t value)
+{
+	nfct_filter_dump_set_attr(filter_dump, type, &value);
 }
 
 /**

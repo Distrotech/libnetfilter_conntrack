@@ -10,6 +10,6 @@ libnfconntrack_la_SOURCES = api.c \
 			    objopt.c \
 			    compare.c \
 			    copy.c \
-			    filter.c bsf.c \
+			    filter.c bsf.c filter_dump.c \
 			    grp.c grp_getter.c grp_setter.c \
 			    stack.c

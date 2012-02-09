@@ -261,6 +261,16 @@ struct nfct_filter {
 };
 
 /*
+ * conntrack filter dump object
+ */
+
+struct nfct_filter_dump {
+	struct nfct_filter_dump_mark	mark;
+	u_int8_t			l3num;
+	u_int32_t			set;
+};
+
+/*
  * expectation object
  */
 

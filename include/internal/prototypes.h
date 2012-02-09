@@ -37,6 +37,8 @@ void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct);
 
 int __setup_netlink_socket_filter(int fd, struct nfct_filter *filter);
 
+void __build_filter_dump(struct nfnlhdr *req, size_t size, const struct nfct_filter_dump *filter_dump);
+
 /*
  * expectation internal prototypes
  */
