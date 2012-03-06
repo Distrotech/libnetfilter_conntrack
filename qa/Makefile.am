@@ -1,6 +1,6 @@
 include $(top_srcdir)/Make_global.am
 
-check_PROGRAMS = test_api test_filter
+check_PROGRAMS = test_api test_filter ct_stress ct_events_reliable
 
 test_api_SOURCES = test_api.c
 test_api_LDADD = ../src/libnetfilter_conntrack.la
@@ -9,3 +9,11 @@ test_api_LDFLAGS = -dynamic -ldl
 test_filter_SOURCES = test_filter.c
 test_filter_LDADD = ../src/libnetfilter_conntrack.la
 test_filter_LDFLAGS = -dynamic -ldl
+
+ct_stress_SOURCES = ct_stress.c
+ct_stress_LDADD = ../src/libnetfilter_conntrack.la
+ct_stress_LDFLAGS = -dynamic -ldl
+
+ct_events_reliable_SOURCES = ct_events_reliable.c
+ct_events_reliable_LDADD = ../src/libnetfilter_conntrack.la
+ct_events_reliable_LDFLAGS = -dynamic -ldl
