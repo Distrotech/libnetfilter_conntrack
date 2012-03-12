@@ -19,7 +19,7 @@
 int main(int argc, char *argv[])
 {
 	time_t t;
-	int ret, i, r;
+	int ret, i, j, r;
 	struct nfct_handle *h;
 	struct nf_conntrack *ct;
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	for (i = r;i < (r + atoi(argv[1]) * 2); i++) {
+	for (i = r, j = 0;i < (r + atoi(argv[1]) * 2); i++, j++) {
 		nfct_set_attr_u8(ct, ATTR_L3PROTO, AF_INET);
 		nfct_set_attr_u32(ct, ATTR_IPV4_SRC, inet_addr("1.1.1.1") + i);
 		nfct_set_attr_u32(ct, ATTR_IPV4_DST, inet_addr("2.2.2.2") + i);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 		nfct_set_attr_u32(ct, ATTR_STATUS, IPS_ASSURED);
 
 		if (i % 10000 == 0)
-			printf("added %d flow entries\n", i);
+			printf("added %d flow entries\n", j);
 
 		ret = nfct_query(h, NFCT_Q_CREATE, ct);
 		if (ret == -1)

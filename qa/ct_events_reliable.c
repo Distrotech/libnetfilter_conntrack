@@ -1,27 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <errno.h>
 
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+
+static int events = 0;
+static int new, update, destroy;
 
 static int event_cb(enum nf_conntrack_msg_type type,
 		    struct nf_conntrack *ct,
 		    void *data)
 {
-	static int i = 0;
-	static int new, destroy;
-
 	if (type == NFCT_T_NEW)
 		new++;
+	if (type == NFCT_T_UPDATE)
+		update++;
 	else if (type == NFCT_T_DESTROY)
 		destroy++;
 
-	if ((++i % 10000) == 0)
-		printf("%d events received (%d new, %d destroy)\n",
-			i, new, destroy);
+	if ((++events % 10000) == 0)
+		printf("%d events received (%d new, %d update, %d destroy)\n",
+			events, new, update, destroy);
 
 	return NFCT_CB_CONTINUE;
+}
+
+static void sighandler(int foo)
+{
+	printf("%d events received (%d new, %d update, %d destroy)\n",
+		events, new, update, destroy);
+	exit(EXIT_SUCCESS);
 }
 
 int main(void)
@@ -29,6 +39,8 @@ int main(void)
 	int ret;
 	struct nfct_handle *h;
 	int on = 1;
+
+	signal(SIGINT, sighandler);
 
 	h = nfct_open(CONNTRACK, NFCT_ALL_CT_GROUPS);
 	if (!h) {
