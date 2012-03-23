@@ -436,10 +436,7 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 	    test_bit(ATTR_REPL_PORT_SRC, ct->head.set) ||
 	    test_bit(ATTR_REPL_PORT_DST, ct->head.set) ||
 	    test_bit(ATTR_REPL_L3PROTO, ct->head.set)  ||
-	    test_bit(ATTR_REPL_L4PROTO, ct->head.set)  ||
-	    test_bit(ATTR_ICMP_TYPE, ct->head.set) 	  ||
-	    test_bit(ATTR_ICMP_CODE, ct->head.set)	  ||
-	    test_bit(ATTR_ICMP_ID, ct->head.set))
+	    test_bit(ATTR_REPL_L4PROTO, ct->head.set))
 		__build_tuple(req, size, &ct->repl, CTA_TUPLE_REPLY);
 
 	if (test_bit(ATTR_MASTER_IPV4_SRC, ct->head.set) ||
