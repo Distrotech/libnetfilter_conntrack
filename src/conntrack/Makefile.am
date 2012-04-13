@@ -5,6 +5,7 @@ noinst_LTLIBRARIES = libnfconntrack.la
 libnfconntrack_la_SOURCES = api.c \
 			    getter.c setter.c \
 			    parse.c build.c \
+			    parse_mnl.c build_mnl.c \
 			    snprintf.c \
 			    snprintf_default.c snprintf_xml.c \
 			    objopt.c \
