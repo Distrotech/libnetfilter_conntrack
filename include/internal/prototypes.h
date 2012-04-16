@@ -39,6 +39,9 @@ int __setup_netlink_socket_filter(int fd, struct nfct_filter *filter);
 
 void __build_filter_dump(struct nfnlhdr *req, size_t size, const struct nfct_filter_dump *filter_dump);
 
+int nfct_build_tuple(struct nlmsghdr *nlh, const struct __nfct_tuple *t, int type);
+int nfct_parse_tuple(const struct nlattr *attr, struct __nfct_tuple *tuple, int dir, u_int32_t *set);
+
 /*
  * expectation internal prototypes
  */

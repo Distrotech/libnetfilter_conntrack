@@ -79,7 +79,7 @@ nfct_build_tuple_proto(struct nlmsghdr *nlh, const struct __nfct_tuple *t)
 	return 0;
 }
 
-static int
+int
 nfct_build_tuple(struct nlmsghdr *nlh, const struct __nfct_tuple *t, int type)
 {
 	struct nlattr *nest;

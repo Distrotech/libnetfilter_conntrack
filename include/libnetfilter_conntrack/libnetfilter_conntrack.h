@@ -680,6 +680,11 @@ int nfexp_build_query(struct nfnl_subsys_handle *ssh,
 			     void *buffer,
 			     unsigned int size);
 
+/* New low level API: netlink functions */
+
+extern int nfexp_nlmsg_build(struct nlmsghdr *nlh, const struct nf_expect *exp);
+extern int nfexp_nlmsg_parse(const struct nlmsghdr *nlh, struct nf_expect *exp);
+
 /* Bitset representing status of connection. Taken from ip_conntrack.h
  * 
  * Note: For backward compatibility this shouldn't ever change

@@ -258,7 +258,7 @@ static int nfct_parse_tuple_attr_cb(const struct nlattr *attr, void *data)
 	return MNL_CB_OK;
 }
 
-static int
+int
 nfct_parse_tuple(const struct nlattr *attr, struct __nfct_tuple *tuple,
 		int dir, u_int32_t *set)
 {
