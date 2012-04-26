@@ -363,6 +363,11 @@ nfct_build_helper_name(struct nlmsghdr *nlh, const struct nf_conntrack *ct)
 
 	nest = mnl_attr_nest_start(nlh, CTA_HELP);
 	mnl_attr_put_strz(nlh, CTA_HELP_NAME, ct->helper_name);
+
+	if (ct->helper_info != NULL) {
+		mnl_attr_put(nlh, CTA_HELP_INFO, ct->helper_info_len,
+				ct->helper_info);
+	}
 	mnl_attr_nest_end(nlh, nest);
 	return 0;
 }

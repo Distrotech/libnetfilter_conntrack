@@ -334,6 +334,11 @@ static const void *get_attr_timestamp_stop(const struct nf_conntrack *ct)
 	return &ct->timestamp.stop;
 }
 
+static const void *get_attr_helper_info(const struct nf_conntrack *ct)
+{
+	return ct->helper_info;
+}
+
 const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= get_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= get_attr_orig_ipv4_dst,
@@ -400,4 +405,5 @@ const get_attr get_attr_array[ATTR_MAX] = {
 	[ATTR_SECCTX]			= get_attr_secctx,
 	[ATTR_TIMESTAMP_START]		= get_attr_timestamp_start,
 	[ATTR_TIMESTAMP_STOP]		= get_attr_timestamp_stop,
+	[ATTR_HELPER_INFO]		= get_attr_helper_info,
 };

@@ -132,6 +132,7 @@ enum nf_conntrack_attr {
 	ATTR_SECCTX,				/* string */
 	ATTR_TIMESTAMP_START,			/* u64 bits, linux >= 2.6.38 */
 	ATTR_TIMESTAMP_STOP = 64,		/* u64 bits, linux >= 2.6.38 */
+	ATTR_HELPER_INFO,			/* variable length */
 	ATTR_MAX
 };
 
@@ -292,6 +293,11 @@ extern void nfct_set_attr_u32(struct nf_conntrack *ct,
 extern void nfct_set_attr_u64(struct nf_conntrack *ct,
 			      const enum nf_conntrack_attr type,
 			      u_int64_t value);
+
+extern void nfct_set_attr_l(struct nf_conntrack *ct,
+			    const enum nf_conntrack_attr type,
+			    const void *value,
+			    size_t len);
 
 /* getter */
 extern const void *nfct_get_attr(const struct nf_conntrack *ct,

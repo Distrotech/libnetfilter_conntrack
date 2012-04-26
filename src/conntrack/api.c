@@ -93,6 +93,8 @@ void nfct_destroy(struct nf_conntrack *ct)
 	assert(ct != NULL);
 	if (ct->secctx)
 		free(ct->secctx);
+	if (ct->helper_info)
+		free(ct->helper_info);
 	free(ct);
 	ct = NULL; /* bugtrap */
 }
@@ -352,6 +354,29 @@ void nfct_callback_unregister2(struct nfct_handle *h)
  */
 
 /**
+ * nfct_set_attr_l - set the value of a certain conntrack attribute
+ * \param ct pointer to a valid conntrack
+ * \param type attribute type
+ * \param pointer to attribute value
+ * \param length of attribute value (in bytes)
+ */
+void
+nfct_set_attr_l(struct nf_conntrack *ct, const enum nf_conntrack_attr type,
+		const void *value, size_t len)
+{
+	assert(ct != NULL);
+	assert(value != NULL);
+
+	if (unlikely(type >= ATTR_MAX))
+		return;
+
+	if (set_attr_array[type]) {
+		set_attr_array[type](ct, value, len);
+		set_bit(type, ct->head.set);
+	}
+}
+
+/**
  * nfct_set_attr - set the value of a certain conntrack attribute
  * \param ct pointer to a valid conntrack
  * \param type attribute type
@@ -369,16 +394,8 @@ void nfct_set_attr(struct nf_conntrack *ct,
 		   const enum nf_conntrack_attr type, 
 		   const void *value)
 {
-	assert(ct != NULL);
-	assert(value != NULL);
-
-	if (unlikely(type >= ATTR_MAX))
-		return;
-
-	if (set_attr_array[type]) {
-		set_attr_array[type](ct, value);
-		set_bit(type, ct->head.set);
-	}
+	/* We assume the setter knows the size of the passed pointer. */
+	nfct_set_attr_l(ct, type, value, 0);
 }
 
 /**
@@ -391,7 +408,7 @@ void nfct_set_attr_u8(struct nf_conntrack *ct,
 		      const enum nf_conntrack_attr type, 
 		      u_int8_t value)
 {
-	nfct_set_attr(ct, type, &value);
+	nfct_set_attr_l(ct, type, &value, sizeof(u_int8_t));
 }
 
 /**
@@ -404,7 +421,7 @@ void nfct_set_attr_u16(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
 		       u_int16_t value)
 {
-	nfct_set_attr(ct, type, &value);
+	nfct_set_attr_l(ct, type, &value, sizeof(u_int16_t));
 }
 
 /**
@@ -417,7 +434,7 @@ void nfct_set_attr_u32(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
 		       u_int32_t value)
 {
-	nfct_set_attr(ct, type, &value);
+	nfct_set_attr_l(ct, type, &value, sizeof(u_int32_t));
 }
 
 /**
@@ -430,7 +447,7 @@ void nfct_set_attr_u64(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
 		       u_int64_t value)
 {
-	nfct_set_attr(ct, type, &value);
+	nfct_set_attr_l(ct, type, &value, sizeof(u_int64_t));
 }
 
 /**

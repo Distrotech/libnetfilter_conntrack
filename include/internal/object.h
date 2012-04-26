@@ -186,6 +186,9 @@ struct nf_conntrack {
 		u_int64_t	start;
 		u_int64_t	stop;
 	} timestamp;
+
+	void *helper_info;
+	size_t helper_info_len;
 };
 
 /*

@@ -434,6 +434,22 @@ static void copy_attr_timestamp_stop(struct nf_conntrack *dest,
 	dest->timestamp.stop = orig->timestamp.stop;
 }
 
+static void copy_attr_help_info(struct nf_conntrack *dest,
+				const struct nf_conntrack *orig)
+{
+	if (orig->helper_info == NULL)
+		return;
+
+	if (dest->helper_info != NULL)
+		free(dest->helper_info);
+
+	dest->helper_info = calloc(1, orig->helper_info_len);
+	if (dest->helper_info == NULL)
+		return;
+
+	memcpy(dest->helper_info, orig->helper_info, orig->helper_info_len);
+}
+
 const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -500,6 +516,7 @@ const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_SECCTX]			= copy_attr_secctx,
 	[ATTR_TIMESTAMP_START]		= copy_attr_timestamp_start,
 	[ATTR_TIMESTAMP_STOP]		= copy_attr_timestamp_stop,
+	[ATTR_HELPER_INFO]		= copy_attr_help_info,
 };
 
 /* this is used by nfct_copy() with the NFCT_CP_OVERRIDE flag set. */

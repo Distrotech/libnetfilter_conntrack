@@ -678,6 +678,18 @@ nfct_parse_helper(const struct nlattr *attr, struct nf_conntrack *ct)
 	ct->helper_name[NFCT_HELPER_NAME_MAX-1] = '\0';
 	set_bit(ATTR_HELPER_NAME, ct->head.set);
 
+	if (!tb[CTA_HELP_INFO])
+		return 0;
+
+	ct->helper_info_len = mnl_attr_get_payload_len(tb[CTA_HELP_INFO]);
+	ct->helper_info = calloc(1, ct->helper_info_len);
+	if (ct->helper_info == NULL)
+		return -1;
+
+	memcpy(ct->helper_info, mnl_attr_get_payload(tb[CTA_HELP_INFO]),
+		ct->helper_info_len);
+	set_bit(ATTR_HELPER_INFO, ct->head.set);
+
 	return 0;
 }
 

@@ -7,7 +7,7 @@
 /*
  * conntrack types
  */
-typedef void (*set_attr)(struct nf_conntrack *ct, const void *value);
+typedef void (*set_attr)(struct nf_conntrack *ct, const void *value, size_t len);
 typedef const void *(*get_attr)(const struct nf_conntrack *ct);
 typedef void (*copy_attr)(struct nf_conntrack *d, const struct nf_conntrack *o);
 typedef void (*filter_attr)(struct nfct_filter *filter, const void *value);
