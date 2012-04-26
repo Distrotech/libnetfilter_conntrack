@@ -94,6 +94,34 @@ static void get_attr_grp_repl_ctrs(const struct nf_conntrack *ct, void *data)
 	this->bytes = ct->counters[__DIR_REPL].bytes;
 }
 
+static void
+get_attr_grp_orig_addr_src(const struct nf_conntrack *ct, void *data)
+{
+	union nfct_attr_grp_addr *this = data;
+	memcpy(&this->addr, &ct->head.orig.src, sizeof(ct->head.orig.src));
+}
+
+static void
+get_attr_grp_orig_addr_dst(const struct nf_conntrack *ct, void *data)
+{
+	union nfct_attr_grp_addr *this = data;
+	memcpy(&this->addr, &ct->head.orig.dst, sizeof(ct->head.orig.dst));
+}
+
+static void
+get_attr_grp_repl_addr_src(const struct nf_conntrack *ct, void *data)
+{
+	union nfct_attr_grp_addr *this = data;
+	memcpy(&this->addr, &ct->repl.src, sizeof(ct->repl.src));
+}
+
+static void
+get_attr_grp_repl_addr_dst(const struct nf_conntrack *ct, void *data)
+{
+	union nfct_attr_grp_addr *this = data;
+	memcpy(&this->addr, &ct->repl.dst, sizeof(ct->repl.dst));
+}
+
 const get_attr_grp get_attr_grp_array[ATTR_GRP_MAX] = {
 	[ATTR_GRP_ORIG_IPV4]		= get_attr_grp_orig_ipv4,
 	[ATTR_GRP_REPL_IPV4]		= get_attr_grp_repl_ipv4,
@@ -106,5 +134,9 @@ const get_attr_grp get_attr_grp_array[ATTR_GRP_MAX] = {
 	[ATTR_GRP_MASTER_IPV6]		= get_attr_grp_master_ipv6,
 	[ATTR_GRP_MASTER_PORT]		= get_attr_grp_master_port,
 	[ATTR_GRP_ORIG_COUNTERS]	= get_attr_grp_orig_ctrs,
-	[ATTR_GRP_REPL_COUNTERS]	= get_attr_grp_repl_ctrs
+	[ATTR_GRP_REPL_COUNTERS]	= get_attr_grp_repl_ctrs,
+	[ATTR_GRP_ORIG_ADDR_SRC]	= get_attr_grp_orig_addr_src,
+	[ATTR_GRP_ORIG_ADDR_DST]	= get_attr_grp_orig_addr_dst,
+	[ATTR_GRP_REPL_ADDR_SRC]	= get_attr_grp_repl_addr_src,
+	[ATTR_GRP_REPL_ADDR_DST]	= get_attr_grp_repl_addr_dst,
 };

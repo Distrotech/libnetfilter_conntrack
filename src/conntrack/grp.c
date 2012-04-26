@@ -68,4 +68,16 @@ const uint32_t attr_grp_bitmask[ATTR_GRP_MAX][__NFCT_BITSET] = {
 		[0] = (1 << (ATTR_REPL_COUNTER_PACKETS)) |
 		      (1 << (ATTR_REPL_COUNTER_BYTES)),
 	},
+	[ATTR_GRP_ORIG_ADDR_SRC] = {
+		[0] = (1 << ATTR_ORIG_IPV4_SRC) | (1 << ATTR_ORIG_IPV6_SRC),
+	},
+	[ATTR_GRP_ORIG_ADDR_DST] = {
+		[0] = (1 << ATTR_ORIG_IPV4_DST) | (1 << ATTR_ORIG_IPV6_DST),
+	},
+	[ATTR_GRP_REPL_ADDR_SRC] = {
+		[1] = (1 << ATTR_REPL_IPV4_SRC) | (1 << ATTR_REPL_IPV6_SRC),
+	},
+	[ATTR_GRP_REPL_ADDR_DST] = {
+		[1] = (1 << ATTR_REPL_IPV4_DST) | (1 << ATTR_REPL_IPV6_DST),
+	},
 };

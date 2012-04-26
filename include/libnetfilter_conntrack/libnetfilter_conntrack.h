@@ -149,6 +149,10 @@ enum nf_conntrack_attr_grp {
 	ATTR_GRP_MASTER_PORT,			/* struct nfct_attr_grp_port */
 	ATTR_GRP_ORIG_COUNTERS,			/* struct nfct_attr_grp_ctrs */
 	ATTR_GRP_REPL_COUNTERS,			/* struct nfct_attr_grp_ctrs */
+	ATTR_GRP_ORIG_ADDR_SRC = 12,		/* union nfct_attr_grp_addr */
+	ATTR_GRP_ORIG_ADDR_DST,			/* union nfct_attr_grp_addr */
+	ATTR_GRP_REPL_ADDR_SRC,			/* union nfct_attr_grp_addr */
+	ATTR_GRP_REPL_ADDR_DST,			/* union nfct_attr_grp_addr */
 	ATTR_GRP_MAX
 };
 
@@ -172,6 +176,12 @@ struct nfct_attr_grp_icmp {
 struct nfct_attr_grp_ctrs {
 	u_int64_t packets;
 	u_int64_t bytes;
+};
+
+union nfct_attr_grp_addr {
+	u_int32_t ip;
+	u_int32_t ip6[4];
+	u_int32_t addr[4];
 };
 
 /* message type */

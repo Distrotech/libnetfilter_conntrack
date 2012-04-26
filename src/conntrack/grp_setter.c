@@ -138,6 +138,34 @@ static void set_attr_grp_master_port(struct nf_conntrack *ct, const void *value)
 	ct->master.l4dst.all = this->dport;
 }
 
+static void
+set_attr_grp_orig_addr_src(struct nf_conntrack *ct, const void *value)
+{
+	const union nfct_attr_grp_addr *this = value;
+	memcpy(&ct->head.orig.src, &this->addr, sizeof(&ct->head.orig.src));
+}
+
+static void
+set_attr_grp_orig_addr_dst(struct nf_conntrack *ct, const void *value)
+{
+	const union nfct_attr_grp_addr *this = value;
+	memcpy(&ct->head.orig.dst, &this->addr, sizeof(&ct->head.orig.src));
+}
+
+static void
+set_attr_grp_repl_addr_src(struct nf_conntrack *ct, const void *value)
+{
+	const union nfct_attr_grp_addr *this = value;
+	memcpy(&ct->repl.src, &this->addr, sizeof(&ct->repl.src));
+}
+
+static void
+set_attr_grp_repl_addr_dst(struct nf_conntrack *ct, const void *value)
+{
+	const union nfct_attr_grp_addr *this = value;
+	memcpy(&ct->repl.dst, &this->addr, sizeof(&ct->repl.dst));
+}
+
 static void set_attr_grp_do_nothing(struct nf_conntrack *ct, const void *value)
 {
 }
@@ -155,4 +183,8 @@ const set_attr_grp set_attr_grp_array[ATTR_GRP_MAX] = {
 	[ATTR_GRP_MASTER_PORT]		= set_attr_grp_master_port,
 	[ATTR_GRP_ORIG_COUNTERS]	= set_attr_grp_do_nothing,
 	[ATTR_GRP_REPL_COUNTERS]	= set_attr_grp_do_nothing,
+	[ATTR_GRP_ORIG_ADDR_SRC]	= set_attr_grp_orig_addr_src,
+	[ATTR_GRP_ORIG_ADDR_DST]	= set_attr_grp_orig_addr_dst,
+	[ATTR_GRP_REPL_ADDR_SRC]	= set_attr_grp_repl_addr_src,
+	[ATTR_GRP_REPL_ADDR_DST]	= set_attr_grp_repl_addr_dst,
 };
