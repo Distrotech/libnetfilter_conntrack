@@ -11,7 +11,10 @@ extern const get_attr_grp	get_attr_grp_array[];
 extern const set_exp_attr	set_exp_attr_array[];
 extern const get_exp_attr	get_exp_attr_array[];
 
-extern const uint32_t attr_grp_bitmask[ATTR_GRP_MAX][__NFCT_BITSET];
+extern const struct attr_grp_bitmask {
+        uint32_t bitmask[__NFCT_BITSET];
+        uint32_t type;
+} attr_grp_bitmask[ATTR_GRP_MAX];
 
 extern const set_filter_dump_attr	set_filter_dump_attr_array[];
 

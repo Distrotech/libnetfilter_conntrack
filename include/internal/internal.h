@@ -82,4 +82,7 @@ struct nf_ct_tcp_flags {
 	u_int8_t mask;
 };
 
+#define NFCT_BITMASK_AND	0
+#define NFCT_BITMASK_OR		1
+
 #endif

@@ -60,4 +60,17 @@ test_bitmask_u32(const uint32_t *buf1, const uint32_t *buf2, int len)
 	return 1;
 }
 
+static inline int
+test_bitmask_u32_or(const uint32_t *buf1, const uint32_t *buf2, int len)
+{
+	int i;
+
+	for (i=0; i<len; i++) {
+		if (buf1[i] & buf2[i]) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 #endif

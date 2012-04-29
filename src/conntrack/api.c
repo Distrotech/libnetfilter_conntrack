@@ -601,8 +601,8 @@ int nfct_attr_unset(struct nf_conntrack *ct,
  * \param type attribute group (see ATTR_GRP_*)
  * \param data pointer to struct (see struct nfct_attr_grp_*)
  *
- * Note that calling this function for ATTR_GRP_COUNTER_* does nothing since 
- * counters are unsettable.
+ * Note that calling this function for ATTR_GRP_COUNTER_* and ATTR_GRP_ADDR_*
+ * have no effect.
  */
 void nfct_set_attr_grp(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr_grp type,
@@ -615,7 +615,8 @@ void nfct_set_attr_grp(struct nf_conntrack *ct,
 
 	if (set_attr_grp_array[type]) {
 		set_attr_grp_array[type](ct, data);
-		set_bitmask_u32(ct->head.set, attr_grp_bitmask[type], __NFCT_BITSET);
+		set_bitmask_u32(ct->head.set,
+				attr_grp_bitmask[type].bitmask, __NFCT_BITSET);
 	}
 }
 
@@ -638,9 +639,23 @@ int nfct_get_attr_grp(const struct nf_conntrack *ct,
 		errno = EINVAL;
 		return -1;
 	}
-	if (!test_bitmask_u32(ct->head.set, attr_grp_bitmask[type], __NFCT_BITSET)) {
-		errno = ENODATA;
-		return -1;
+	switch(attr_grp_bitmask[type].type) {
+	case NFCT_BITMASK_AND:
+		if (!test_bitmask_u32(ct->head.set,
+				      attr_grp_bitmask[type].bitmask,
+				      __NFCT_BITSET)) {
+			errno = ENODATA;
+			return -1;
+		}
+		break;
+	case NFCT_BITMASK_OR:
+		if (!test_bitmask_u32_or(ct->head.set,
+					 attr_grp_bitmask[type].bitmask,
+					 __NFCT_BITSET)) {
+			errno = ENODATA;
+			return -1;
+		}
+		break;
 	}
 	assert(get_attr_grp_array[type]);
 	get_attr_grp_array[type](ct, data);
@@ -663,7 +678,23 @@ int nfct_attr_grp_is_set(const struct nf_conntrack *ct,
 		errno = EINVAL;
 		return -1;
 	}
-	return test_bitmask_u32(ct->head.set, attr_grp_bitmask[type], __NFCT_BITSET);
+	switch(attr_grp_bitmask[type].type) {
+	case NFCT_BITMASK_AND:
+		if (test_bitmask_u32(ct->head.set,
+				     attr_grp_bitmask[type].bitmask,
+				     __NFCT_BITSET)) {
+			return 1;
+		}
+		break;
+	case NFCT_BITMASK_OR:
+		if (test_bitmask_u32_or(ct->head.set,
+					attr_grp_bitmask[type].bitmask,
+					__NFCT_BITSET)) {
+			return 1;
+		}
+		break;
+	}
+	return 0;
 }
 
 /**
@@ -683,7 +714,8 @@ int nfct_attr_grp_unset(struct nf_conntrack *ct,
 		errno = EINVAL;
 		return -1;
 	}
-	unset_bitmask_u32(ct->head.set, attr_grp_bitmask[type], __NFCT_BITSET);
+	unset_bitmask_u32(ct->head.set, attr_grp_bitmask[type].bitmask,
+			  __NFCT_BITSET);
 
 	return 0;
 }
