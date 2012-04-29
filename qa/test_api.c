@@ -33,7 +33,7 @@ static void eval_sigterm(int status)
 int main(void)
 {
 	int ret, i;
-	struct nf_conntrack *ct, *tmp;
+	struct nf_conntrack *ct, *ct2, *tmp;
 	struct nf_expect *exp, *tmp_exp;
 	char data[32];
 	const char *val;
@@ -199,6 +199,71 @@ int main(void)
 		eval_sigterm(status);
 	}
 
+	ct2 = nfct_new();
+	if (!ct2) {
+		perror("nfct_new");
+		return 0;
+	}
+
+	printf("== test set grp API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		for (i=0; i<ATTR_GRP_MAX; i++)
+			nfct_set_attr_grp(ct2, i, data);
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
+	for (i=0; i<ATTR_GRP_MAX; i++)
+		nfct_set_attr_grp(ct2, i, data);
+
+	printf("== test get grp API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		char buf[16];
+
+		for (i=0; i<ATTR_GRP_MAX; i++)
+			nfct_get_attr_grp(ct2, i, buf);
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
+	printf("== validate set grp API ==\n");
+	ret = fork();
+	if (ret == 0) {
+		for (i=0; i<ATTR_GRP_MAX; i++) {
+			char buf[16];
+
+			data[0] = (uint8_t) i;
+			nfct_set_attr_grp(ct2, i, data);
+			nfct_get_attr_grp(ct2, i, buf);
+			/* These attributes cannot be set, ignore them. */
+			switch(i) {
+			case ATTR_GRP_ORIG_COUNTERS:
+			case ATTR_GRP_REPL_COUNTERS:
+			case ATTR_GRP_ORIG_ADDR_SRC:
+			case ATTR_GRP_ORIG_ADDR_DST:
+			case ATTR_GRP_REPL_ADDR_SRC:
+			case ATTR_GRP_REPL_ADDR_DST:
+				continue;
+			}
+			if (buf[0] != data[0]) {
+				printf("ERROR: set/get operations don't match "
+				       "for attribute %d (%x != %x)\n",
+					i, buf[0], data[0]);
+			}
+		}
+		exit(0);
+	} else {
+		wait(&status);
+		eval_sigterm(status);
+	}
+
+	nfct_destroy(ct2);
 	nfct_destroy(ct);
 	nfct_destroy(tmp);
 	nfexp_destroy(exp);
