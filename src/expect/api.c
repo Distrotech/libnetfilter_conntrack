@@ -533,6 +533,9 @@ __build_query_exp(struct nfnl_subsys_handle *ssh,
 	case NFCT_Q_CREATE:
 		__build_expect(ssh, req, size, IPCTNL_MSG_EXP_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK|NLM_F_EXCL, data);
 		break;
+	case NFCT_Q_CREATE_UPDATE:
+		__build_expect(ssh, req, size, IPCTNL_MSG_EXP_NEW, NLM_F_REQUEST|NLM_F_CREATE|NLM_F_ACK, data);
+		break;
 	case NFCT_Q_GET:
 		__build_expect(ssh, req, size, IPCTNL_MSG_EXP_GET, NLM_F_REQUEST|NLM_F_ACK, data);
 		break;
