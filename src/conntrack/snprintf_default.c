@@ -282,6 +282,12 @@ __snprintf_timestamp_delta(char *buf, unsigned int len,
 			(unsigned long long)delta_time));
 }
 
+static int
+__snprintf_helper_name(char *buf, unsigned int len, const struct nf_conntrack *ct)
+{
+	return (snprintf(buf, len, "helper=%s ", ct->helper_name));
+}
+
 int __snprintf_conntrack_default(char *buf, 
 				 unsigned int len,
 				 const struct nf_conntrack *ct,
@@ -403,6 +409,11 @@ int __snprintf_conntrack_default(char *buf,
 			ret = __snprintf_timestamp_stop(buf+offset, len, ct);
 			BUFFER_SIZE(ret, size, len, offset);
 		}
+	}
+
+	if (test_bit(ATTR_HELPER_NAME, ct->head.set)) {
+		ret = __snprintf_helper_name(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
 	}
 
 	if (test_bit(ATTR_USE, ct->head.set)) {

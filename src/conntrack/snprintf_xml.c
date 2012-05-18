@@ -239,6 +239,18 @@ __snprintf_deltatime(char *buf, unsigned int len, const struct nf_conntrack *ct)
 	return size;
 }
 
+static int
+__snprintf_helper_name(char *buf, unsigned int len, const struct nf_conntrack *ct)
+{
+	int ret;
+	unsigned int size = 0, offset = 0;
+
+	ret = snprintf(buf+offset, len, "<helper>%s</helper>", ct->helper_name);
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
 int
 __snprintf_localtime_xml(char *buf, unsigned int len, const struct tm *tm)
 {
@@ -522,6 +534,10 @@ int __snprintf_conntrack_xml(char *buf,
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
+	if (test_bit(ATTR_HELPER_NAME, ct->head.set)) {
+		ret = __snprintf_helper_name(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
 err_out:
 	ret = snprintf(buf+offset, len, "</flow>");
 	BUFFER_SIZE(ret, size, len, offset);
