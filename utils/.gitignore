@@ -2,6 +2,7 @@
 /conntrack_create_nat
 /conntrack_delete
 /conntrack_dump
+/conntrack_dump_filter
 /conntrack_events
 /conntrack_filter
 /conntrack_flush
