@@ -59,11 +59,6 @@ int main()
      ],[AC_MSG_RESULT(no)],[AC_MSG_RESULT(no)])
 fi
 
-if test ! -z "$libdir"; then
-	MODULE_DIR="\\\"$libdir/libnetfilter_conntrack/\\\""
-	CFLAGS="$CFLAGS -DLIBNETFILTER_CONNTRACK_DIR=$MODULE_DIR"
-fi
-
 dnl Output the makefile
 AC_CONFIG_FILES([Makefile src/Makefile include/Makefile utils/Makefile
 	qa/Makefile include/libnetfilter_conntrack/Makefile
