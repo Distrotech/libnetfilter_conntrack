@@ -15,7 +15,7 @@ static int event_cb(enum nf_conntrack_msg_type type,
 {
 	if (type == NFCT_T_NEW)
 		new++;
-	if (type == NFCT_T_UPDATE)
+	else if (type == NFCT_T_UPDATE)
 		update++;
 	else if (type == NFCT_T_DESTROY)
 		destroy++;
