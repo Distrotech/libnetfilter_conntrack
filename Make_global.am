@@ -4,5 +4,5 @@
 # http://sources.redhat.com/autobook/autobook/autobook_91.html
 LIBVERSION=6:0:3
 
-AM_CPPFLAGS = -I$(top_srcdir)/include
-AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS} ${LIBMNL_CFLAGS}
+AM_CPPFLAGS = -I$(top_srcdir)/include ${LIBNFNETLINK_CFLAGS} ${LIBMNL_CFLAGS}
+AM_CFLAGS = -Wall
