@@ -25,20 +25,78 @@
 #define NFCT_FILTER_ACCEPT	~0U
 
 #if 0
-static void show_filter(struct sock_filter *this, int size)
+static char *code2str(u_int16_t code)
+{
+	switch(code) {
+	case BPF_LD|BPF_IMM:
+		return "BPF_LD|BPF_IMM";
+		break;
+	case BPF_LDX|BPF_IMM:
+		return "BPF_LDX|BPF_IMM";
+		break;
+	case BPF_LD|BPF_B|BPF_ABS:
+		return "BPF_LD|BPF_B|BPF_ABS";
+		break;
+	case BPF_JMP|BPF_JEQ|BPF_K:
+		return "BPF_JMP|BPF_JEQ|BPF_K";
+		break;
+	case BPF_ALU|BPF_AND|BPF_K:
+		return "BPF_ALU|BPF_AND|BPF_K";
+		break;
+	case BPF_JMP|BPF_JA:
+		return "BPF_JMP|BPF_JA";
+		break;
+	case BPF_RET|BPF_K:
+		return "BPF_RET|BPF_K";
+		break;
+	case BPF_ALU|BPF_ADD|BPF_K:
+		return "BPF_ALU|BPF_ADD|BPF_K";
+		break;
+	case BPF_MISC|BPF_TAX:
+		return "BPF_MISC|BPF_TAX";
+		break;
+	case BPF_LD|BPF_B|BPF_IND:
+		return "BPF_LD|BPF_B|BPF_IND";
+		break;
+	case BPF_LD|BPF_H|BPF_IND:
+		return "BPF_LD|BPF_H|BPF_IND";
+		break;
+	case BPF_LD|BPF_W|BPF_IND:
+		return "BPF_LD|BPF_W|BPF_IND";
+		break;
+	}
+	return NULL;
+}
+
+static void show_filter(struct sock_filter *this, int from, int to, char *str)
 {
 	int i;
 
-	for(i=0; i<size; i++)
-		printf("(%.4x) code=%.4x jt=%.2x jf=%.2x k=%.8x\n", 
-					     i,
-					     this[i].code & 0xFFFF,
-					     this[i].jt   & 0xFF,
-					     this[i].jf   & 0xFF,
-					     this[i].k    & 0xFFFFFFFF);
+	printf("%s\n", str);
+
+	for(i=from; i<to; i++) {
+		char *code_str = code2str(this[i].code & 0xFFFF);
+
+		if (!code_str) {
+			printf("(%.4x) code=%.4x\t\t\tjt=%.2x jf=%.2x k=%.8x\n",
+						i,
+						this[i].code & 0xFFFF,
+						this[i].jt   & 0xFF,
+						this[i].jf   & 0xFF,
+						this[i].k    & 0xFFFFFFFF);
+		} else {
+			printf("(%.4x) code=%30s\tjt=%.2x jf=%.2x k=%.8x\n",
+						i,
+						code_str,
+						this[i].jt   & 0xFF,
+						this[i].jf   & 0xFF,
+						this[i].k    & 0xFFFFFFFF);
+		}
+	}
 }
 #else
-static inline void show_filter(struct sock_filter *this, int size) {}
+static inline void
+show_filter(struct sock_filter *this, int from, int to, char *str) {}
 #endif
 
 #define NEW_POS(x) (sizeof(x)/sizeof(struct sock_filter))
@@ -608,28 +666,42 @@ bsf_add_daddr_ipv6_filter(const struct nfct_filter *f, struct sock_filter *this)
 
 int __setup_netlink_socket_filter(int fd, struct nfct_filter *f)
 {
-	struct sock_filter bsf[BSF_BUFFER_SIZE];	
-	struct sock_fprog sf;	
-	unsigned int j = 0;
+	struct sock_filter bsf[BSF_BUFFER_SIZE];
+	struct sock_fprog sf;
+	unsigned int j = 0, from = 0;
 
 	memset(bsf, 0, sizeof(bsf));
 
 	j += bsf_cmp_subsys(&bsf[j], j, NFNL_SUBSYS_CTNETLINK);
 	j += nfct_bsf_ret_verdict(bsf, NFCT_FILTER_ACCEPT, j);
+	show_filter(bsf, from, j, "--- check subsys ---");
+	from = j;
 	j += bsf_add_proto_filter(f, &bsf[j]);
+	show_filter(bsf, from, j, "---- check proto ----");
+	from = j;
 	j += bsf_add_saddr_ipv4_filter(f, &bsf[j]);
+	show_filter(bsf, from, j, "---- check src IPv4 ----");
+	from = j;
 	j += bsf_add_daddr_ipv4_filter(f, &bsf[j]);
+	show_filter(bsf, from, j, "---- check dst IPv4 ----");
+	from = j;
 	j += bsf_add_saddr_ipv6_filter(f, &bsf[j]);
+	show_filter(bsf, from, j, "---- check src IPv6 ----");
+	from = j;
 	j += bsf_add_daddr_ipv6_filter(f, &bsf[j]);
+	show_filter(bsf, from, j, "---- check dst IPv6 ----");
+	from = j;
 	j += bsf_add_state_filter(f, &bsf[j]);
+	show_filter(bsf, from, j, "---- check state ----");
+	from = j;
 
 	/* nothing to filter, skip */
 	if (j == 0)
 		return 0;
 
 	j += nfct_bsf_ret_verdict(bsf, NFCT_FILTER_ACCEPT, j);
-
-	show_filter(bsf, j);
+	show_filter(bsf, from, j, "---- final verdict ----");
+	from = j;
 
 	sf.len = (sizeof(struct sock_filter) * j) / sizeof(bsf[0]);
 	sf.filter = bsf;
