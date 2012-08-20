@@ -562,7 +562,7 @@ bsf_add_addr_ipv6_filter(const struct nfct_filter *f,
 			 unsigned int type)
 {
 	unsigned int i, j, dir, attr;
-	unsigned int label_continue[2], jf;
+	unsigned int label_continue, jf;
 	struct stack *s;
 	struct jump jmp;
 
@@ -592,23 +592,21 @@ bsf_add_addr_ipv6_filter(const struct nfct_filter *f,
 
 	jf = 1;
 	if (f->logic[attr] == NFCT_FILTER_LOGIC_POSITIVE) {
-		label_continue[0] = 1;
-		label_continue[1] = 2;
+		label_continue = 1;
 	} else {
-		label_continue[0] = 2;
-		label_continue[1] = 1;
+		label_continue = 2;
 	}
 
 	j = 0;
 	j += nfct_bsf_load_payload_offset(this, j);
 	j += nfct_bsf_find_attr(this, CTA_TUPLE_ORIG, j);
-	j += nfct_bsf_cmp_k_stack(this, 0, label_continue[0] - j, j, s);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
 	/* no need to access attribute payload, we are using nest-based finder
 	 * j += nfct_bsf_add_attr_data_offset(this, j); */
 	j += nfct_bsf_find_attr_nest(this, CTA_TUPLE_IP, j);
-	j += nfct_bsf_cmp_k_stack(this, 0, label_continue[0] - j, j, s);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
 	j += nfct_bsf_find_attr_nest(this, type, j);
-	j += nfct_bsf_cmp_k_stack(this, 0, label_continue[0] - j, j, s);
+	j += nfct_bsf_cmp_k_stack(this, 0, label_continue - j, j, s);
 	j += nfct_bsf_x_equal_a(this, j);
 
 	for (i = 0; i < f->l3proto_elems_ipv6[dir]; i++) {
@@ -624,7 +622,7 @@ bsf_add_addr_ipv6_filter(const struct nfct_filter *f,
 					      j);
 			if (k < 3) {
 				j += nfct_bsf_cmp_k_stack_jf(this, ip,
-						jf - j - label_continue[1],
+						jf - j - 1,
 						j, s);
 			} else {
 				/* last word: jump if true */
