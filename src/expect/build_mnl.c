@@ -15,15 +15,6 @@
 int
 nfexp_nlmsg_build(struct nlmsghdr *nlh, const struct nf_expect *exp)
 {
-	u_int8_t l3num;
-
-	if (test_bit(ATTR_ORIG_L3PROTO, exp->master.set))
-		l3num = exp->master.orig.l3protonum;
-	else if (test_bit(ATTR_ORIG_L3PROTO, exp->expected.set))
-		l3num = exp->expected.orig.l3protonum;
-	else
-		return -1;
-
 	if (test_bit(ATTR_EXP_EXPECTED, exp->set))
 		nfct_build_tuple(nlh, &exp->expected.orig, CTA_EXPECT_TUPLE);
 
