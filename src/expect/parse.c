@@ -92,6 +92,9 @@ void __parse_expect(const struct nlmsghdr *nlh,
 	if (cda[CTA_EXPECT_NAT-1]) {
 		struct nfattr *tb[CTA_EXPECT_NAT_MAX];
 
+		exp->nat.orig.l3protonum = nfhdr->nfgen_family;
+		set_bit(ATTR_ORIG_L3PROTO, exp->nat.set);
+
 		nfnl_parse_nested(tb, CTA_EXPECT_NAT_MAX,
 					cda[CTA_EXPECT_NAT-1]);
 
