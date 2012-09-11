@@ -2,6 +2,7 @@ include $(top_srcdir)/Make_global.am
 
 check_PROGRAMS = expect_dump expect_create expect_get expect_delete \
 	       expect_flush expect_events expect_create_userspace \
+	       expect_create_nat \
 	       conntrack_create conntrack_dump conntrack_update \
 	       conntrack_delete conntrack_flush conntrack_create_nat \
 	       conntrack_get conntrack_events \
@@ -48,6 +49,9 @@ conntrack_master_LDADD = ../src/libnetfilter_conntrack.la
 
 expect_dump_SOURCES = expect_dump.c
 expect_dump_LDADD = ../src/libnetfilter_conntrack.la
+
+expect_create_nat_SOURCES = expect_create_nat.c
+expect_create_nat_LDADD = ../src/libnetfilter_conntrack.la
 
 expect_create_SOURCES = expect_create.c
 expect_create_LDADD = ../src/libnetfilter_conntrack.la
