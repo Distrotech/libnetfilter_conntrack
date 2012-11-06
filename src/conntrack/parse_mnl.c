@@ -11,6 +11,7 @@
 
 #include "internal/internal.h"
 #include <libmnl/libmnl.h>
+#include <limits.h>
 #include <endian.h>
 
 static int
@@ -772,6 +773,25 @@ nfct_parse_timestamp(const struct nlattr *attr, struct nf_conntrack *ct)
 	return 0;
 }
 
+static int nfct_parse_labels(const struct nlattr *attr, struct nf_conntrack *ct)
+{
+	uint16_t len = mnl_attr_get_payload_len(attr);
+	struct nfct_bitmask *mask;
+	uint32_t *bits;
+
+	if (len == 0)
+		return 0;
+
+	mask = nfct_bitmask_new((len * CHAR_BIT) - 1);
+	if (!mask)
+		return -1;
+	bits = mnl_attr_get_payload(attr);
+	if (len)
+		memcpy(mask->bits, bits, len);
+	nfct_set_attr(ct, ATTR_CONNLABELS, mask);
+	return 0;
+}
+
 static int
 nfct_parse_conntrack_attr_cb(const struct nlattr *attr, void *data)
 {
@@ -931,6 +951,11 @@ nfct_payload_parse(const void *payload, size_t payload_len,
 
 	if (tb[CTA_TIMESTAMP]) {
 		if (nfct_parse_timestamp(tb[CTA_TIMESTAMP], ct) < 0)
+			return -1;
+	}
+
+	if (tb[CTA_LABELS]) {
+		if (nfct_parse_labels(tb[CTA_LABELS], ct) < 0)
 			return -1;
 	}
 

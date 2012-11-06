@@ -54,4 +54,13 @@ int __snprintf_expect(char *buf, unsigned int len, const struct nf_expect *exp, 
 int __snprintf_expect_default(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int msg_type, unsigned int flags);
 int __snprintf_expect_xml(char *buf, unsigned int len, const struct nf_expect *exp, unsigned int msg_type, unsigned int flags);
 
+/*
+ * connlabel internal prototypes
+ */
+struct nfct_labelmap *__labelmap_new(const char *);
+void __labelmap_destroy(struct nfct_labelmap *);
+
+int __labelmap_get_bit(struct nfct_labelmap *map, const char *name);
+const char *__labelmap_get_name(struct nfct_labelmap *map, unsigned int bit);
+
 #endif

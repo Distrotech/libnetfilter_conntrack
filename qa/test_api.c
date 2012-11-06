@@ -37,6 +37,8 @@ static void test_nfct_bitmask(void)
 	struct nfct_bitmask *a, *b;
 	unsigned short int maxb, i;
 
+	printf("== test nfct_bitmask_* API ==\n");
+
 	maxb = rand() & 0xffff;
 
 	a = nfct_bitmask_new(maxb);
@@ -77,6 +79,7 @@ static void test_nfct_bitmask(void)
 	}
 
 	nfct_bitmask_destroy(b);
+	printf("OK\n");
 }
 
 
@@ -88,6 +91,7 @@ int main(void)
 	char data[256];
 	const char *val;
 	int status;
+	struct nfct_bitmask *b;
 
 	srand(time(NULL));
 
@@ -117,8 +121,15 @@ int main(void)
 		eval_sigterm(status);
 	}
 
-	for (i=0; i<ATTR_MAX; i++)
-		nfct_set_attr(ct, i, data);
+	for (i=0; i<ATTR_MAX; i++) {
+		if (i != ATTR_CONNLABELS) {
+			nfct_set_attr(ct, i, data);
+			continue;
+		}
+		b = nfct_bitmask_new(rand() & 0xffff);
+		assert(b);
+		nfct_set_attr(ct, i, b);
+	}
 
 	printf("== test get API ==\n");
 	ret = fork();
@@ -150,11 +161,19 @@ int main(void)
 			case ATTR_HELPER_INFO:
 				nfct_set_attr_l(ct, i, data, sizeof(data));
 				break;
+			case ATTR_CONNLABELS:
+				/* already set above */
+				break;
 			default:
 				data[0] = (uint8_t) i;
 				nfct_set_attr(ct, i, data);
 			}
 			val = nfct_get_attr(ct, i);
+			switch (i) {
+			case ATTR_CONNLABELS:
+				assert((void *) val == b);
+				continue;
+			}
 
 			if (val[0] != data[0]) {
 				printf("ERROR: set/get operations don't match "
@@ -333,10 +352,9 @@ int main(void)
 	nfexp_destroy(exp);
 	nfexp_destroy(tmp_exp);
 
-	printf("== test nfct_bitmask_* API ==\n");
-	test_nfct_bitmask();
-
 	printf("OK\n");
+
+	test_nfct_bitmask();
 
 	return EXIT_SUCCESS;
 }

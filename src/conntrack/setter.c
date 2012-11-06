@@ -421,6 +421,17 @@ retry:
 }
 
 static void
+set_attr_connlabels(struct nf_conntrack *ct, const void *value, size_t len)
+{
+	if (ct->connlabels == value)
+		return;
+
+	if (ct->connlabels)
+		nfct_bitmask_destroy(ct->connlabels);
+	ct->connlabels = (void *) value;
+}
+
+static void
 set_attr_do_nothing(struct nf_conntrack *ct, const void *value, size_t len) {}
 
 const set_attr set_attr_array[ATTR_MAX] = {
@@ -490,4 +501,5 @@ const set_attr set_attr_array[ATTR_MAX] = {
 	[ATTR_TIMESTAMP_START]	= set_attr_do_nothing,
 	[ATTR_TIMESTAMP_STOP]	= set_attr_do_nothing,
 	[ATTR_HELPER_INFO]	= set_attr_helper_info,
+	[ATTR_CONNLABELS]	= set_attr_connlabels,
 };

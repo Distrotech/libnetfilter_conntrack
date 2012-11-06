@@ -8,6 +8,7 @@
  */
 
 #include "internal/internal.h"
+#include <libmnl/libmnl.h>
 
 static void __parse_ip(const struct nfattr *attr,
 		       struct __nfct_tuple *tuple,

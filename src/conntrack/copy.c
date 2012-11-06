@@ -450,6 +450,22 @@ static void copy_attr_help_info(struct nf_conntrack *dest,
 	memcpy(dest->helper_info, orig->helper_info, orig->helper_info_len);
 }
 
+static void* do_copy_attr_connlabels(struct nfct_bitmask *dest,
+				     const struct nfct_bitmask *orig)
+{
+	if (orig == NULL)
+		return dest;
+	if (dest)
+		nfct_bitmask_destroy(dest);
+	return nfct_bitmask_clone(orig);
+}
+
+static void copy_attr_connlabels(struct nf_conntrack *dest,
+				 const struct nf_conntrack *orig)
+{
+	dest->connlabels = do_copy_attr_connlabels(dest->connlabels, orig->connlabels);
+}
+
 const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -517,15 +533,19 @@ const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_TIMESTAMP_START]		= copy_attr_timestamp_start,
 	[ATTR_TIMESTAMP_STOP]		= copy_attr_timestamp_stop,
 	[ATTR_HELPER_INFO]		= copy_attr_help_info,
+	[ATTR_CONNLABELS]		= copy_attr_connlabels,
 };
 
 /* this is used by nfct_copy() with the NFCT_CP_OVERRIDE flag set. */
 void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct2)
 {
 	memcpy(ct1, ct2, sizeof(*ct1));
-	/* special case: secctx attribute is allocated dinamically. */
-	ct1->secctx = NULL;	/* don't free: ct2 uses it */
+	/* malloc'd attributes: don't free, do copy */
+	ct1->secctx = NULL;
 	ct1->helper_info = NULL;
+	ct1->connlabels = NULL;
+
 	copy_attr_secctx(ct1, ct2);
 	copy_attr_help_info(ct1, ct2);
+	copy_attr_connlabels(ct1, ct2);
 }

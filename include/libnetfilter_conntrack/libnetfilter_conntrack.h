@@ -133,6 +133,7 @@ enum nf_conntrack_attr {
 	ATTR_TIMESTAMP_START,			/* u64 bits, linux >= 2.6.38 */
 	ATTR_TIMESTAMP_STOP = 64,		/* u64 bits, linux >= 2.6.38 */
 	ATTR_HELPER_INFO,			/* variable length */
+	ATTR_CONNLABELS,			/* variable length */
 	ATTR_MAX
 };
 
@@ -284,6 +285,14 @@ void nfct_bitmask_set_bit(struct nfct_bitmask *, unsigned int bit);
 int nfct_bitmask_test_bit(const struct nfct_bitmask *, unsigned int bit);
 void nfct_bitmask_unset_bit(struct nfct_bitmask *, unsigned int bit);
 void nfct_bitmask_destroy(struct nfct_bitmask *);
+
+/* connlabel name <-> bit translation mapping */
+struct nfct_labelmap;
+
+struct nfct_labelmap *nfct_labelmap_new(const char *mapfile);
+void nfct_labelmap_destroy(struct nfct_labelmap *map);
+const char *nfct_labelmap_get_name(struct nfct_labelmap *m, unsigned int bit);
+int nfct_labelmap_get_bit(struct nfct_labelmap *m, const char *name);
 
 /* setter */
 extern void nfct_set_attr(struct nf_conntrack *ct,

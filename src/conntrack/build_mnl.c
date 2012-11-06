@@ -10,6 +10,7 @@
  */
 
 #include "internal/internal.h"
+#include <limits.h>
 #include <libmnl/libmnl.h>
 
 static int
@@ -379,6 +380,14 @@ nfct_build_zone(struct nlmsghdr *nlh, const struct nf_conntrack *ct)
 	return 0;
 }
 
+static void
+nfct_build_labels(struct nlmsghdr *nlh, const struct nf_conntrack *ct)
+{
+	struct nfct_bitmask *b = ct->connlabels;
+	unsigned int size = b->words * sizeof(b->bits[0]);
+	mnl_attr_put(nlh, CTA_LABELS, size, b->bits);
+}
+
 int
 nfct_nlmsg_build(struct nlmsghdr *nlh, const struct nf_conntrack *ct)
 {
@@ -474,6 +483,9 @@ nfct_nlmsg_build(struct nlmsghdr *nlh, const struct nf_conntrack *ct)
 
 	if (test_bit(ATTR_ZONE, ct->head.set))
 		nfct_build_zone(nlh, ct);
+
+	if (test_bit(ATTR_CONNLABELS, ct->head.set))
+		nfct_build_labels(nlh, ct);
 
 	return 0;
 }

@@ -95,6 +95,8 @@ void nfct_destroy(struct nf_conntrack *ct)
 		free(ct->secctx);
 	if (ct->helper_info)
 		free(ct->helper_info);
+	if (ct->connlabels)
+		nfct_bitmask_destroy(ct->connlabels);
 	free(ct);
 	ct = NULL; /* bugtrap */
 }
@@ -1485,6 +1487,69 @@ void nfct_filter_dump_set_attr_u8(struct nfct_filter_dump *filter_dump,
  */
 
 /**
+ * \defgroup label Conntrack labels
+ *
+ * @{
+ */
+
+/**
+ * nfct_labelmap_get_name - get name of the label bit
+ *
+ * \param m label map obtained from nfct_label_open
+ * \param bit whose name should be returned
+ *
+ * returns a pointer to the name associated with the label.
+ * If no name has been configured, the empty string is returned.
+ * If bit is out of range, NULL is returned.
+ */
+const char *nfct_labelmap_get_name(struct nfct_labelmap *m, unsigned int bit)
+{
+	return __labelmap_get_name(m, bit);
+}
+
+/**
+ * nfct_labelmap_get_bit - get bit associated with the name
+ *
+ * \param h label handle obtained from nfct_labelmap_new
+ * \param name name of the label
+ *
+ * returns the bit associated with the name, or negative value on error.
+ */
+int nfct_labelmap_get_bit(struct nfct_labelmap *m, const char *name)
+{
+	return __labelmap_get_bit(m, name);
+}
+
+/**
+ * nfct_labelmap_new - create a new label map
+ *
+ * \param mapfile the file containing the bit <-> name mapping
+ *
+ * If mapfile is NULL, the default mapping file is used.
+ * returns a new label map, or NULL on error.
+ */
+struct nfct_labelmap *nfct_labelmap_new(const char *mapfile)
+{
+	return __labelmap_new(mapfile);
+}
+
+/**
+ * nfct_labelmap_destroy - destroy nfct_labelmap object
+ *
+ * \param map the label object to destroy.
+ *
+ * This function releases the memory that is used by the labelmap object.
+ */
+void nfct_labelmap_destroy(struct nfct_labelmap *map)
+{
+	__labelmap_destroy(map);
+}
+
+/**
+ * @}
+ */
+
+/*
  * \defgroup bitmask bitmask object
  *
  * @{
@@ -1593,6 +1658,11 @@ unsigned int nfct_bitmask_maxbit(const struct nfct_bitmask *b)
  * \param b pointer to the bitmask object
  *
  * This function releases the memory that is used by the bitmask object.
+ *
+ * If you assign a bitmask object to a nf_conntrack object using
+ * nfct_set_attr ATTR_CONNLABEL, then the ownership of the bitmask
+ * object passes on to the nf_conntrack object. The nfct_bitmask object
+ * will be destroyed when the nf_conntrack object is destroyed.
  */
 void nfct_bitmask_destroy(struct nfct_bitmask *b)
 {
