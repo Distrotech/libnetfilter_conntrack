@@ -273,6 +273,18 @@ enum {
 	NFCT_CB_STOLEN = 2,     /* like continue, but ct is not freed */
 };
 
+/* bitmask setter/getter */
+struct nfct_bitmask;
+
+struct nfct_bitmask *nfct_bitmask_new(unsigned int maxbit);
+struct nfct_bitmask *nfct_bitmask_clone(const struct nfct_bitmask *);
+unsigned int nfct_bitmask_maxbit(const struct nfct_bitmask *);
+
+void nfct_bitmask_set_bit(struct nfct_bitmask *, unsigned int bit);
+int nfct_bitmask_test_bit(const struct nfct_bitmask *, unsigned int bit);
+void nfct_bitmask_unset_bit(struct nfct_bitmask *, unsigned int bit);
+void nfct_bitmask_destroy(struct nfct_bitmask *);
+
 /* setter */
 extern void nfct_set_attr(struct nf_conntrack *ct,
 			  const enum nf_conntrack_attr type,

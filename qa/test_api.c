@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <errno.h>
 
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
@@ -31,6 +32,54 @@ static void eval_sigterm(int status)
 	}
 }
 
+static void test_nfct_bitmask(void)
+{
+	struct nfct_bitmask *a, *b;
+	unsigned short int maxb, i;
+
+	maxb = rand() & 0xffff;
+
+	a = nfct_bitmask_new(maxb);
+
+	assert(!nfct_bitmask_test_bit(a, maxb + 32));
+	nfct_bitmask_set_bit(a, maxb + 32);
+	assert(!nfct_bitmask_test_bit(a, maxb + 32));
+
+	for (i = 0; i <= maxb; i++)
+		assert(!nfct_bitmask_test_bit(a, i));
+
+	for (i = 0; i <= maxb; i++) {
+		if (rand() & 1) {
+			assert(!nfct_bitmask_test_bit(a, i));
+			continue;
+		}
+		nfct_bitmask_set_bit(a, i);
+		assert(nfct_bitmask_test_bit(a, i));
+	}
+
+	b = nfct_bitmask_clone(a);
+	assert(b);
+
+	for (i = 0; i <= maxb; i++) {
+		if (nfct_bitmask_test_bit(a, i))
+			assert(nfct_bitmask_test_bit(b, i));
+		else
+			assert(!nfct_bitmask_test_bit(b, i));
+	}
+
+	nfct_bitmask_destroy(a);
+
+	for (i = 0; i <= maxb; i++) {
+		if (rand() & 1)
+			continue;
+		nfct_bitmask_unset_bit(b, i);
+		assert(!nfct_bitmask_test_bit(b, i));
+	}
+
+	nfct_bitmask_destroy(b);
+}
+
+
 int main(void)
 {
 	int ret, i;
@@ -39,6 +88,8 @@ int main(void)
 	char data[256];
 	const char *val;
 	int status;
+
+	srand(time(NULL));
 
 	/* initialize fake data for testing purposes */
 	for (i=0; i<sizeof(data); i++)
@@ -281,6 +332,10 @@ int main(void)
 	nfct_destroy(tmp);
 	nfexp_destroy(exp);
 	nfexp_destroy(tmp_exp);
+
+	printf("== test nfct_bitmask_* API ==\n");
+	test_nfct_bitmask();
+
 	printf("OK\n");
 
 	return EXIT_SUCCESS;

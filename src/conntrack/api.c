@@ -1483,3 +1483,122 @@ void nfct_filter_dump_set_attr_u8(struct nfct_filter_dump *filter_dump,
 /**
  * @}
  */
+
+/**
+ * \defgroup bitmask bitmask object
+ *
+ * @{
+ */
+
+/**
+ * nfct_bitmask_new - allocate a new bitmask
+ *
+ * \param max highest valid bit that can be set/unset.
+ *
+ * In case of success, this function returns a valid pointer to a memory blob,
+ * otherwise NULL is returned and errno is set appropiately.
+ */
+struct nfct_bitmask *nfct_bitmask_new(unsigned int max)
+{
+	struct nfct_bitmask *b;
+	unsigned int bytes, words;
+
+	if (max > 0xffff)
+		return NULL;
+
+	words = DIV_ROUND_UP(max+1, 32);
+	bytes = words * sizeof(b->bits[0]);
+
+	b = malloc(sizeof(*b) + bytes);
+	if (b) {
+		memset(b->bits, 0, bytes);
+		b->words = words;
+	}
+	return b;
+}
+
+/*
+ * nfct_bitmask_clone - duplicate a bitmask object
+ *
+ * \param b pointer to the bitmask object to duplicate
+ *
+ * returns an identical copy of the bitmask.
+ */
+struct nfct_bitmask *nfct_bitmask_clone(const struct nfct_bitmask *b)
+{
+	unsigned int bytes = b->words * sizeof(b->bits[0]);
+	struct nfct_bitmask *copy;
+
+	bytes += sizeof(*b);
+
+	copy = malloc(bytes);
+	if (copy)
+		memcpy(copy, b, bytes);
+	return copy;
+}
+
+/*
+ * nfct_bitmask_set_bit - set bit in the bitmask
+ *
+ * \param b pointer to the bitmask object
+ * \param bit the bit to set
+ */
+void nfct_bitmask_set_bit(struct nfct_bitmask *b, unsigned int bit)
+{
+	unsigned int bits = b->words * 32;
+	if (bit < bits)
+		set_bit(bit, b->bits);
+}
+
+/*
+ * nfct_bitmask_test_bit - test if a bit in the bitmask is set
+ *
+ * \param b pointer to the bitmask object
+ * \param bit the bit to test
+ *
+ * returns 0 if the bit is not set.
+ */
+int nfct_bitmask_test_bit(const struct nfct_bitmask *b, unsigned int bit)
+{
+	unsigned int bits = b->words * 32;
+	return bit < bits && test_bit(bit, b->bits);
+}
+
+/*
+ * nfct_bitmask_unset_bit - unset bit in the bitmask
+ *
+ * \param b pointer to the bitmask object
+ * \param bit the bit to clear
+ */
+void nfct_bitmask_unset_bit(struct nfct_bitmask *b, unsigned int bit)
+{
+	unsigned int bits = b->words * 32;
+	if (bit < bits)
+		unset_bit(bit, b->bits);
+}
+
+/*
+ * nfct_bitmask_maxbit - return highest bit that may be set/unset
+ *
+ * \param b pointer to the bitmask object
+ */
+unsigned int nfct_bitmask_maxbit(const struct nfct_bitmask *b)
+{
+	return (b->words * 32) - 1;
+}
+
+/*
+ * nfct_bitmask_destroy - destroy bitmask object
+ *
+ * \param b pointer to the bitmask object
+ *
+ * This function releases the memory that is used by the bitmask object.
+ */
+void nfct_bitmask_destroy(struct nfct_bitmask *b)
+{
+	free(b);
+}
+
+/**
+ * @}
+ */

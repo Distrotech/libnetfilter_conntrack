@@ -297,4 +297,12 @@ struct nf_expect {
 	u_int32_t 		set[1];
 };
 
+/*
+ * bitmask object
+ */
+struct nfct_bitmask {
+	unsigned int words;
+	uint32_t bits[];
+};
+
 #endif

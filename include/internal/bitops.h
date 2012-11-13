@@ -73,4 +73,6 @@ test_bitmask_u32_or(const uint32_t *buf1, const uint32_t *buf2, int len)
 	return 0;
 }
 
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+
 #endif
