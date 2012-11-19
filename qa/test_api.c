@@ -83,9 +83,6 @@ int main(void)
 	ret = fork();
 	if (ret == 0) {
 		for (i=0; i<ATTR_MAX; i++) {
-			data[0] = (uint8_t) i;
-			nfct_set_attr(ct, i, data);
-			val = nfct_get_attr(ct, i);
 			/* These attributes cannot be set, ignore them. */
 			switch(i) {
 			case ATTR_ORIG_COUNTER_PACKETS:
@@ -96,8 +93,18 @@ int main(void)
 			case ATTR_SECCTX:
 			case ATTR_TIMESTAMP_START:
 			case ATTR_TIMESTAMP_STOP:
+			case ATTR_CONNLABELS:
 				continue;
+			/* These attributes require special handling */
+			case ATTR_HELPER_INFO:
+				nfct_set_attr_l(ct, i, data, sizeof(data));
+				break;
+			default:
+				data[0] = (uint8_t) i;
+				nfct_set_attr(ct, i, data);
 			}
+			val = nfct_get_attr(ct, i);
+
 			if (val[0] != data[0]) {
 				printf("ERROR: set/get operations don't match "
 				       "for attribute %d (%x != %x)\n",
