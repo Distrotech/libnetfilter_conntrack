@@ -524,5 +524,8 @@ void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct2)
 {
 	memcpy(ct1, ct2, sizeof(*ct1));
 	/* special case: secctx attribute is allocated dinamically. */
+	ct1->secctx = NULL;	/* don't free: ct2 uses it */
+	ct1->helper_info = NULL;
 	copy_attr_secctx(ct1, ct2);
+	copy_attr_help_info(ct1, ct2);
 }

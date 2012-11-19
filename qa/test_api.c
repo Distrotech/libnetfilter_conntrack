@@ -2,6 +2,7 @@
  * Run this after adding a new attribute to the nf_conntrack object
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -35,7 +36,7 @@ int main(void)
 	int ret, i;
 	struct nf_conntrack *ct, *ct2, *tmp;
 	struct nf_expect *exp, *tmp_exp;
-	char data[32];
+	char data[256];
 	const char *val;
 	int status;
 
@@ -93,7 +94,6 @@ int main(void)
 			case ATTR_SECCTX:
 			case ATTR_TIMESTAMP_START:
 			case ATTR_TIMESTAMP_STOP:
-			case ATTR_CONNLABELS:
 				continue;
 			/* These attributes require special handling */
 			case ATTR_HELPER_INFO:
@@ -206,6 +206,11 @@ int main(void)
 		eval_sigterm(status);
 	}
 
+	ct2 = nfct_clone(ct);
+	assert(ct2);
+	assert(nfct_cmp(ct, ct2, NFCT_CMP_ALL) == 1);
+	nfct_destroy(ct2);
+
 	ct2 = nfct_new();
 	if (!ct2) {
 		perror("nfct_new");
@@ -271,6 +276,7 @@ int main(void)
 	}
 
 	nfct_destroy(ct2);
+	printf("== destroy cloned ct entry ==\n");
 	nfct_destroy(ct);
 	nfct_destroy(tmp);
 	nfexp_destroy(exp);

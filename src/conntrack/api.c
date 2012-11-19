@@ -147,7 +147,7 @@ struct nf_conntrack *nfct_clone(const struct nf_conntrack *ct)
 
 	if ((clone = nfct_new()) == NULL)
 		return NULL;
-	memcpy(clone, ct, sizeof(*ct));
+	nfct_copy(clone, ct, NFCT_CP_OVERRIDE);
 
 	return clone;
 }

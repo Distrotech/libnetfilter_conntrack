@@ -300,8 +300,8 @@ cmp_timeout(const struct nf_conntrack *ct1,
 #define __NFCT_CMP_TIMEOUT (NFCT_CMP_TIMEOUT_LE | NFCT_CMP_TIMEOUT_GT)
 
 	if (!(flags & __NFCT_CMP_TIMEOUT) &&
-	    ct1->timeout != ct2->timeout)
-	    	return 0;
+	    ct1->timeout == ct2->timeout)
+		return 1;
 	else {
 		if (flags & NFCT_CMP_TIMEOUT_GT &&
 		    ct1->timeout > ct2->timeout)
@@ -312,9 +312,6 @@ cmp_timeout(const struct nf_conntrack *ct1,
 		else if (flags & NFCT_CMP_TIMEOUT_EQ &&
 			 ct1->timeout == ct2->timeout)
 			ret = 1;
-
-	    	if (ret == 0)
-			return 0;
 	}
 	return ret;
 }
@@ -364,6 +361,8 @@ cmp_secctx(const struct nf_conntrack *ct1,
 	   const struct nf_conntrack *ct2,
 	   unsigned int flags)
 {
+	if (ct1->secctx == NULL || ct1->secctx == NULL)
+		return ct1->secctx == ct2->secctx;
 	return strcmp(ct1->secctx, ct2->secctx) == 0;
 }
 
