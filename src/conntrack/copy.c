@@ -466,6 +466,12 @@ static void copy_attr_connlabels(struct nf_conntrack *dest,
 	dest->connlabels = do_copy_attr_connlabels(dest->connlabels, orig->connlabels);
 }
 
+static void copy_attr_connlabels_mask(struct nf_conntrack *dest,
+				 const struct nf_conntrack *orig)
+{
+	dest->connlabels_mask = do_copy_attr_connlabels(dest->connlabels_mask, orig->connlabels_mask);
+}
+
 const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_ORIG_IPV4_SRC]		= copy_attr_orig_ipv4_src,
 	[ATTR_ORIG_IPV4_DST] 		= copy_attr_orig_ipv4_dst,
@@ -534,6 +540,7 @@ const copy_attr copy_attr_array[ATTR_MAX] = {
 	[ATTR_TIMESTAMP_STOP]		= copy_attr_timestamp_stop,
 	[ATTR_HELPER_INFO]		= copy_attr_help_info,
 	[ATTR_CONNLABELS]		= copy_attr_connlabels,
+	[ATTR_CONNLABELS_MASK]		= copy_attr_connlabels_mask,
 };
 
 /* this is used by nfct_copy() with the NFCT_CP_OVERRIDE flag set. */
@@ -544,8 +551,10 @@ void __copy_fast(struct nf_conntrack *ct1, const struct nf_conntrack *ct2)
 	ct1->secctx = NULL;
 	ct1->helper_info = NULL;
 	ct1->connlabels = NULL;
+	ct1->connlabels_mask = NULL;
 
 	copy_attr_secctx(ct1, ct2);
 	copy_attr_help_info(ct1, ct2);
 	copy_attr_connlabels(ct1, ct2);
+	copy_attr_connlabels_mask(ct1, ct2);
 }

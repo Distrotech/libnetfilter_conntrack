@@ -191,6 +191,7 @@ struct nf_conntrack {
 	size_t helper_info_len;
 
 	struct nfct_bitmask *connlabels;
+	struct nfct_bitmask *connlabels_mask;
 };
 
 /*

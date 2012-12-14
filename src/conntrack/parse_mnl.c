@@ -958,6 +958,7 @@ nfct_payload_parse(const void *payload, size_t payload_len,
 		if (nfct_parse_labels(tb[CTA_LABELS], ct) < 0)
 			return -1;
 	}
+	/* CTA_LABELS_MASK: never sent by kernel */
 
 	return 0;
 }

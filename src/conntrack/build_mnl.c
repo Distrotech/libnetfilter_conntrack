@@ -386,6 +386,12 @@ nfct_build_labels(struct nlmsghdr *nlh, const struct nf_conntrack *ct)
 	struct nfct_bitmask *b = ct->connlabels;
 	unsigned int size = b->words * sizeof(b->bits[0]);
 	mnl_attr_put(nlh, CTA_LABELS, size, b->bits);
+
+	if (test_bit(ATTR_CONNLABELS_MASK, ct->head.set)) {
+		b = ct->connlabels_mask;
+		if (size == (b->words * sizeof(b->bits[0])))
+			mnl_attr_put(nlh, CTA_LABELS_MASK, size, b->bits);
+	}
 }
 
 int

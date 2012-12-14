@@ -134,6 +134,7 @@ enum nf_conntrack_attr {
 	ATTR_TIMESTAMP_STOP = 64,		/* u64 bits, linux >= 2.6.38 */
 	ATTR_HELPER_INFO,			/* variable length */
 	ATTR_CONNLABELS,			/* variable length */
+	ATTR_CONNLABELS_MASK,			/* variable length */
 	ATTR_MAX
 };
 

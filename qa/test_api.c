@@ -91,7 +91,7 @@ int main(void)
 	char data[256];
 	const char *val;
 	int status;
-	struct nfct_bitmask *b;
+	struct nfct_bitmask *b, *b2;
 
 	srand(time(NULL));
 
@@ -121,14 +121,23 @@ int main(void)
 		eval_sigterm(status);
 	}
 
+	b = nfct_bitmask_new(rand() & 0xffff);
+	assert(b);
+	b2 = nfct_bitmask_new(rand() & 0xffff);
+	assert(b2);
+
 	for (i=0; i<ATTR_MAX; i++) {
-		if (i != ATTR_CONNLABELS) {
+		switch (i) {
+		case ATTR_CONNLABELS:
+			nfct_set_attr(ct, i, b);
+			break;
+		case ATTR_CONNLABELS_MASK:
+			nfct_set_attr(ct, i, b2);
+			break;
+		default:
 			nfct_set_attr(ct, i, data);
-			continue;
+			break;
 		}
-		b = nfct_bitmask_new(rand() & 0xffff);
-		assert(b);
-		nfct_set_attr(ct, i, b);
 	}
 
 	printf("== test get API ==\n");
@@ -162,6 +171,7 @@ int main(void)
 				nfct_set_attr_l(ct, i, data, sizeof(data));
 				break;
 			case ATTR_CONNLABELS:
+			case ATTR_CONNLABELS_MASK:
 				/* already set above */
 				break;
 			default:
@@ -172,6 +182,9 @@ int main(void)
 			switch (i) {
 			case ATTR_CONNLABELS:
 				assert((void *) val == b);
+				continue;
+			case ATTR_CONNLABELS_MASK:
+				assert((void *) val == b2);
 				continue;
 			}
 

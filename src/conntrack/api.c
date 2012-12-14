@@ -97,6 +97,8 @@ void nfct_destroy(struct nf_conntrack *ct)
 		free(ct->helper_info);
 	if (ct->connlabels)
 		nfct_bitmask_destroy(ct->connlabels);
+	if (ct->connlabels_mask)
+		nfct_bitmask_destroy(ct->connlabels_mask);
 	free(ct);
 	ct = NULL; /* bugtrap */
 }

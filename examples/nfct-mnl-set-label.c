@@ -35,6 +35,14 @@ static void set_label(struct nf_conntrack *ct, struct callback_args *cbargs)
 		nfct_bitmask_set_bit(b, bit);
 	nfct_set_attr(ct, ATTR_CONNLABELS, b);
 
+	if (bit >= 0) {
+		b = nfct_bitmask_new(bit);
+		if (b) {
+			nfct_bitmask_set_bit(b, bit);
+			nfct_set_attr(ct, ATTR_CONNLABELS_MASK, b);
+		}
+	}
+
 	cbargs->seq++;
 
 	nlh = mnl_nlmsg_put_header(buf);
