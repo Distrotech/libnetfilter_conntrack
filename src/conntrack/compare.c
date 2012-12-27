@@ -361,7 +361,7 @@ cmp_secctx(const struct nf_conntrack *ct1,
 	   const struct nf_conntrack *ct2,
 	   unsigned int flags)
 {
-	if (ct1->secctx == NULL || ct1->secctx == NULL)
+	if (ct1->secctx == NULL || ct2->secctx == NULL)
 		return ct1->secctx == ct2->secctx;
 	return strcmp(ct1->secctx, ct2->secctx) == 0;
 }
