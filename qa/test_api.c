@@ -281,5 +281,7 @@ int main(void)
 	nfct_destroy(tmp);
 	nfexp_destroy(exp);
 	nfexp_destroy(tmp_exp);
+	printf("OK\n");
+
 	return EXIT_SUCCESS;
 }
