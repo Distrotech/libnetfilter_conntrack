@@ -234,7 +234,7 @@ int main(void)
 	printf("== test get grp API ==\n");
 	ret = fork();
 	if (ret == 0) {
-		char buf[16];
+		char buf[32]; /* IPv6 group address is 16 bytes * 2 */
 
 		for (i=0; i<ATTR_GRP_MAX; i++)
 			nfct_get_attr_grp(ct2, i, buf);
@@ -248,7 +248,7 @@ int main(void)
 	ret = fork();
 	if (ret == 0) {
 		for (i=0; i<ATTR_GRP_MAX; i++) {
-			char buf[16];
+			char buf[32]; /* IPv6 group address is 16 bytes */
 
 			data[0] = (uint8_t) i;
 			nfct_set_attr_grp(ct2, i, data);
