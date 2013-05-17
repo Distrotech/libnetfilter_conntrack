@@ -398,6 +398,30 @@ static void __build_zone(struct nfnlhdr *req,
 	nfnl_addattr16(&req->nlh, size, CTA_ZONE, htons(ct->zone));
 }
 
+static void __build_labels(struct nfnlhdr *req,
+			   size_t size,
+			   const struct nf_conntrack *ct)
+{
+	struct nfct_bitmask *b = ct->connlabels;
+	unsigned int b_size = b->words * sizeof(b->bits[0]);
+
+	nfnl_addattr_l(&req->nlh,
+		       size,
+		       CTA_LABELS,
+		       b->bits,
+		       b_size);
+
+	if (test_bit(ATTR_CONNLABELS_MASK, ct->head.set)) {
+		b = ct->connlabels_mask;
+		if (b_size == (b->words * sizeof(b->bits[0])))
+			nfnl_addattr_l(&req->nlh,
+				       size,
+				       CTA_LABELS_MASK,
+				       b->bits,
+				       b_size);
+	}
+}
+
 int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      struct nfnlhdr *req,
 		      size_t size,
@@ -499,6 +523,9 @@ int __build_conntrack(struct nfnl_subsys_handle *ssh,
 
 	if (test_bit(ATTR_ZONE, ct->head.set))
 		__build_zone(req, size, ct);
+
+	if (test_bit(ATTR_CONNLABELS, ct->head.set))
+		__build_labels(req, size, ct);
 
 	return 0;
 }

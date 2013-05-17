@@ -8,6 +8,7 @@
  */
 
 #include "internal/internal.h"
+#include <limits.h>
 #include <libmnl/libmnl.h>
 
 static void __parse_ip(const struct nfattr *attr,
@@ -476,6 +477,26 @@ __parse_timestamp(const struct nfattr *attr, struct nf_conntrack *ct)
 	}
 }
 
+static void
+__parse_labels(const struct nfattr *attr, struct nf_conntrack *ct)
+{
+	struct nfattr *tb[CTA_LABELS];
+	struct nfct_bitmask *mask;
+	uint16_t len = NFA_PAYLOAD(tb[CTA_LABELS-1]);
+
+	nfnl_parse_nested(tb, CTA_LABELS, attr);
+	if (tb[CTA_LABELS-1]) {
+		mask = nfct_bitmask_new((len * CHAR_BIT) - 1);
+		if (!mask)
+			return;
+
+		if (len)
+			memcpy(mask->bits, NFA_DATA(tb[CTA_LABELS-1]), len);
+
+		set_bit(ATTR_CONNLABELS, ct->head.set);
+	}
+}
+
 void __parse_conntrack(const struct nlmsghdr *nlh,
 		       struct nfattr *cda[],
 		       struct nf_conntrack *ct)
@@ -564,4 +585,7 @@ void __parse_conntrack(const struct nlmsghdr *nlh,
 
 	if (cda[CTA_TIMESTAMP-1])
 		__parse_timestamp(cda[CTA_TIMESTAMP-1], ct);
+
+	if (cda[CTA_LABELS-1])
+		__parse_labels(cda[CTA_LABELS-1], ct);
 }
