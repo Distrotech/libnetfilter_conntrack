@@ -82,6 +82,91 @@ static void test_nfct_bitmask(void)
 	printf("OK\n");
 }
 
+static void test_nfct_cmp_api(struct nf_conntrack *ct1, struct nf_conntrack *ct2)
+{
+	int i;
+
+	printf("== test cmp API ==\n");
+
+	assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL) == 1);
+	assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_STRICT) == 0);
+
+	nfct_copy(ct1, ct2, NFCT_CP_OVERRIDE);
+
+	assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL) == 1);
+	assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_STRICT) == 1);
+
+	for (i=0; i < ATTR_MAX ; i++) {
+		nfct_attr_unset(ct1, i);
+
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL) == 1);
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_STRICT) == 0);
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_MASK) == 1);
+	}
+	nfct_copy(ct1, ct2, NFCT_CP_OVERRIDE);
+	for (i=0; i < ATTR_MAX ; i++) {
+		nfct_attr_unset(ct2, i);
+
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL) == 1);
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_STRICT) == 0);
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_MASK) == 0);
+	}
+	nfct_copy(ct2, ct1, NFCT_CP_OVERRIDE);
+	for (i=0; i < ATTR_MAX ; i++) {
+		nfct_attr_unset(ct1, i);
+		nfct_attr_unset(ct2, i);
+
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL) == 1);
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_STRICT) == 1);
+		assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_MASK) == 1);
+	}
+	nfct_destroy(ct1);
+	nfct_destroy(ct2);
+}
+
+static void test_nfexp_cmp_api(struct nf_expect *ex1, struct nf_expect *ex2)
+{
+	int i;
+
+	printf("== test expect cmp API ==\n");
+
+	/* XXX: missing nfexp_copy API. */
+	memcpy(ex1, ex2, nfexp_maxsize());
+
+	assert(nfexp_cmp(ex1, ex2, 0) == 1);
+	assert(nfexp_cmp(ex1, ex2, NFCT_CMP_STRICT) == 1);
+
+	assert(nfexp_attr_is_set(ex1, 0) == 1);
+	nfexp_attr_unset(ex1, 0);
+	assert(nfexp_attr_is_set(ex1, 0) == 0);
+
+	memcpy(ex1, ex2, nfexp_maxsize());
+	for (i=0; i < ATTR_EXP_MAX; i++) {
+		nfexp_attr_unset(ex1, i);
+
+		assert(nfexp_cmp(ex1, ex2, 0) == 1);
+		assert(nfexp_cmp(ex1, ex2, NFCT_CMP_STRICT) == 0);
+		assert(nfexp_cmp(ex1, ex2, NFCT_CMP_MASK) == 1);
+	}
+	memcpy(ex1, ex2, nfexp_maxsize());
+	for (i=0; i < ATTR_EXP_MAX; i++) {
+		nfexp_attr_unset(ex2, i);
+
+		assert(nfexp_cmp(ex1, ex2, 0) == 1);
+		assert(nfexp_cmp(ex1, ex2, NFCT_CMP_MASK) == 0);
+	}
+	memcpy(ex1, ex2, nfexp_maxsize());
+	for (i=0; i < ATTR_EXP_MAX; i++) {
+		nfexp_attr_unset(ex1, i);
+		nfexp_attr_unset(ex2, i);
+
+		assert(nfexp_cmp(ex1, ex2, 0) == 1);
+		assert(nfexp_cmp(ex1, ex2, NFCT_CMP_STRICT) == 1);
+		assert(nfexp_cmp(ex1, ex2, NFCT_CMP_MASK) == 1);
+	}
+	nfexp_destroy(ex1);
+	nfexp_destroy(ex2);
+}
 
 int main(void)
 {
@@ -211,10 +296,9 @@ int main(void)
 		eval_sigterm(status);
 	}
 
-	printf("== test cmp API ==\n");
 	ret = fork();
 	if (ret == 0) {
-		nfct_cmp(tmp, ct, NFCT_CMP_ALL);
+		test_nfct_cmp_api(tmp, ct);
 		exit(0);
 	} else {
 		wait(&status);
@@ -276,23 +360,14 @@ int main(void)
 		eval_sigterm(status);
 	}
 
-	/* XXX: missing nfexp_copy API. */
-	memcpy(tmp_exp, exp, nfexp_maxsize());
-
-	printf("== test expect cmp API ==\n");
 	ret = fork();
 	if (ret == 0) {
-		nfexp_cmp(tmp_exp, exp, 0);
+		test_nfexp_cmp_api(tmp_exp, exp);
 		exit(0);
 	} else {
 		wait(&status);
 		eval_sigterm(status);
 	}
-
-	ct2 = nfct_clone(ct);
-	assert(ct2);
-	assert(nfct_cmp(ct, ct2, NFCT_CMP_ALL) == 1);
-	nfct_destroy(ct2);
 
 	ct2 = nfct_new();
 	if (!ct2) {
