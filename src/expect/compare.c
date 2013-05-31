@@ -18,8 +18,13 @@ static int exp_cmp(int attr,
 			      const struct nf_expect *exp2,
 			      unsigned int flags))
 {
-	if (test_bit(attr, exp1->set) && test_bit(attr, exp2->set)) {
+	int a = test_bit(attr, exp1->set);
+	int b = test_bit(attr, exp2->set);
+
+	if (a && b) {
 		return cmp(exp1, exp2, flags);
+	} else if (!a && !b) {
+		return 1;
 	} else if (flags & NFCT_CMP_MASK &&
 		   test_bit(attr, exp1->set)) {
 		return 0;

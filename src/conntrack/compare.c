@@ -17,8 +17,12 @@ static int __cmp(int attr,
 		 	    const struct nf_conntrack *ct2,
 			    unsigned int flags))
 {
-	if (test_bit(attr, ct1->head.set) && test_bit(attr, ct2->head.set)) {
+	int a = test_bit(attr, ct1->head.set);
+	int b = test_bit(attr, ct2->head.set);
+	if (a && b) {
 		return cmp(ct1, ct2, flags);
+	} else if (!a && !b) {
+		return 1;
 	} else if (flags & NFCT_CMP_MASK &&
 		   test_bit(attr, ct1->head.set)) {
 		return 0;
