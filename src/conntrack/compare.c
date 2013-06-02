@@ -370,6 +370,51 @@ cmp_secctx(const struct nf_conntrack *ct1,
 	return strcmp(ct1->secctx, ct2->secctx) == 0;
 }
 
+static int __cmp_clabel(const struct nfct_bitmask *a,
+			const struct nfct_bitmask *b)
+{
+	unsigned int len, max;
+	const uint32_t *bits;
+
+	if (a == NULL || b == NULL)
+		return a == b;
+
+	if (a->words < b->words) {
+		bits = b->bits;
+		max = b->words;
+		len = a->words;
+	} else {
+		bits = a->bits;
+		max = a->words;
+		len = b->words;
+	}
+
+	while (max > len) {
+		if (bits[--max])
+			return 0;
+	}
+	/* bitmask sizes are equal or extra bits are not set */
+	return memcmp(a->bits, b->bits, len * sizeof(a->bits[0])) == 0;
+}
+
+static int cmp_clabel(const struct nf_conntrack *ct1,
+		      const struct nf_conntrack *ct2,
+		      unsigned int flags)
+{
+	return __cmp_clabel(nfct_get_attr(ct1, ATTR_CONNLABELS),
+			    nfct_get_attr(ct2, ATTR_CONNLABELS));
+
+}
+
+static int cmp_clabel_mask(const struct nf_conntrack *ct1,
+		      const struct nf_conntrack *ct2,
+		      unsigned int flags)
+{
+	return __cmp_clabel(nfct_get_attr(ct1, ATTR_CONNLABELS_MASK),
+			    nfct_get_attr(ct2, ATTR_CONNLABELS_MASK));
+
+}
+
 static int cmp_meta(const struct nf_conntrack *ct1,
 		    const struct nf_conntrack *ct2,
 		    unsigned int flags)
@@ -391,6 +436,10 @@ static int cmp_meta(const struct nf_conntrack *ct1,
 	if (!__cmp(ATTR_ZONE, ct1, ct2, flags, cmp_zone))
 		return 0;
 	if (!__cmp(ATTR_SECCTX, ct1, ct2, flags, cmp_secctx))
+		return 0;
+	if (!__cmp(ATTR_CONNLABELS, ct1, ct2, flags, cmp_clabel))
+		return 0;
+	if (!__cmp(ATTR_CONNLABELS_MASK, ct1, ct2, flags, cmp_clabel_mask))
 		return 0;
 
 	return 1;
