@@ -179,8 +179,8 @@ static struct nfct_labelmap *map_alloc(void)
 		unsigned int i;
 		for (i = 0; i < HASH_SIZE; i++)
 			map->map_name[i] = NULL;
+		map->bit_to_name = NULL;
 	}
-	map->bit_to_name = NULL;
 	return map;
 }
 
