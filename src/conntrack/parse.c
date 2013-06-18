@@ -480,20 +480,16 @@ __parse_timestamp(const struct nfattr *attr, struct nf_conntrack *ct)
 static void
 __parse_labels(const struct nfattr *attr, struct nf_conntrack *ct)
 {
-	struct nfattr *tb[CTA_LABELS];
 	struct nfct_bitmask *mask;
-	uint16_t len = NFA_PAYLOAD(tb[CTA_LABELS-1]);
+	uint16_t len;
 
-	nfnl_parse_nested(tb, CTA_LABELS, attr);
-	if (tb[CTA_LABELS-1]) {
+	len = NFA_PAYLOAD(attr);
+	if (len) {
 		mask = nfct_bitmask_new((len * CHAR_BIT) - 1);
 		if (!mask)
 			return;
-
-		if (len)
-			memcpy(mask->bits, NFA_DATA(tb[CTA_LABELS-1]), len);
-
-		set_bit(ATTR_CONNLABELS, ct->head.set);
+		memcpy(mask->bits, NFA_DATA(attr), len);
+		nfct_set_attr(ct, ATTR_CONNLABELS, mask);
 	}
 }
 
