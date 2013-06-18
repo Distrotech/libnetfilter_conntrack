@@ -786,8 +786,8 @@ static int nfct_parse_labels(const struct nlattr *attr, struct nf_conntrack *ct)
 	if (!mask)
 		return -1;
 	bits = mnl_attr_get_payload(attr);
-	if (len)
-		memcpy(mask->bits, bits, len);
+
+	memcpy(mask->bits, bits, len);
 	nfct_set_attr(ct, ATTR_CONNLABELS, mask);
 	return 0;
 }
