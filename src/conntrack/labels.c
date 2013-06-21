@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "internal/internal.h"
@@ -184,6 +185,30 @@ static struct nfct_labelmap *map_alloc(void)
 	return map;
 }
 
+/*
+ * We will only accept alpha numerical labels; else
+ * parses might choke on output when label named
+ * "foo;<&bar" exists.  ASCII machines only.
+ *
+ * Avoids libc isalnum() etc. to avoid issues with locale
+ * settings.
+ */
+static bool label_is_sane(const char *label)
+{
+	for (;*label; label++) {
+		if (*label >= 'a' && *label <= 'z')
+			continue;
+		if (*label >= 'A' && *label <= 'Z')
+			continue;
+		if (*label >= '0' && *label <= '9')
+			continue;
+		if (*label == ' ' || *label == '-')
+			continue;
+		return false;
+	}
+	return true;
+}
+
 struct nfct_labelmap *__labelmap_new(const char *name)
 {
 	struct nfct_labelmap *map;
@@ -219,7 +244,8 @@ struct nfct_labelmap *__labelmap_new(const char *name)
 		end = trim_label(end);
 		if (!end)
 			continue;
-		if (map_insert(map, end, bit) == 0) {
+
+		if (label_is_sane(end) && map_insert(map, end, bit) == 0) {
 			added++;
 			if (maxbit < bit)
 				maxbit = bit;
