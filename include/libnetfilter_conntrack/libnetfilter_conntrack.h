@@ -398,6 +398,14 @@ extern int nfct_snprintf(char *buf,
 			 const unsigned int out_type,
 			 const unsigned int out_flags);
 
+extern int nfct_snprintf_labels(char *buf,
+				unsigned int size,
+				const struct nf_conntrack *ct,
+				const unsigned int msg_type,
+				const unsigned int out_type,
+				const unsigned int out_flags,
+				struct nfct_labelmap *map);
+
 /* comparison */
 extern int nfct_compare(const struct nf_conntrack *ct1,
 			const struct nf_conntrack *ct2);

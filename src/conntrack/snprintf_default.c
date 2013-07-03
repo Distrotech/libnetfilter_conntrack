@@ -288,11 +288,60 @@ __snprintf_helper_name(char *buf, unsigned int len, const struct nf_conntrack *c
 	return (snprintf(buf, len, "helper=%s ", ct->helper_name));
 }
 
+int
+__snprintf_connlabels(char *buf, unsigned int len,
+		      struct nfct_labelmap *map,
+		      const struct nfct_bitmask *b, const char *fmt)
+{
+	unsigned int i, max;
+	int ret, size = 0, offset = 0;
+
+	max = nfct_bitmask_maxbit(b);
+	for (i = 0; i <= max && len; i++) {
+		const char *name;
+		if (!nfct_bitmask_test_bit(b, i))
+			continue;
+		name = nfct_labelmap_get_name(map, i);
+		if (!name || strcmp(name, "") == 0)
+			continue;
+
+		ret = snprintf(buf + offset, len, fmt, name);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+	return size;
+}
+
+static int
+__snprintf_clabels(char *buf, unsigned int len,
+		   const struct nf_conntrack *ct, struct nfct_labelmap *map)
+{
+	const struct nfct_bitmask *b = nfct_get_attr(ct, ATTR_CONNLABELS);
+	int ret, size = 0, offset = 0;
+
+	if (!b)
+		return 0;
+
+	ret = snprintf(buf, len, "labels=");
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = __snprintf_connlabels(buf + offset, len, map, b, "%s,");
+
+	BUFFER_SIZE(ret, size, len, offset);
+
+	offset--; /* remove last , */
+	size--;
+	ret = snprintf(buf + offset, len, " ");
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
 int __snprintf_conntrack_default(char *buf, 
 				 unsigned int len,
 				 const struct nf_conntrack *ct,
 				 unsigned int msg_type,
-				 unsigned int flags) 
+				 unsigned int flags,
+				 struct nfct_labelmap *map)
 {
 	int ret = 0, size = 0, offset = 0;
 
@@ -423,6 +472,11 @@ int __snprintf_conntrack_default(char *buf,
 
 	if (flags & NFCT_OF_ID && test_bit(ATTR_ID, ct->head.set)) {
 		ret = __snprintf_id(buf+offset, len, ct);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (map && test_bit(ATTR_CONNLABELS, ct->head.set)) {
+		ret = __snprintf_clabels(buf+offset, len, ct, map);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 

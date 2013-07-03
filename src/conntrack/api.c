@@ -1071,13 +1071,38 @@ int nfct_snprintf(char *buf,
 		  const struct nf_conntrack *ct,
 		  unsigned int msg_type,
 		  unsigned int out_type,
-		  unsigned int flags) 
+		  unsigned int flags)
 {
 	assert(buf != NULL);
 	assert(size > 0);
 	assert(ct != NULL);
 
-	return __snprintf_conntrack(buf, size, ct, msg_type, out_type, flags);
+	return __snprintf_conntrack(buf, size, ct, msg_type, out_type, flags, NULL);
+}
+
+/**
+ * nfct_snprintf_labels - print a bitmask object to a buffer including labels
+ * \param buf buffer used to build the printable conntrack
+ * \param size size of the buffer
+ * \param ct pointer to a valid conntrack object
+ * \param message_type print message type (NFCT_T_UNKNOWN, NFCT_T_NEW,...)
+ * \param output_type print type (NFCT_O_DEFAULT, NFCT_O_XML, ...)
+ * \param flags extra flags for the output type (NFCT_OF_LAYER3)
+ * \param map nfct_labelmap describing the connlabel translation, or NULL.
+ *
+ * When map is NULL, the function is equal to nfct_snprintf().
+ * Otherwise, if the conntrack object has a connlabel attribute, the active
+ * labels are translated using the label map and added to the buffer.
+ */
+int nfct_snprintf_labels(char *buf,
+			 unsigned int size,
+			 const struct nf_conntrack *ct,
+			 unsigned int msg_type,
+			 unsigned int out_type,
+			 unsigned int flags,
+			 struct nfct_labelmap *map)
+{
+	return __snprintf_conntrack(buf, size, ct, msg_type, out_type, flags, map);
 }
 
 /**

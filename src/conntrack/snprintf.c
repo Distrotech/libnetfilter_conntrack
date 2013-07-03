@@ -68,16 +68,17 @@ int __snprintf_conntrack(char *buf,
 			 const struct nf_conntrack *ct,
 			 unsigned int type,
 			 unsigned int msg_output,
-			 unsigned int flags)
+			 unsigned int flags,
+			 struct nfct_labelmap *map)
 {
 	int size;
 
 	switch(msg_output) {
 	case NFCT_O_DEFAULT:
-		size = __snprintf_conntrack_default(buf, len, ct, type, flags);
+		size = __snprintf_conntrack_default(buf, len, ct, type, flags, map);
 		break;
 	case NFCT_O_XML:
-		size = __snprintf_conntrack_xml(buf, len, ct, type, flags);
+		size = __snprintf_conntrack_xml(buf, len, ct, type, flags, map);
 		break;
 	default:
 		errno = ENOENT;

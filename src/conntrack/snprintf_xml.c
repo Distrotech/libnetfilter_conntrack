@@ -348,11 +348,35 @@ static int __snprintf_tuple_xml(char *buf,
 	return size;
 }
 
+static int
+__snprintf_clabels_xml(char *buf, unsigned int len,
+		       const struct nf_conntrack *ct, struct nfct_labelmap *map)
+{
+	const struct nfct_bitmask *b = nfct_get_attr(ct, ATTR_CONNLABELS);
+	int ret, size = 0, offset = 0;
+
+	if (!b)
+		return 0;
+
+	ret = snprintf(buf, len, "<labels>");
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = __snprintf_connlabels(buf + offset, len, map, b, "<label>%s</label>");
+
+	BUFFER_SIZE(ret, size, len, offset);
+
+	ret = snprintf(buf + offset, len, "</labels>");
+	BUFFER_SIZE(ret, size, len, offset);
+
+	return size;
+}
+
 int __snprintf_conntrack_xml(char *buf,
 			     unsigned int len,
 			     const struct nf_conntrack *ct,
 			     const unsigned int msg_type,
-			     const unsigned int flags) 
+			     const unsigned int flags,
+			     struct nfct_labelmap *map)
 {
 	int ret = 0;
 	unsigned int size = 0, offset = 0;
@@ -390,6 +414,7 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_USE, ct->head.set) ||
 	    test_bit(ATTR_STATUS, ct->head.set) ||
 	    test_bit(ATTR_ID, ct->head.set) ||
+	    test_bit(ATTR_CONNLABELS, ct->head.set) ||
 	    test_bit(ATTR_TIMESTAMP_START, ct->head.set) ||
 	    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 		ret = snprintf(buf+offset, len, 
@@ -429,6 +454,11 @@ int __snprintf_conntrack_xml(char *buf,
 
 	if (test_bit(ATTR_MARK, ct->head.set)) {
 		ret = snprintf(buf+offset, len, "<mark>%u</mark>", ct->mark);
+		BUFFER_SIZE(ret, size, len, offset);
+	}
+
+	if (map && test_bit(ATTR_CONNLABELS, ct->head.set)) {
+		ret = __snprintf_clabels_xml(buf+offset, len, ct, map);
 		BUFFER_SIZE(ret, size, len, offset);
 	}
 
@@ -510,6 +540,7 @@ int __snprintf_conntrack_xml(char *buf,
 	    test_bit(ATTR_USE, ct->head.set) ||
 	    test_bit(ATTR_STATUS, ct->head.set) ||
 	    test_bit(ATTR_ID, ct->head.set) ||
+	    test_bit(ATTR_CONNLABELS, ct->head.set) ||
 	    test_bit(ATTR_TIMESTAMP_START, ct->head.set) ||
 	    test_bit(ATTR_TIMESTAMP_STOP, ct->head.set)) {
 	    	ret = snprintf(buf+offset, len, "</meta>");
