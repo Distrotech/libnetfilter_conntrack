@@ -82,31 +82,13 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data)
 		break;
 	}
 
-	switch(ret) {
-	case NFCT_CB_FAILURE:
-		if (ct)
-			free(ct);
-		if (exp)
-			free(exp);
-		ret = NFNL_CB_FAILURE;
-		break;
-	case NFCT_CB_STOP:
-		if (ct)
-			free(ct);
-		if (exp)
-			free(exp);
-		ret = NFNL_CB_STOP;
-		break;
-	case NFCT_CB_CONTINUE:
-		if (ct)
-			free(ct);
-		if (exp)
-			free(exp);
-		ret = NFNL_CB_CONTINUE;
-		break;
-	case NFCT_CB_STOLEN:
-		ret = NFNL_CB_CONTINUE;
-		break;
-	}
+	if (ret == NFCT_CB_STOLEN)
+		return NFNL_CB_CONTINUE;
+
+	if (ct)
+		nfct_destroy(ct);
+	if (exp)
+		nfexp_destroy(exp);
+
 	return ret;
 }
