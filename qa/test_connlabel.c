@@ -27,7 +27,7 @@ static void print_label(struct nfct_labelmap *map)
 	assert(b == 42);
 }
 
-static void print_bits(struct nfct_labelmap *map)
+static void dump_map(struct nfct_labelmap *map)
 {
 	unsigned int i = 0;
 
@@ -36,7 +36,7 @@ static void print_bits(struct nfct_labelmap *map)
 		if (!name)
 			break;
 		if (name[0])
-			printf("%s, %d\n", name, i);
+			printf("\t\"%s\", bit %d\n", name, i);
 		i++;
 	}
 }
@@ -50,8 +50,8 @@ int main(void)
 
 	l = nfct_labelmap_new(NULL);
 	if (l) {
-		print_bits(l);
-		print_label(l);
+		puts("default connlabel.conf:");
+		dump_map(l);
 		nfct_labelmap_destroy(l);
 	} else {
 		puts("no default config found");
@@ -61,10 +61,10 @@ int main(void)
 	if (!l)
 		l = nfct_labelmap_new("qa/qa-connlabel.conf");
 	assert(l);
-	print_bits(l);
+	puts("qa-connlabel.conf:");
+	dump_map(l);
 	print_label(l);
 	nfct_labelmap_destroy(l);
-
 
 	return 0;
 }
