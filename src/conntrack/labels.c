@@ -110,7 +110,7 @@ static char *trim_label(char *label)
 		end = strchr(label, '\0');
 	end--;
 
-	while (is_space_posix(*end) && end > label) {
+	while (end > label && is_space_posix(*end)) {
 		*end = 0;
 		end--;
 	}
@@ -262,6 +262,8 @@ struct nfct_labelmap *__labelmap_new(const char *name)
 			goto err;
 		make_name_table(map);
 		return map;
+	} else {
+		errno = 0;
 	}
  err:
 	__labelmap_destroy(map);
