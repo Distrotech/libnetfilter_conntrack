@@ -19,7 +19,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 
 case "$host" in 
-*-*-linux*) ;;
+*-*-linux* | *-*-uclinux*) ;;
 *) AC_MSG_ERROR([Linux only, dude!]);;
 esac
 
