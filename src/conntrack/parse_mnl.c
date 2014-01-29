@@ -968,5 +968,6 @@ int nfct_nlmsg_parse(const struct nlmsghdr *nlh, struct nf_conntrack *ct)
 	struct nfgenmsg *nfhdr = mnl_nlmsg_get_payload(nlh);
 
 	return nfct_payload_parse((uint8_t *)nfhdr + sizeof(struct nfgenmsg),
-				  nlh->nlmsg_len, nfhdr->nfgen_family, ct);
+				  mnl_nlmsg_get_payload_len(nlh) - sizeof(struct nfgenmsg),
+				  nfhdr->nfgen_family, ct);
 }
