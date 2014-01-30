@@ -720,9 +720,15 @@ int nfexp_send(struct nfct_handle *h,
  * nfexp_catch - catch events
  * \param h library handler
  *
- * On error, -1 is returned and errno is set appropiately. On success, 
+ * This function receives the event from the kernel and it invokes the
+ * callback that was registered to this handle.
+ *
+ * On error, -1 is returned and errno is set appropiately. On success,
  * a value greater or equal to 0 is returned indicating the callback
- * verdiexp: NFEXP_CB_STOP, NFEXP_CB_CONTINUE or NFEXP_CB_STOLEN
+ * verdict: NFCT_CB_STOP, NFCT_CB_CONTINUE or NFCT_CB_STOLEN.
+ *
+ * Beware that this function is equivalent to nfct_catch(), so it handles both
+ * conntrack and expectation events.
  */
 int nfexp_catch(struct nfct_handle *h)
 {

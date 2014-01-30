@@ -1006,9 +1006,15 @@ int nfct_send(struct nfct_handle *h,
  * nfct_catch - catch events
  * \param h library handler
  *
- * On error, -1 is returned and errno is set appropiately. On success, 
+ * This function receives the event from the kernel and it invokes the
+ * callback that was registered to this handle.
+ *
+ * On error, -1 is returned and errno is set appropiately. On success,
  * a value greater or equal to 0 is returned indicating the callback
- * verdict: NFCT_CB_STOP, NFCT_CB_CONTINUE or NFCT_CB_STOLEN
+ * verdict: NFCT_CB_STOP, NFCT_CB_CONTINUE or NFCT_CB_STOLEN.
+ *
+ * Beware that this function also handles expectation events, in case they are
+ * received through this handle.
  */
 int nfct_catch(struct nfct_handle *h)
 {
