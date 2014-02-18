@@ -126,7 +126,7 @@ xtables_parse_connlabel_numerical(const char *s, char **end)
 	value = strtoul(s, end, 0);
 	if (value == 0 && s == *end)
 		return -1;
-	if (value < 0 || value >= MAX_BITS)
+	if (value >= MAX_BITS)
 		return -1;
 	return value;
 }
