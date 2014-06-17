@@ -17,7 +17,6 @@ set_filter_dump_attr_mark(struct nfct_filter_dump *filter_dump,
 
 	filter_dump->mark.val = this->val;
 	filter_dump->mark.mask = this->mask;
-	filter_dump->set |= (1 << NFCT_FILTER_DUMP_MARK);
 }
 
 static void
@@ -25,7 +24,6 @@ set_filter_dump_attr_family(struct nfct_filter_dump *filter_dump,
 			    const void *value)
 {
 	filter_dump->l3num = *((u_int8_t *)value);
-	filter_dump->set |= (1 << NFCT_FILTER_DUMP_L3NUM);
 }
 
 const set_filter_dump_attr set_filter_dump_attr_array[NFCT_FILTER_DUMP_MAX] = {
