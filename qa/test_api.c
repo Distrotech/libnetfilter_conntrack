@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -242,11 +243,56 @@ static int test_nfct_cmp_api_single(struct nf_conntrack *ct1,
 	return 0;
 }
 
+static int test_cmp_attr32(int attr, bool at1, bool at2,
+			   uint32_t v1, uint32_t v2, unsigned int flags)
+{
+	struct nf_conntrack *ct1 = nfct_new();
+	struct nf_conntrack *ct2 = nfct_new();
+	int ret;
+
+	if (at1)
+		nfct_set_attr_u32(ct1, attr, v1);
+	if (at2)
+		nfct_set_attr_u32(ct2, attr, v2);
+
+	ret = nfct_cmp(ct1, ct2, NFCT_CMP_ALL | flags);
+
+	nfct_destroy(ct1);
+	nfct_destroy(ct2);
+
+	return ret;
+}
+static void test_nfct_cmp_attr(int attr)
+{
+	assert(test_cmp_attr32(ATTR_ZONE, false, false, 0, 0, 0) == 1);
+	assert(test_cmp_attr32(ATTR_ZONE, true, true, 0, 0, 0) == 1);
+	assert(test_cmp_attr32(ATTR_ZONE, true, true, 1, 1, 0) == 1);
+
+	/* This compare should be true */
+	assert(test_cmp_attr32(ATTR_ZONE, false, true, 0, 1, 0) == 1);
+
+	assert(test_cmp_attr32(ATTR_ZONE, true, true, 1, 1, NFCT_CMP_STRICT) == 1);
+
+	assert(test_cmp_attr32(ATTR_ZONE, true, false, 0, 0, NFCT_CMP_STRICT) == 1);
+	assert(test_cmp_attr32(ATTR_ZONE, false, true, 0, 0, NFCT_CMP_STRICT) == 1);
+
+	assert(test_cmp_attr32(ATTR_ZONE, false, true, 0, 1, NFCT_CMP_STRICT) == 0);
+
+	assert(test_cmp_attr32(ATTR_ZONE, false, true, 0, 1, NFCT_CMP_MASK) == 1);
+	assert(test_cmp_attr32(ATTR_ZONE, true, true, 0, 1, NFCT_CMP_MASK) == 0);
+
+	assert(test_cmp_attr32(ATTR_ZONE, true, false, 0, 0, NFCT_CMP_MASK) == 1);
+
+	assert(test_cmp_attr32(ATTR_ZONE, true, false, 1, 0, NFCT_CMP_MASK) == 0);
+}
+
 static void test_nfct_cmp_api(struct nf_conntrack *ct1, struct nf_conntrack *ct2)
 {
 	int i;
 
 	printf("== test cmp API ==\n");
+
+	test_nfct_cmp_attr(ATTR_ZONE);
 
 	assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL) == 1);
 	assert(nfct_cmp(ct1, ct2, NFCT_CMP_ALL|NFCT_CMP_STRICT) == 0);
