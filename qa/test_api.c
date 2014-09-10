@@ -80,6 +80,43 @@ static void test_nfct_bitmask(void)
 		assert(!nfct_bitmask_test_bit(b, i));
 	}
 
+	/* nfct_bitmask_clear() */
+	for (i = 0; i < maxb; i++) {
+		nfct_bitmask_set_bit(b, i);
+		assert(nfct_bitmask_test_bit(b, i));
+		nfct_bitmask_clear(b);
+		assert(!nfct_bitmask_test_bit(b, i));
+	}
+
+	for (i = 0; i < maxb; i++)
+		nfct_bitmask_set_bit(b, i);
+	nfct_bitmask_clear(b);
+	for (i = 0; i < maxb; i++)
+		assert(!nfct_bitmask_test_bit(b, i));
+
+	/* nfct_bitmask_equal() */
+	for (i = 0; i < maxb / 32 * 32; i += 32) {
+		a = nfct_bitmask_new(i);
+		assert(!nfct_bitmask_equal(a, b));
+		nfct_bitmask_destroy(a);
+	}
+
+	a = nfct_bitmask_clone(b);
+	assert(nfct_bitmask_equal(a, b));
+	for (i = 0; i < maxb; i++) {
+		if (nfct_bitmask_test_bit(a, i)) {
+			nfct_bitmask_unset_bit(a, i);
+			assert(!nfct_bitmask_equal(a, b));
+			nfct_bitmask_set_bit(a, i);
+		} else {
+			nfct_bitmask_set_bit(a, i);
+			assert(!nfct_bitmask_equal(a, b));
+			nfct_bitmask_unset_bit(a, i);
+		}
+		assert(nfct_bitmask_equal(a, b));
+	}
+
+	nfct_bitmask_destroy(a);
 	nfct_bitmask_destroy(b);
 
 	ct1 = nfct_new();
