@@ -8,6 +8,7 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h> /* for memset */
 #include <errno.h>
 #include <assert.h>
@@ -1700,6 +1701,34 @@ unsigned int nfct_bitmask_maxbit(const struct nfct_bitmask *b)
 void nfct_bitmask_destroy(struct nfct_bitmask *b)
 {
 	free(b);
+}
+
+/*
+ * nfct_bitmask_clear - clear a bitmask object
+ *
+ * \param b pointer to the bitmask object to clear
+ */
+void nfct_bitmask_clear(struct nfct_bitmask *b)
+{
+	unsigned int bytes = b->words * sizeof(b->bits[0]);
+	memset(b->bits, 0, bytes);
+}
+
+/*
+ * nfct_bitmask_equal - compare two bitmask objects
+ *
+ * \param b1 pointer to a valid bitmask object
+ * \param b2 pointer to a valid bitmask object
+ *
+ * If both bitmask object are equal, this function returns true, otherwise
+ * false is returned.
+ */
+bool nfct_bitmask_equal(const struct nfct_bitmask *b1, const struct nfct_bitmask *b2)
+{
+	if (b1->words != b2->words)
+		return false;
+
+	return memcmp(b1->bits, b2->bits, b1->words * sizeof(b1->bits[0])) == 0;
 }
 
 /**
