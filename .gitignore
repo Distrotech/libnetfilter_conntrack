@@ -12,6 +12,7 @@ Makefile.in
 /config.*
 /configure
 /libtool
+/stamp-h1
 
 /doxygen.cfg
 /*.pc

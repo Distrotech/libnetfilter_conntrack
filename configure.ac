@@ -3,6 +3,7 @@ dnl Process this file with autoconf to create configure.
 AC_INIT([libnetfilter_conntrack], [1.0.4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_HOST
+AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects
@@ -30,6 +31,8 @@ PKG_CHECK_MODULES([LIBMNL], [libmnl >= 1.0.3])
 AC_CHECK_HEADERS(arpa/inet.h)
 dnl Check for inet_ntop
 AC_CHECK_FUNCS(inet_ntop)
+dnl Check for setns used in qa
+AC_CHECK_FUNCS(setns)
 dnl Again, some systems have it, but not IPv6
 if test "$ac_cv_func_inet_ntop" = "yes" ; then
 AC_MSG_CHECKING(if inet_ntop supports IPv6)

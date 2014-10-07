@@ -1,6 +1,7 @@
 include $(top_srcdir)/Make_global.am
 
-check_PROGRAMS = test_api test_filter test_connlabel ct_stress ct_events_reliable
+check_PROGRAMS = test_api test_filter test_connlabel ct_stress \
+	ct_events_reliable ct_echo_event
 
 test_api_SOURCES = test_api.c
 test_api_LDADD = ../src/libnetfilter_conntrack.la
@@ -16,3 +17,8 @@ ct_stress_LDADD = ../src/libnetfilter_conntrack.la
 
 ct_events_reliable_SOURCES = ct_events_reliable.c
 ct_events_reliable_LDADD = ../src/libnetfilter_conntrack.la
+
+AM_CFLAGS += -D_GNU_SOURCE
+ct_echo_event_SOURCES = ct_echo_event.c nssocket.c
+ct_echo_event_DEPENDENCIES = ct_echo_event.sh
+ct_echo_event_LDADD = ../src/libnetfilter_conntrack.la -lmnl
