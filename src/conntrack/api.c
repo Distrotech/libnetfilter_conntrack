@@ -1391,10 +1391,10 @@ void nfct_filter_add_attr_u32(struct nfct_filter *filter,
  * \param logic filter logic that we want to use
  *
  * You can only use this function once to set the filtering logic for 
- * one attribute. You can define two logics: NFCT_FILTER_POSITIVE_LOGIC
- * that accept events that match the filter, and NFCT_FILTER_NEGATIVE_LOGIC
+ * one attribute. You can define two logics: NFCT_FILTER_LOGIC_POSITIVE
+ * that accept events that match the filter, and NFCT_FILTER_LOGIC_NEGATIVE
  * that rejects events that match the filter. Default filtering logic is
- * NFCT_FILTER_POSITIVE_LOGIC.
+ * NFCT_FILTER_LOGIC_POSITIVE.
  *
  * On error, it returns -1 and errno is appropriately set. On success, it 
  * returns 0.
