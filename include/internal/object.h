@@ -263,6 +263,13 @@ struct nfct_filter {
 		u_int32_t 	mask[4];
 	} l3proto_ipv6[2][__FILTER_IPV6_MAX];
 
+	u_int32_t 		mark_elems;
+	struct {
+#define __FILTER_MARK_MAX	127
+		u_int32_t 	val;
+		u_int32_t 	mask;
+	} mark[__FILTER_MARK_MAX];
+
 	u_int32_t 		set[1];
 };
 
