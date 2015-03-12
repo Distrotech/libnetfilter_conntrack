@@ -11,7 +11,7 @@ DSTPORT="7"
 ICMP_TYPE="8"
 ICMP_CODE="0"
 NF_TIMEOUT=2
-INIT_TIMEOUT=4
+INIT_TIMEOUT=8
 
 dname=`dirname $0`
 bname=`basename $0`
