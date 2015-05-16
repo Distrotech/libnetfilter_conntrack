@@ -59,9 +59,9 @@ static void filter_attr_src_ipv6(struct nfct_filter *filter, const void *value)
 		return;
 
 	memcpy(filter->l3proto_ipv6[0][filter->l3proto_elems_ipv6[0]].addr,
-	       this->addr, sizeof(u_int32_t)*4);
+	       this->addr, sizeof(uint32_t)*4);
 	memcpy(filter->l3proto_ipv6[0][filter->l3proto_elems_ipv6[0]].mask,
-	       this->mask, sizeof(u_int32_t)*4);
+	       this->mask, sizeof(uint32_t)*4);
 	filter->l3proto_elems_ipv6[0]++;
 }
 
@@ -73,9 +73,9 @@ static void filter_attr_dst_ipv6(struct nfct_filter *filter, const void *value)
 		return;
 
 	memcpy(filter->l3proto_ipv6[1][filter->l3proto_elems_ipv6[1]].addr,
-	       this->addr, sizeof(u_int32_t)*4);
+	       this->addr, sizeof(uint32_t)*4);
 	memcpy(filter->l3proto_ipv6[1][filter->l3proto_elems_ipv6[1]].mask,
-	       this->mask, sizeof(u_int32_t)*4);
+	       this->mask, sizeof(uint32_t)*4);
 	filter->l3proto_elems_ipv6[1]++;
 }
 

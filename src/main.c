@@ -13,7 +13,7 @@
 #include "internal/internal.h"
 
 struct nfct_handle *nfct_open_nfnl(struct nfnl_handle *nfnlh,
-				   u_int8_t subsys_id,
+				   uint8_t subsys_id,
 				   unsigned int subscriptions)
 {
 	struct nfct_handle *cth;
@@ -81,7 +81,7 @@ out_free:
  *
  * On error, NULL is returned and errno is explicitly set.
  */
-struct nfct_handle *nfct_open(u_int8_t subsys_id, unsigned subscriptions)
+struct nfct_handle *nfct_open(uint8_t subsys_id, unsigned subscriptions)
 {
 	struct nfnl_handle *nfnlh = nfnl_open();
 	struct nfct_handle *nfcth;

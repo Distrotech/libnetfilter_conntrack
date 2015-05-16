@@ -11,8 +11,8 @@
 
 static int __parse_message(const struct nlmsghdr *nlh)
 {
-	u_int16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
-	u_int16_t flags = nlh->nlmsg_flags;
+	uint16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
+	uint16_t flags = nlh->nlmsg_flags;
 	int ret = NFCT_T_UNKNOWN;
 
 	switch(type) {
@@ -36,7 +36,7 @@ int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data)
 	struct nf_conntrack *ct = NULL;
 	struct nf_expect *exp = NULL;
 	struct __data_container *container = data;
-	u_int8_t subsys = NFNL_SUBSYS_ID(nlh->nlmsg_type);
+	uint8_t subsys = NFNL_SUBSYS_ID(nlh->nlmsg_type);
 
 	if (nlh->nlmsg_len < NLMSG_LENGTH(sizeof(struct nfgenmsg))) {
 		errno = EINVAL;

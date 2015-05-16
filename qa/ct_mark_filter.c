@@ -12,7 +12,7 @@
 static void tcp_echo_before_fin(const struct mnl_socket *nl,
 			       const char *pre, const char *post)
 {
-	u_int8_t proto = IPPROTO_TCP;
+	uint8_t proto = IPPROTO_TCP;
 
 	sync_fifo(pre);
 	timeout.tv_sec = INIT_TIMEOUT;
@@ -26,7 +26,7 @@ static void tcp_echo_before_fin(const struct mnl_socket *nl,
 static void tcp_echo_after_fin(const struct mnl_socket *nl,
 			       const char *pre, const char *post)
 {
-	u_int8_t proto = IPPROTO_TCP;
+	uint8_t proto = IPPROTO_TCP;
 
 	sync_fifo(pre);
 	timeout.tv_sec = INIT_TIMEOUT;

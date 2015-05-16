@@ -53,12 +53,12 @@
  * </flow>
  */
 
-const char *__proto2str(u_int8_t protonum)
+const char *__proto2str(uint8_t protonum)
 {
 	return proto2str[protonum] ? proto2str[protonum] : "unknown";
 }
 
-const char *__l3proto2str(u_int8_t protonum)
+const char *__l3proto2str(uint8_t protonum)
 {
 	return l3proto2str[protonum] ? l3proto2str[protonum] : "unknown";
 }

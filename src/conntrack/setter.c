@@ -11,7 +11,7 @@
 #include <linux/icmp.h>
 #include <linux/icmpv6.h>
 
-static const u_int8_t invmap_icmp[] = {
+static const uint8_t invmap_icmp[] = {
 	[ICMP_ECHO]		= ICMP_ECHOREPLY + 1,
 	[ICMP_ECHOREPLY]	= ICMP_ECHO + 1,
 	[ICMP_TIMESTAMP]	= ICMP_TIMESTAMPREPLY + 1,
@@ -30,7 +30,7 @@ static const u_int8_t invmap_icmp[] = {
 #define ICMPV6_NI_REPLY 140
 #endif
 
-static const u_int8_t invmap_icmpv6[] = {
+static const uint8_t invmap_icmpv6[] = {
 	[ICMPV6_ECHO_REQUEST - 128]	= ICMPV6_ECHO_REPLY + 1,
 	[ICMPV6_ECHO_REPLY - 128]	= ICMPV6_ECHO_REQUEST + 1,
 	[ICMPV6_NI_QUERY - 128]		= ICMPV6_NI_QUERY + 1,
@@ -40,89 +40,89 @@ static const u_int8_t invmap_icmpv6[] = {
 static void
 set_attr_orig_ipv4_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.src.v4 = *((u_int32_t *) value);
+	ct->head.orig.src.v4 = *((uint32_t *) value);
 }
 
 static void
 set_attr_orig_ipv4_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.dst.v4 = *((u_int32_t *) value);
+	ct->head.orig.dst.v4 = *((uint32_t *) value);
 }
 
 static void
 set_attr_repl_ipv4_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->repl.src.v4 = *((u_int32_t *) value);
+	ct->repl.src.v4 = *((uint32_t *) value);
 }
 
 static void
 set_attr_repl_ipv4_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->repl.dst.v4 = *((u_int32_t *) value);
+	ct->repl.dst.v4 = *((uint32_t *) value);
 }
 
 static void
 set_attr_orig_ipv6_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	memcpy(&ct->head.orig.src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->head.orig.src.v6, value, sizeof(uint32_t)*4);
 }
 
 static void
 set_attr_orig_ipv6_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	memcpy(&ct->head.orig.dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->head.orig.dst.v6, value, sizeof(uint32_t)*4);
 }
 
 static void
 set_attr_repl_ipv6_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	memcpy(&ct->repl.src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->repl.src.v6, value, sizeof(uint32_t)*4);
 }
 
 static void
 set_attr_repl_ipv6_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	memcpy(&ct->repl.dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->repl.dst.v6, value, sizeof(uint32_t)*4);
 }
 
 static void
 set_attr_orig_port_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.l4src.all = *((u_int16_t *) value);
+	ct->head.orig.l4src.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_orig_port_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.l4dst.all = *((u_int16_t *) value);
+	ct->head.orig.l4dst.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_repl_port_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->repl.l4src.all = *((u_int16_t *) value);
+	ct->repl.l4src.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_repl_port_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->repl.l4dst.all = *((u_int16_t *) value);
+	ct->repl.l4dst.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_icmp_type(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	u_int8_t rtype;
+	uint8_t rtype;
 
-	ct->head.orig.l4dst.icmp.type = *((u_int8_t *) value);
+	ct->head.orig.l4dst.icmp.type = *((uint8_t *) value);
 
 	switch(ct->head.orig.l3protonum) {
 		case AF_INET:
-			rtype = invmap_icmp[*((u_int8_t *) value)];
+			rtype = invmap_icmp[*((uint8_t *) value)];
 			break;
 
 		case AF_INET6:
-			rtype = invmap_icmpv6[*((u_int8_t *) value) - 128];
+			rtype = invmap_icmpv6[*((uint8_t *) value) - 128];
 			break;
 
 		default:
@@ -139,225 +139,225 @@ set_attr_icmp_type(struct nf_conntrack *ct, const void *value, size_t len)
 static void
 set_attr_icmp_code(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.l4dst.icmp.code = *((u_int8_t *) value);
-	ct->repl.l4dst.icmp.code = *((u_int8_t *) value);
+	ct->head.orig.l4dst.icmp.code = *((uint8_t *) value);
+	ct->repl.l4dst.icmp.code = *((uint8_t *) value);
 }
 
 static void
 set_attr_icmp_id(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.l4src.icmp.id = *((u_int16_t *) value);
-	ct->repl.l4src.icmp.id = *((u_int16_t *) value);
+	ct->head.orig.l4src.icmp.id = *((uint16_t *) value);
+	ct->repl.l4src.icmp.id = *((uint16_t *) value);
 }
 
 static void
 set_attr_orig_l3proto(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.l3protonum = *((u_int8_t *) value);
+	ct->head.orig.l3protonum = *((uint8_t *) value);
 }
 
 static void
 set_attr_repl_l3proto(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->repl.l3protonum = *((u_int8_t *) value);
+	ct->repl.l3protonum = *((uint8_t *) value);
 }
 
 static void
 set_attr_orig_l4proto(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->head.orig.protonum = *((u_int8_t *) value);
+	ct->head.orig.protonum = *((uint8_t *) value);
 }
 
 static void
 set_attr_repl_l4proto(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->repl.protonum = *((u_int8_t *) value);
+	ct->repl.protonum = *((uint8_t *) value);
 }
 
 static void
 set_attr_tcp_state(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.state = *((u_int8_t *) value);
+	ct->protoinfo.tcp.state = *((uint8_t *) value);
 }
 
 static void
 set_attr_tcp_flags_orig(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.flags[__DIR_ORIG].value = *((u_int8_t *) value);
+	ct->protoinfo.tcp.flags[__DIR_ORIG].value = *((uint8_t *) value);
 }
 
 static void
 set_attr_tcp_mask_orig(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.flags[__DIR_ORIG].mask = *((u_int8_t *) value);
+	ct->protoinfo.tcp.flags[__DIR_ORIG].mask = *((uint8_t *) value);
 }
 
 static void
 set_attr_tcp_flags_repl(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.flags[__DIR_REPL].value = *((u_int8_t *) value);
+	ct->protoinfo.tcp.flags[__DIR_REPL].value = *((uint8_t *) value);
 }
 
 static void
 set_attr_tcp_mask_repl(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.flags[__DIR_REPL].mask = *((u_int8_t *) value);
+	ct->protoinfo.tcp.flags[__DIR_REPL].mask = *((uint8_t *) value);
 }
 
 static void
 set_attr_sctp_state(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.sctp.state = *((u_int8_t *) value);
+	ct->protoinfo.sctp.state = *((uint8_t *) value);
 }
 
 static void
 set_attr_sctp_vtag_orig(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.sctp.vtag[__DIR_ORIG] = *((u_int32_t *) value);
+	ct->protoinfo.sctp.vtag[__DIR_ORIG] = *((uint32_t *) value);
 }
 
 static void
 set_attr_sctp_vtag_repl(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.sctp.vtag[__DIR_REPL] = *((u_int32_t *) value);
+	ct->protoinfo.sctp.vtag[__DIR_REPL] = *((uint32_t *) value);
 }
 
 static void
 set_attr_snat_ipv4(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->snat.min_ip = ct->snat.max_ip = *((u_int32_t *) value);
+	ct->snat.min_ip = ct->snat.max_ip = *((uint32_t *) value);
 }
 
 static void
 set_attr_dnat_ipv4(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->dnat.min_ip = ct->snat.max_ip = *((u_int32_t *) value);
+	ct->dnat.min_ip = ct->snat.max_ip = *((uint32_t *) value);
 }
 
 static void
 set_attr_snat_port(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->snat.l4min.all = ct->snat.l4max.all = *((u_int16_t *) value);
+	ct->snat.l4min.all = ct->snat.l4max.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_dnat_port(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->dnat.l4min.all = ct->dnat.l4max.all = *((u_int16_t *) value);
+	ct->dnat.l4min.all = ct->dnat.l4max.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_timeout(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->timeout = *((u_int32_t *) value);
+	ct->timeout = *((uint32_t *) value);
 }
 
 static void
 set_attr_mark(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->mark = *((u_int32_t *) value);
+	ct->mark = *((uint32_t *) value);
 }
 
 static void
 set_attr_secmark(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->secmark = *((u_int32_t *) value);
+	ct->secmark = *((uint32_t *) value);
 }
 
 static void
 set_attr_status(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->status = *((u_int32_t *) value);
+	ct->status = *((uint32_t *) value);
 }
 
 static void
 set_attr_id(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->id = *((u_int32_t *) value);
+	ct->id = *((uint32_t *) value);
 }
 
 static void
 set_attr_master_ipv4_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->master.src.v4 = *((u_int32_t *) value);
+	ct->master.src.v4 = *((uint32_t *) value);
 }
 
 static void
 set_attr_master_ipv4_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->master.dst.v4 = *((u_int32_t *) value);
+	ct->master.dst.v4 = *((uint32_t *) value);
 }
 
 static void
 set_attr_master_ipv6_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	memcpy(&ct->master.src.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.src.v6, value, sizeof(uint32_t)*4);
 }
 
 static void
 set_attr_master_ipv6_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	memcpy(&ct->master.dst.v6, value, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.dst.v6, value, sizeof(uint32_t)*4);
 }
 
 static void
 set_attr_master_port_src(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->master.l4src.all = *((u_int16_t *) value);
+	ct->master.l4src.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_master_port_dst(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->master.l4dst.all = *((u_int16_t *) value);
+	ct->master.l4dst.all = *((uint16_t *) value);
 }
 
 static void
 set_attr_master_l3proto(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->master.l3protonum = *((u_int8_t *) value);
+	ct->master.l3protonum = *((uint8_t *) value);
 }
 
 static void
 set_attr_master_l4proto(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->master.protonum = *((u_int8_t *) value);
+	ct->master.protonum = *((uint8_t *) value);
 }
 
 static void
 set_attr_orig_cor_pos(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->natseq[__DIR_ORIG].correction_pos = *((u_int32_t *) value);
+	ct->natseq[__DIR_ORIG].correction_pos = *((uint32_t *) value);
 }
 
 static void
 set_attr_orig_off_bfr(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->natseq[__DIR_ORIG].offset_before = *((u_int32_t *) value);
+	ct->natseq[__DIR_ORIG].offset_before = *((uint32_t *) value);
 }
 
 static void
 set_attr_orig_off_aft(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->natseq[__DIR_ORIG].offset_after = *((u_int32_t *) value);
+	ct->natseq[__DIR_ORIG].offset_after = *((uint32_t *) value);
 }
 
 static void
 set_attr_repl_cor_pos(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->natseq[__DIR_REPL].correction_pos = *((u_int32_t *) value);
+	ct->natseq[__DIR_REPL].correction_pos = *((uint32_t *) value);
 }
 
 static void
 set_attr_repl_off_bfr(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->natseq[__DIR_REPL].offset_before = *((u_int32_t *) value);
+	ct->natseq[__DIR_REPL].offset_before = *((uint32_t *) value);
 }
 
 static void
 set_attr_repl_off_aft(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->natseq[__DIR_REPL].offset_after = *((u_int32_t *) value);
+	ct->natseq[__DIR_REPL].offset_after = *((uint32_t *) value);
 }
 
 static void
@@ -370,38 +370,38 @@ set_attr_helper_name(struct nf_conntrack *ct, const void *value, size_t len)
 static void
 set_attr_dccp_state(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.dccp.state = *((u_int8_t *) value);
+	ct->protoinfo.dccp.state = *((uint8_t *) value);
 }
 
 static void
 set_attr_dccp_role(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.dccp.role = *((u_int8_t *) value);
+	ct->protoinfo.dccp.role = *((uint8_t *) value);
 }
 
 static void
 set_attr_dccp_handshake_seq(struct nf_conntrack *ct, const void *value,
 				size_t len)
 {
-	ct->protoinfo.dccp.handshake_seq = *((u_int64_t *) value);
+	ct->protoinfo.dccp.handshake_seq = *((uint64_t *) value);
 }
 
 static void
 set_attr_tcp_wscale_orig(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.wscale[__DIR_ORIG] = *((u_int8_t *) value);
+	ct->protoinfo.tcp.wscale[__DIR_ORIG] = *((uint8_t *) value);
 }
 
 static void
 set_attr_tcp_wscale_repl(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->protoinfo.tcp.wscale[__DIR_REPL] = *((u_int8_t *) value);
+	ct->protoinfo.tcp.wscale[__DIR_REPL] = *((uint8_t *) value);
 }
 
 static void
 set_attr_zone(struct nf_conntrack *ct, const void *value, size_t len)
 {
-	ct->zone = *((u_int16_t *) value);
+	ct->zone = *((uint16_t *) value);
 }
 
 static void

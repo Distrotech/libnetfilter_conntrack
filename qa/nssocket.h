@@ -29,13 +29,13 @@ struct nf_conntrack *author_new(const struct nlmsghdr *nlh, void *data);
 struct nf_conntrack *author_update(const struct nlmsghdr *nlh, void *data);
 struct nf_conntrack *author_destroy(const struct nlmsghdr *nlh, void *data);
 void assert_proto(const struct nf_conntrack *ct,
-		  u_int8_t l3proto, u_int8_t l4proto);
+		  uint8_t l3proto, uint8_t l4proto);
 void assert_inaddr(const struct nf_conntrack *ct,
 		   const char *src, const char *dst);
 void assert_port(const struct nf_conntrack *ct,
-		 u_int16_t src, u_int16_t dst);
+		 uint16_t src, uint16_t dst);
 void assert_typecode(const struct nf_conntrack *ct,
-		     u_int8_t type, u_int8_t code);
+		     uint8_t type, uint8_t code);
 int cb_icmp_new(const struct nlmsghdr *nlh, void *data);
 int cb_icmp_update(const struct nlmsghdr *nlh, void *data);
 int cb_icmp_destroy(const struct nlmsghdr *nlh, void *data);

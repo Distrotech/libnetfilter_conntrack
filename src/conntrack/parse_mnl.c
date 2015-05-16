@@ -44,7 +44,7 @@ nfct_parse_ip_attr_cb(const struct nlattr *attr, void *data)
 
 static int
 nfct_parse_ip(const struct nlattr *attr, struct __nfct_tuple *tuple,
-	     const int dir, u_int32_t *set)
+	     const int dir, uint32_t *set)
 {
 	struct nlattr *tb[CTA_IP_MAX+1] = {};
 
@@ -147,7 +147,7 @@ nfct_parse_proto_attr_cb(const struct nlattr *attr, void *data)
 
 static int
 nfct_parse_proto(const struct nlattr *attr, struct __nfct_tuple *tuple,
-		const int dir, u_int32_t *set)
+		const int dir, uint32_t *set)
 {
 	struct nlattr *tb[CTA_PROTO_MAX+1] = {};
 
@@ -261,7 +261,7 @@ static int nfct_parse_tuple_attr_cb(const struct nlattr *attr, void *data)
 
 int
 nfct_parse_tuple(const struct nlattr *attr, struct __nfct_tuple *tuple,
-		int dir, u_int32_t *set)
+		int dir, uint32_t *set)
 {
 	struct nlattr *tb[CTA_TUPLE_MAX+1] = {};
 

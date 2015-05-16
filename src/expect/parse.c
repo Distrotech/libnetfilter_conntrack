@@ -11,8 +11,8 @@
 
 int __parse_expect_message_type(const struct nlmsghdr *nlh)
 {
-	u_int16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
-	u_int16_t flags = nlh->nlmsg_flags;
+	uint16_t type = NFNL_MSG_TYPE(nlh->nlmsg_type);
+	uint16_t flags = nlh->nlmsg_flags;
 	int ret = NFCT_T_UNKNOWN;
 
 	if (type == IPCTNL_MSG_EXP_NEW) {
@@ -65,18 +65,18 @@ void __parse_expect(const struct nlmsghdr *nlh,
 	}
 	if (cda[CTA_EXPECT_TIMEOUT-1]) {
 		exp->timeout = 
-		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_TIMEOUT-1]));
+		      ntohl(*(uint32_t *)NFA_DATA(cda[CTA_EXPECT_TIMEOUT-1]));
 		set_bit(ATTR_EXP_TIMEOUT, exp->set);
 	}
 
 	if (cda[CTA_EXPECT_ZONE-1]) {
 		exp->zone =
-		      ntohs(*(u_int16_t *)NFA_DATA(cda[CTA_EXPECT_ZONE-1]));
+		      ntohs(*(uint16_t *)NFA_DATA(cda[CTA_EXPECT_ZONE-1]));
 		set_bit(ATTR_EXP_ZONE, exp->set);
 	}
 	if (cda[CTA_EXPECT_FLAGS-1]) {
 		exp->flags =
-		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_FLAGS-1]));
+		      ntohl(*(uint32_t *)NFA_DATA(cda[CTA_EXPECT_FLAGS-1]));
 		set_bit(ATTR_EXP_FLAGS, exp->set);
 	}
 	if (cda[CTA_EXPECT_HELP_NAME-1]) {
@@ -86,7 +86,7 @@ void __parse_expect(const struct nlmsghdr *nlh,
 	}
 	if (cda[CTA_EXPECT_CLASS-1]) {
 		exp->class =
-		      ntohl(*(u_int32_t *)NFA_DATA(cda[CTA_EXPECT_CLASS-1]));
+		      ntohl(*(uint32_t *)NFA_DATA(cda[CTA_EXPECT_CLASS-1]));
 		set_bit(ATTR_EXP_CLASS, exp->set);
 	}
 	if (cda[CTA_EXPECT_NAT-1]) {
@@ -107,7 +107,7 @@ void __parse_expect(const struct nlmsghdr *nlh,
 		}
 		if (tb[CTA_EXPECT_NAT_DIR-1]) {
 			exp->nat_dir =
-			      ntohl(*((u_int32_t *)
+			      ntohl(*((uint32_t *)
 				NFA_DATA(tb[CTA_EXPECT_NAT_DIR-1])));
 			set_bit(ATTR_EXP_NAT_DIR, exp->set);
 		}

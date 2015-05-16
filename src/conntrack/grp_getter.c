@@ -26,15 +26,15 @@ static void get_attr_grp_repl_ipv4(const struct nf_conntrack *ct, void *data)
 static void get_attr_grp_orig_ipv6(const struct nf_conntrack *ct, void *data)
 {
 	struct nfct_attr_grp_ipv6 *this = data;
-	memcpy(this->src, &ct->head.orig.src.v6, sizeof(u_int32_t)*4);
-	memcpy(this->dst, &ct->head.orig.dst.v6, sizeof(u_int32_t)*4);
+	memcpy(this->src, &ct->head.orig.src.v6, sizeof(uint32_t)*4);
+	memcpy(this->dst, &ct->head.orig.dst.v6, sizeof(uint32_t)*4);
 }
 
 static void get_attr_grp_repl_ipv6(const struct nf_conntrack *ct, void *data)
 {
 	struct nfct_attr_grp_ipv6 *this = data;
-	memcpy(this->src, &ct->repl.src.v6, sizeof(u_int32_t)*4);
-	memcpy(this->dst, &ct->repl.dst.v6, sizeof(u_int32_t)*4);
+	memcpy(this->src, &ct->repl.src.v6, sizeof(uint32_t)*4);
+	memcpy(this->dst, &ct->repl.dst.v6, sizeof(uint32_t)*4);
 }
 
 static void get_attr_grp_orig_port(const struct nf_conntrack *ct, void *data)
@@ -69,8 +69,8 @@ static void get_attr_grp_master_ipv4(const struct nf_conntrack *ct, void *data)
 static void get_attr_grp_master_ipv6(const struct nf_conntrack *ct, void *data)
 {
 	struct nfct_attr_grp_ipv6 *this = data;
-	memcpy(this->src, &ct->master.src.v6, sizeof(u_int32_t)*4);
-	memcpy(this->dst, &ct->master.dst.v6, sizeof(u_int32_t)*4);
+	memcpy(this->src, &ct->master.src.v6, sizeof(uint32_t)*4);
+	memcpy(this->dst, &ct->master.dst.v6, sizeof(uint32_t)*4);
 }
 
 static void get_attr_grp_master_port(const struct nf_conntrack *ct, void *data)

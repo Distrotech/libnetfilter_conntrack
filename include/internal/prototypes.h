@@ -4,11 +4,11 @@
 /*
  * conntrack internal prototypes
  */
-int __build_conntrack(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, u_int16_t type, u_int16_t flags, const struct nf_conntrack *ct);
+int __build_conntrack(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, uint16_t type, uint16_t flags, const struct nf_conntrack *ct);
 void __build_tuple(struct nfnlhdr *req, size_t size, const struct __nfct_tuple *t, const int type);
 int __parse_message_type(const struct nlmsghdr *nlh);
 void __parse_conntrack(const struct nlmsghdr *nlh, struct nfattr *cda[], struct nf_conntrack *ct);
-void __parse_tuple(const struct nfattr *attr, struct __nfct_tuple *tuple, int dir, u_int32_t *set);
+void __parse_tuple(const struct nfattr *attr, struct __nfct_tuple *tuple, int dir, uint32_t *set);
 int __snprintf_conntrack(char *buf, unsigned int len, const struct nf_conntrack *ct, unsigned int type, unsigned int msg_output, unsigned int flags, struct nfct_labelmap *);
 int __snprintf_address(char *buf, unsigned int len, const struct __nfct_tuple *tuple, const char *src_tag, const char *dst_tag);
 int __snprintf_protocol(char *buf, unsigned int len, const struct nf_conntrack *ct);
@@ -25,8 +25,8 @@ int __snprintf_addr_xml(char *buf, unsigned int len, const struct __nfct_tuple *
 int __snprintf_proto_xml(char *buf, unsigned int len, const struct __nfct_tuple *tuple, enum __nfct_addr type);
 int __snprintf_localtime_xml(char *buf, unsigned int len, const struct tm *tm);
 
-const char *__proto2str(u_int8_t protonum);
-const char *__l3proto2str(u_int8_t protonum);
+const char *__proto2str(uint8_t protonum);
+const char *__l3proto2str(uint8_t protonum);
 
 int __callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);
 
@@ -41,12 +41,12 @@ int __setup_netlink_socket_filter(int fd, struct nfct_filter *filter);
 void __build_filter_dump(struct nfnlhdr *req, size_t size, const struct nfct_filter_dump *filter_dump);
 
 int nfct_build_tuple(struct nlmsghdr *nlh, const struct __nfct_tuple *t, int type);
-int nfct_parse_tuple(const struct nlattr *attr, struct __nfct_tuple *tuple, int dir, u_int32_t *set);
+int nfct_parse_tuple(const struct nlattr *attr, struct __nfct_tuple *tuple, int dir, uint32_t *set);
 
 /*
  * expectation internal prototypes
  */
-int __build_expect(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, u_int16_t type, u_int16_t flags, const struct nf_expect *exp);
+int __build_expect(struct nfnl_subsys_handle *ssh, struct nfnlhdr *req, size_t size, uint16_t type, uint16_t flags, const struct nf_expect *exp);
 int __parse_expect_message_type(const struct nlmsghdr *nlh);
 void __parse_expect(const struct nlmsghdr *nlh, struct nfattr *cda[], struct nf_expect *exp);
 int __expect_callback(struct nlmsghdr *nlh, struct nfattr *nfa[], void *data);

@@ -52,11 +52,11 @@ static void __build_expectfn(struct nfnlhdr *req,
 int __build_expect(struct nfnl_subsys_handle *ssh,
 		   struct nfnlhdr *req,
 		   size_t size,
-		   u_int16_t type,
-		   u_int16_t flags,
+		   uint16_t type,
+		   uint16_t flags,
 		   const struct nf_expect *exp)
 {
-	u_int8_t l3num;
+	uint8_t l3num;
 
 	if (test_bit(ATTR_ORIG_L3PROTO, exp->master.set))
 		l3num = exp->master.orig.l3protonum;

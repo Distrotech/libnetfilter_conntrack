@@ -4,28 +4,28 @@
 #ifndef _NFCT_BITOPS_H_
 #define _NFCT_BITOPS_H_
 
-static inline void set_bit(int nr, u_int32_t *addr)
+static inline void set_bit(int nr, uint32_t *addr)
 {
 	addr[nr >> 5] |= (1UL << (nr & 31));
 }
 
-static inline void unset_bit(int nr, u_int32_t *addr)
+static inline void unset_bit(int nr, uint32_t *addr)
 {
 	addr[nr >> 5] &= ~(1UL << (nr & 31));
 }
 
-static inline void set_bit_u16(int nr, u_int16_t *addr)
+static inline void set_bit_u16(int nr, uint16_t *addr)
 {
 	addr[nr >> 4] |= (1UL << (nr & 15));
 }
 
-static inline void unset_bit_u16(int nr, u_int16_t *addr)
+static inline void unset_bit_u16(int nr, uint16_t *addr)
 {
 	addr[nr >> 4] &= ~(1UL << (nr & 15));
 }
 
 static inline void
-set_bitmask_u32(u_int32_t *buf1, const u_int32_t *buf2, int len)
+set_bitmask_u32(uint32_t *buf1, const uint32_t *buf2, int len)
 {
 	int i;
 
@@ -34,7 +34,7 @@ set_bitmask_u32(u_int32_t *buf1, const u_int32_t *buf2, int len)
 }
 
 static inline void
-unset_bitmask_u32(u_int32_t *buf1, const u_int32_t *buf2, int len)
+unset_bitmask_u32(uint32_t *buf1, const uint32_t *buf2, int len)
 {
 	int i;
 
@@ -42,7 +42,7 @@ unset_bitmask_u32(u_int32_t *buf1, const u_int32_t *buf2, int len)
 		buf1[i] &= ~buf2[i];
 }
 
-static inline int test_bit(int nr, const u_int32_t *addr)
+static inline int test_bit(int nr, const uint32_t *addr)
 {
 	return ((1UL << (nr & 31)) & (addr[nr >> 5])) != 0;
 }

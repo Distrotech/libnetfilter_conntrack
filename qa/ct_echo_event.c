@@ -11,7 +11,7 @@
 static void udp_echo(const struct mnl_socket *nl,
 		     const char *pre, const char *post)
 {
-	u_int8_t proto = IPPROTO_UDP;
+	uint8_t proto = IPPROTO_UDP;
 
 	sync_fifo(pre);
 	timeout.tv_sec = INIT_TIMEOUT;
@@ -25,7 +25,7 @@ static void udp_echo(const struct mnl_socket *nl,
 static void icmp_echo(const struct mnl_socket *nl,
 		      const char *pre, const char *post)
 {
-	u_int8_t proto = IPPROTO_ICMP;
+	uint8_t proto = IPPROTO_ICMP;
 
 	sync_fifo(pre);
 	timeout.tv_sec = INIT_TIMEOUT;

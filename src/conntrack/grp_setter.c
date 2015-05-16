@@ -11,7 +11,7 @@
 #include <linux/icmp.h>
 #include <linux/icmpv6.h>
 
-static const u_int8_t invmap_icmp[] = {
+static const uint8_t invmap_icmp[] = {
 	[ICMP_ECHO]		= ICMP_ECHOREPLY + 1,
 	[ICMP_ECHOREPLY]	= ICMP_ECHO + 1,
 	[ICMP_TIMESTAMP]	= ICMP_TIMESTAMPREPLY + 1,
@@ -30,7 +30,7 @@ static const u_int8_t invmap_icmp[] = {
 #define ICMPV6_NI_REPLY 140
 #endif
 
-static const u_int8_t invmap_icmpv6[] = {
+static const uint8_t invmap_icmpv6[] = {
 	[ICMPV6_ECHO_REQUEST - 128]	= ICMPV6_ECHO_REPLY + 1,
 	[ICMPV6_ECHO_REPLY - 128]	= ICMPV6_ECHO_REQUEST + 1,
 	[ICMPV6_NI_QUERY - 128]		= ICMPV6_NI_QUERY + 1,
@@ -56,16 +56,16 @@ static void set_attr_grp_repl_ipv4(struct nf_conntrack *ct, const void *value)
 static void set_attr_grp_orig_ipv6(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv6 *this = value;
-	memcpy(&ct->head.orig.src.v6, this->src, sizeof(u_int32_t)*4);
-	memcpy(&ct->head.orig.dst.v6, this->dst, sizeof(u_int32_t)*4);
+	memcpy(&ct->head.orig.src.v6, this->src, sizeof(uint32_t)*4);
+	memcpy(&ct->head.orig.dst.v6, this->dst, sizeof(uint32_t)*4);
 	ct->head.orig.l3protonum = AF_INET6;
 }
 
 static void set_attr_grp_repl_ipv6(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv6 *this = value;
-	memcpy(&ct->repl.src.v6, this->src, sizeof(u_int32_t)*4);
-	memcpy(&ct->repl.dst.v6, this->dst, sizeof(u_int32_t)*4);
+	memcpy(&ct->repl.src.v6, this->src, sizeof(uint32_t)*4);
+	memcpy(&ct->repl.dst.v6, this->dst, sizeof(uint32_t)*4);
 	ct->repl.l3protonum = AF_INET6;
 }
 
@@ -85,7 +85,7 @@ static void set_attr_grp_repl_port(struct nf_conntrack *ct, const void *value)
 
 static void set_attr_grp_icmp(struct nf_conntrack *ct, const void *value)
 {
-	u_int8_t rtype;
+	uint8_t rtype;
 	const struct nfct_attr_grp_icmp *this = value;
 
 	ct->head.orig.l4dst.icmp.type = this->type;
@@ -126,8 +126,8 @@ static void set_attr_grp_master_ipv4(struct nf_conntrack *ct, const void *value)
 static void set_attr_grp_master_ipv6(struct nf_conntrack *ct, const void *value)
 {
 	const struct nfct_attr_grp_ipv6 *this = value;
-	memcpy(&ct->master.src.v6, this->src, sizeof(u_int32_t)*4);
-	memcpy(&ct->master.dst.v6, this->dst, sizeof(u_int32_t)*4);
+	memcpy(&ct->master.src.v6, this->src, sizeof(uint32_t)*4);
+	memcpy(&ct->master.dst.v6, this->dst, sizeof(uint32_t)*4);
 	ct->master.l3protonum = AF_INET6;
 }
 

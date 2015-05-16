@@ -26,22 +26,22 @@ static void set_exp_attr_mask(struct nf_expect *exp, const void *value)
 
 static void set_exp_attr_timeout(struct nf_expect *exp, const void *value)
 {
-	exp->timeout = *((u_int32_t *) value);
+	exp->timeout = *((uint32_t *) value);
 }
 
 static void set_exp_attr_zone(struct nf_expect *exp, const void *value)
 {
-	exp->zone = *((u_int16_t *) value);
+	exp->zone = *((uint16_t *) value);
 }
 
 static void set_exp_attr_flags(struct nf_expect *exp, const void *value)
 {
-	exp->flags = *((u_int32_t *) value);
+	exp->flags = *((uint32_t *) value);
 }
 
 static void set_exp_attr_class(struct nf_expect *exp, const void *value)
 {
-	exp->class = *((u_int32_t *) value);
+	exp->class = *((uint32_t *) value);
 }
 
 static void set_exp_attr_helper_name(struct nf_expect *exp, const void *value)
@@ -52,7 +52,7 @@ static void set_exp_attr_helper_name(struct nf_expect *exp, const void *value)
 
 static void set_exp_attr_nat_dir(struct nf_expect *exp, const void *value)
 {
-	exp->nat_dir = *((u_int32_t *) value);
+	exp->nat_dir = *((uint32_t *) value);
 }
 
 static void set_exp_attr_nat_tuple(struct nf_expect *exp, const void *value)

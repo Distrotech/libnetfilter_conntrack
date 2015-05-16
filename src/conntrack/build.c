@@ -20,9 +20,9 @@ static void __build_tuple_ip(struct nfnlhdr *req,
 	switch(t->l3protonum) {
 	case AF_INET:
 	        nfnl_addattr_l(&req->nlh, size, CTA_IP_V4_SRC, &t->src.v4,
-			       sizeof(u_int32_t));
+			       sizeof(uint32_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_IP_V4_DST, &t->dst.v4,
-			       sizeof(u_int32_t));
+			       sizeof(uint32_t));
 		break;
 	case AF_INET6:
 		nfnl_addattr_l(&req->nlh, size, CTA_IP_V6_SRC, &t->src.v6,
@@ -46,7 +46,7 @@ static void __build_tuple_proto(struct nfnlhdr *req,
 	nest = nfnl_nest(&req->nlh, size, CTA_TUPLE_PROTO);
 
 	nfnl_addattr_l(&req->nlh, size, CTA_PROTO_NUM, &t->protonum,
-		       sizeof(u_int8_t));
+		       sizeof(uint8_t));
 
 	switch(t->protonum) {
 	case IPPROTO_UDP:
@@ -56,27 +56,27 @@ static void __build_tuple_proto(struct nfnlhdr *req,
 	case IPPROTO_GRE:
 	case IPPROTO_UDPLITE:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_SRC_PORT,
-			       &t->l4src.tcp.port, sizeof(u_int16_t));
+			       &t->l4src.tcp.port, sizeof(uint16_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_DST_PORT,
-			       &t->l4dst.tcp.port, sizeof(u_int16_t));
+			       &t->l4dst.tcp.port, sizeof(uint16_t));
 		break;
 
 	case IPPROTO_ICMP:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_CODE,
-			       &t->l4dst.icmp.code, sizeof(u_int8_t));
+			       &t->l4dst.icmp.code, sizeof(uint8_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_TYPE,
-			       &t->l4dst.icmp.type, sizeof(u_int8_t));
+			       &t->l4dst.icmp.type, sizeof(uint8_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMP_ID,
-			       &t->l4src.icmp.id, sizeof(u_int16_t));
+			       &t->l4src.icmp.id, sizeof(uint16_t));
 		break;
 
 	case IPPROTO_ICMPV6:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMPV6_CODE,
-			       &t->l4dst.icmp.code, sizeof(u_int8_t));
+			       &t->l4dst.icmp.code, sizeof(uint8_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMPV6_TYPE,
-			       &t->l4dst.icmp.type, sizeof(u_int8_t));
+			       &t->l4dst.icmp.type, sizeof(uint8_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTO_ICMPV6_ID,
-			       &t->l4src.icmp.id, sizeof(u_int16_t));
+			       &t->l4src.icmp.id, sizeof(uint16_t));
 		break;
 
 	default:
@@ -126,7 +126,7 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_STATE,
 				       &ct->protoinfo.tcp.state,
-				       sizeof(u_int8_t));
+				       sizeof(uint8_t));
 		if (test_bit(ATTR_TCP_FLAGS_ORIG, ct->head.set) &&
 		    test_bit(ATTR_TCP_MASK_ORIG, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
@@ -143,12 +143,12 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,
 				       &ct->protoinfo.tcp.wscale[__DIR_ORIG],
-				       sizeof(u_int8_t));
+				       sizeof(uint8_t));
 		if (test_bit(ATTR_TCP_WSCALE_REPL, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_TCP_WSCALE_REPLY,
 				       &ct->protoinfo.tcp.wscale[__DIR_REPL],
-				       sizeof(u_int8_t));
+				       sizeof(uint8_t));
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
 		break;
@@ -165,7 +165,7 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_SCTP_STATE,
 				       &ct->protoinfo.sctp.state,
-				       sizeof(u_int8_t));
+				       sizeof(uint8_t));
 		if (test_bit(ATTR_SCTP_VTAG_ORIG, ct->head.set))
 			nfnl_addattr32(&req->nlh, size,
 				    CTA_PROTOINFO_SCTP_VTAG_ORIGINAL,
@@ -190,23 +190,23 @@ static void __build_protoinfo(struct nfnlhdr *req, size_t size,
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_DCCP_STATE,
 				       &ct->protoinfo.dccp.state,
-				       sizeof(u_int8_t));
+				       sizeof(uint8_t));
 		if (test_bit(ATTR_DCCP_ROLE, ct->head.set))
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_DCCP_ROLE,
 				       &ct->protoinfo.dccp.role,
-				       sizeof(u_int8_t));
+				       sizeof(uint8_t));
 		if (test_bit(ATTR_DCCP_HANDSHAKE_SEQ, ct->head.set)) {
 			/* FIXME: use __cpu_to_be64() instead which is the
 			 * correct operation. This is a semantic abuse but
 			 * we have no function to do it in libnfnetlink. */
-			u_int64_t handshake_seq =
+			uint64_t handshake_seq =
 				__be64_to_cpu(ct->protoinfo.dccp.handshake_seq);
 
 			nfnl_addattr_l(&req->nlh, size,
 				       CTA_PROTOINFO_DCCP_HANDSHAKE_SEQ,
 				       &handshake_seq,
-				       sizeof(u_int64_t));
+				       sizeof(uint64_t));
 		}
 		nfnl_nest_end(&req->nlh, nest_proto);
 		nfnl_nest_end(&req->nlh, nest);
@@ -263,9 +263,9 @@ static void __build_protonat(struct nfnlhdr *req,
 	case IPPROTO_TCP:
 	case IPPROTO_UDP:
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTONAT_PORT_MIN,
-			       &nat->l4min.tcp.port, sizeof(u_int16_t));
+			       &nat->l4min.tcp.port, sizeof(uint16_t));
 		nfnl_addattr_l(&req->nlh, size, CTA_PROTONAT_PORT_MAX,
-			       &nat->l4max.tcp.port, sizeof(u_int16_t));
+			       &nat->l4max.tcp.port, sizeof(uint16_t));
 		break;
 	}
 	nfnl_nest_end(&req->nlh, nest);
@@ -276,7 +276,7 @@ static void __build_nat(struct nfnlhdr *req,
 			const struct __nfct_nat *nat)
 {
 	nfnl_addattr_l(&req->nlh, size, CTA_NAT_MINIP,
-		       &nat->min_ip, sizeof(u_int32_t));
+		       &nat->min_ip, sizeof(uint32_t));
 }
 
 static void __build_snat(struct nfnlhdr *req,
@@ -425,11 +425,11 @@ static void __build_labels(struct nfnlhdr *req,
 int __build_conntrack(struct nfnl_subsys_handle *ssh,
 		      struct nfnlhdr *req,
 		      size_t size,
-		      u_int16_t type,
-		      u_int16_t flags,
+		      uint16_t type,
+		      uint16_t flags,
 		      const struct nf_conntrack *ct)
 {
-	u_int8_t l3num = ct->head.orig.l3protonum;
+	uint8_t l3num = ct->head.orig.l3protonum;
 
 	if (!test_bit(ATTR_ORIG_L3PROTO, ct->head.set)) {
 		errno = EINVAL;

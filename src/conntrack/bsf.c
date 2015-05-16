@@ -25,7 +25,7 @@
 #define NFCT_FILTER_ACCEPT	~0U
 
 #if 0
-static char *code2str(u_int16_t code)
+static char *code2str(uint16_t code)
 {
 	switch(code) {
 	case BPF_LD|BPF_IMM:
@@ -156,8 +156,8 @@ nfct_bsf_find_attr_nest(struct sock_filter *this, int attr, int pos)
 
 struct jump {
 	int line;
-	u_int8_t jt;
-	u_int8_t jf;
+	uint8_t jt;
+	uint8_t jf;
 };
 
 static int
@@ -290,7 +290,7 @@ nfct_bsf_jump_to(struct sock_filter *this, int line, int pos)
 
 /* this helps to skip messages coming from the ctnetlink expectation subsys. */
 static int
-bsf_cmp_subsys(struct sock_filter *this, int pos, u_int8_t subsys)
+bsf_cmp_subsys(struct sock_filter *this, int pos, uint8_t subsys)
 {
 	struct sock_filter __code[] = {
 		[0] = {
@@ -301,7 +301,7 @@ bsf_cmp_subsys(struct sock_filter *this, int pos, u_int8_t subsys)
 		[1] = {
 			/* A = skb->data[X+k:B] (subsys_id) */
 			.code	= BPF_LD|BPF_B|BPF_IND,
-			.k	= sizeof(u_int8_t),
+			.k	= sizeof(uint8_t),
 		},
 		[2] = {
 			/* A == subsys ? jump +1 : accept */
@@ -319,7 +319,7 @@ static int
 add_state_filter_cta(struct sock_filter *this,
 		     unsigned int cta_protoinfo_proto,
 		     unsigned int cta_protoinfo_state,
-		     u_int16_t state_flags,
+		     uint16_t state_flags,
 		     unsigned int logic)
 {
 	unsigned int i, j;
@@ -375,7 +375,7 @@ add_state_filter_cta(struct sock_filter *this,
 static int 
 add_state_filter(struct sock_filter *this, 
 		 int proto,
-		 u_int16_t flags,
+		 uint16_t flags,
 		 unsigned int logic)
 {
 	static const struct {

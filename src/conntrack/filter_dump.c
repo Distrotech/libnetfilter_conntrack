@@ -23,7 +23,7 @@ static void
 set_filter_dump_attr_family(struct nfct_filter_dump *filter_dump,
 			    const void *value)
 {
-	filter_dump->l3num = *((u_int8_t *)value);
+	filter_dump->l3num = *((uint8_t *)value);
 }
 
 const set_filter_dump_attr set_filter_dump_attr_array[NFCT_FILTER_DUMP_MAX] = {

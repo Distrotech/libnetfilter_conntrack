@@ -435,7 +435,7 @@ struct nf_conntrack *author_new(const struct nlmsghdr *nlh, void *data)
 	ct = nfct_new();
 	assert(ct != NULL);
 	assert(nfct_nlmsg_parse((nlh), ct) == 0);
-	assert_proto(ct, AF_INET, *(u_int8_t *) data);
+	assert_proto(ct, AF_INET, *(uint8_t *) data);
 	assert_inaddr(ct, VETH_PARENT_ADDR, VETH_CHILD_ADDR);
 	assert((nfct_get_attr_u32(ct, ATTR_STATUS) & IPS_SEEN_REPLY) == 0);
 	timeout.tv_sec = nfct_get_attr_u32(ct, ATTR_TIMEOUT) + 1;
@@ -452,7 +452,7 @@ struct nf_conntrack *author_update(const struct nlmsghdr *nlh, void *data)
 	ct = nfct_new();
 	assert(ct != NULL);
 	assert(nfct_nlmsg_parse((nlh), ct) == 0);
-	assert_proto(ct, AF_INET, *(u_int8_t *) data);
+	assert_proto(ct, AF_INET, *(uint8_t *) data);
 	assert_inaddr(ct, VETH_PARENT_ADDR, VETH_CHILD_ADDR);
 	assert((nfct_get_attr_u32(ct, ATTR_STATUS) & IPS_SEEN_REPLY));
 	timeout.tv_sec = nfct_get_attr_u32(ct, ATTR_TIMEOUT) + 1;
@@ -469,7 +469,7 @@ struct nf_conntrack *author_destroy(const struct nlmsghdr *nlh, void *data)
 	ct = nfct_new();
 	assert(ct != NULL);
 	assert(nfct_nlmsg_parse((nlh), ct) == 0);
-	assert_proto(ct, AF_INET, *(u_int8_t *) data);
+	assert_proto(ct, AF_INET, *(uint8_t *) data);
 	assert_inaddr(ct, VETH_PARENT_ADDR, VETH_CHILD_ADDR);
 	assert((nfct_get_attr_u32(ct, ATTR_STATUS) & IPS_SEEN_REPLY));
 
@@ -477,7 +477,7 @@ struct nf_conntrack *author_destroy(const struct nlmsghdr *nlh, void *data)
 }
 
 void assert_proto(const struct nf_conntrack *ct,
-		  u_int8_t l3proto, u_int8_t l4proto)
+		  uint8_t l3proto, uint8_t l4proto)
 {
 	assert(nfct_get_attr_u8(ct, ATTR_ORIG_L3PROTO) == l3proto);
 	assert(nfct_get_attr_u8(ct, ATTR_REPL_L3PROTO) == l3proto);
@@ -498,7 +498,7 @@ void assert_inaddr(const struct nf_conntrack *ct,
 }
 
 void assert_port(const struct nf_conntrack *ct,
-		 u_int16_t src, u_int16_t dst)
+		 uint16_t src, uint16_t dst)
 {
 	if ((src)) {
 		assert(nfct_get_attr_u16((ct), ATTR_ORIG_PORT_SRC) == htons((src)));
@@ -511,7 +511,7 @@ void assert_port(const struct nf_conntrack *ct,
 }
 
 void assert_typecode(const struct nf_conntrack *ct,
-		     u_int8_t type, u_int8_t code)
+		     uint8_t type, uint8_t code)
 {
 	assert(nfct_get_attr_u8((ct), ATTR_ICMP_TYPE) == type);
 	assert(nfct_get_attr_u8((ct), ATTR_ICMP_CODE) == code);
@@ -636,7 +636,7 @@ int cb_tcp_destroy(const struct nlmsghdr *nlh, void *data)
 void tcp_echo(const struct mnl_socket *nl,
 	      const char *pre, const char *post)
 {
-	u_int8_t proto = IPPROTO_TCP;
+	uint8_t proto = IPPROTO_TCP;
 
 	sync_fifo(pre);
 	timeout.tv_sec = INIT_TIMEOUT;

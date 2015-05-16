@@ -58,46 +58,46 @@ struct __data_container {
 
 union __nfct_l4_src {
 	/* Add other protocols here. */
-	u_int16_t 		all;
+	uint16_t 		all;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} tcp;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} udp;
 	struct {
-		u_int16_t 	id;
+		uint16_t 	id;
 	} icmp;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} sctp;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} dccp;
 };
 
 union __nfct_l4_dst {
 	/* Add other protocols here. */
-	u_int16_t 		all;
+	uint16_t 		all;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} tcp;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} udp;
 	struct {
-		u_int8_t 	type, code;
+		uint8_t 	type, code;
 	} icmp;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} sctp;
 	struct {
-		u_int16_t 	port;
+		uint16_t 	port;
 	} dccp;
 };
 
 union __nfct_address {
-	u_int32_t 		v4;
+	uint32_t 		v4;
 	struct in6_addr 	v6;
 };
 
@@ -105,8 +105,8 @@ struct __nfct_tuple {
 	union __nfct_address	src;
 	union __nfct_address 	dst;
 
-	u_int8_t		l3protonum;
-	u_int8_t		protonum;
+	uint8_t			l3protonum;
+	uint8_t			protonum;
 	union __nfct_l4_src	l4src;
 	union __nfct_l4_dst	l4dst;
 };
@@ -118,31 +118,31 @@ struct __nfct_tuple {
 
 union __nfct_protoinfo {
 	struct {
-		u_int8_t 		state;
+		uint8_t 		state;
 		struct {
-			u_int8_t 	value;
-			u_int8_t 	mask;
+			uint8_t 	value;
+			uint8_t 	mask;
 		} flags[__DIR_MAX];
-		u_int8_t		wscale[__DIR_MAX];
+		uint8_t			wscale[__DIR_MAX];
 	} tcp;
 	struct {
-		u_int8_t 		state;
-		u_int32_t 		vtag[__DIR_MAX];
+		uint8_t 		state;
+		uint32_t 		vtag[__DIR_MAX];
 	} sctp;
 	struct {
-		u_int8_t 		state;
-		u_int8_t		role;
-		u_int64_t		handshake_seq;
+		uint8_t 		state;
+		uint8_t			role;
+		uint64_t		handshake_seq;
 	} dccp;
 };
 
 struct __nfct_counters {
-	u_int64_t 	packets;
-	u_int64_t 	bytes;
+	uint64_t 	packets;
+	uint64_t 	bytes;
 };
 
 struct __nfct_nat {
-	u_int32_t 		min_ip, max_ip;
+	uint32_t 		min_ip, max_ip;
 	union __nfct_l4_src 	l4min, l4max;
 };
 
@@ -150,7 +150,7 @@ struct nfct_tuple_head {
 	struct __nfct_tuple 	orig;
 
 #define __NFCT_BITSET			3
-	u_int32_t               set[__NFCT_BITSET];
+	uint32_t               set[__NFCT_BITSET];
 };
 
 struct nf_conntrack {
@@ -158,13 +158,13 @@ struct nf_conntrack {
 	struct __nfct_tuple	repl;
 	struct __nfct_tuple	master;
 
-	u_int32_t 	timeout;
-	u_int32_t	mark;
-	u_int32_t	secmark;
-	u_int32_t 	status;
-	u_int32_t	use;
-	u_int32_t	id;
-	u_int16_t	zone;
+	uint32_t 	timeout;
+	uint32_t	mark;
+	uint32_t	secmark;
+	uint32_t 	status;
+	uint32_t	use;
+	uint32_t	id;
+	uint16_t	zone;
 
 	char 		helper_name[NFCT_HELPER_NAME_MAX];
 /* According to Eric Paris <eparis@redhat.com> this field can be up to 4096
@@ -177,14 +177,14 @@ struct nf_conntrack {
 	struct __nfct_nat 	dnat;
 
 	struct {
-		u_int32_t 	correction_pos;
-		u_int32_t 	offset_before;
-		u_int32_t 	offset_after;
+		uint32_t 	correction_pos;
+		uint32_t 	offset_before;
+		uint32_t 	offset_after;
 	} natseq[__DIR_MAX];
 
 	struct {
-		u_int64_t	start;
-		u_int64_t	stop;
+		uint64_t	start;
+		uint64_t	stop;
 	} timestamp;
 
 	void *helper_info;
@@ -220,8 +220,8 @@ struct nfct_filter {
 	 * I doubt that anyone can reach such a limit.
 	 */
 #define __FILTER_L4PROTO_MAX	255
-	u_int32_t 		l4proto_map[IPPROTO_MAX/32];
-	u_int32_t		l4proto_len;
+	uint32_t 		l4proto_map[IPPROTO_MAX/32];
+	uint32_t		l4proto_len;
 
 	struct {
 	/*
@@ -230,8 +230,8 @@ struct nfct_filter {
 	 * 10 states, SCTP has 8 state. Therefore, 16 bits is enough.
 	 */
 #define __FILTER_PROTO_MAX	16
-		u_int16_t 	map;
-		u_int16_t	len;
+		uint16_t 	map;
+		uint16_t	len;
 	} l4proto_state[IPPROTO_MAX];
 
 #define __FILTER_ADDR_SRC 0
@@ -243,11 +243,11 @@ struct nfct_filter {
 	 * (two BSF lines per comparison) and the fact that the maximum 
 	 * jump offset is 0xff which is 255.
 	 */
-	u_int32_t 		l3proto_elems[2];
+	uint32_t 		l3proto_elems[2];
 	struct {
 #define __FILTER_ADDR_MAX	127
-		u_int32_t 	addr;
-		u_int32_t 	mask;
+		uint32_t 	addr;
+		uint32_t 	mask;
 	} l3proto[2][__FILTER_ADDR_MAX];
 
 	/*
@@ -256,21 +256,21 @@ struct nfct_filter {
 	 * more than that for performance reasons. It seems that oprofile
 	 * shows bad numbers for very large BSF code.
 	 */
-	u_int32_t 		l3proto_elems_ipv6[2];
+	uint32_t 		l3proto_elems_ipv6[2];
 	struct {
 #define __FILTER_IPV6_MAX	20
-		u_int32_t 	addr[4];
-		u_int32_t 	mask[4];
+		uint32_t 	addr[4];
+		uint32_t 	mask[4];
 	} l3proto_ipv6[2][__FILTER_IPV6_MAX];
 
-	u_int32_t 		mark_elems;
+	uint32_t 		mark_elems;
 	struct {
 #define __FILTER_MARK_MAX	127
-		u_int32_t 	val;
-		u_int32_t 	mask;
+		uint32_t 	val;
+		uint32_t 	mask;
 	} mark[__FILTER_MARK_MAX];
 
-	u_int32_t 		set[1];
+	uint32_t 		set[1];
 };
 
 /*
@@ -279,8 +279,8 @@ struct nfct_filter {
 
 struct nfct_filter_dump {
 	struct nfct_filter_dump_mark	mark;
-	u_int8_t			l3num;
-	u_int32_t			set;
+	uint8_t				l3num;
+	uint32_t			set;
 };
 
 /*
@@ -295,16 +295,16 @@ struct nf_expect {
 	struct nfct_tuple_head	mask;
 	struct nfct_tuple_head	nat;
 
-	u_int32_t 		timeout;
-	u_int32_t 		id;
-	u_int16_t		zone;
-	u_int32_t		flags;
-	u_int32_t		class;
+	uint32_t 		timeout;
+	uint32_t 		id;
+	uint16_t		zone;
+	uint32_t		flags;
+	uint32_t		class;
 	char 			helper_name[NFCT_HELPER_NAME_MAX];
-	u_int32_t		nat_dir;
+	uint32_t		nat_dir;
 	char			expectfn[__NFCT_EXPECTFN_MAX];
 
-	u_int32_t 		set[1];
+	uint32_t 		set[1];
 };
 
 /*

@@ -8,7 +8,7 @@
 int main(void)
 {
 	int ret;
-	u_int8_t family = AF_INET;
+	uint8_t family = AF_INET;
 	struct nfct_handle *h;
 
 	h = nfct_open(CONNTRACK, 0);

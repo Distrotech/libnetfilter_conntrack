@@ -411,9 +411,9 @@ void nfct_set_attr(struct nf_conntrack *ct,
  */
 void nfct_set_attr_u8(struct nf_conntrack *ct,
 		      const enum nf_conntrack_attr type, 
-		      u_int8_t value)
+		      uint8_t value)
 {
-	nfct_set_attr_l(ct, type, &value, sizeof(u_int8_t));
+	nfct_set_attr_l(ct, type, &value, sizeof(uint8_t));
 }
 
 /**
@@ -424,9 +424,9 @@ void nfct_set_attr_u8(struct nf_conntrack *ct,
  */
 void nfct_set_attr_u16(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
-		       u_int16_t value)
+		       uint16_t value)
 {
-	nfct_set_attr_l(ct, type, &value, sizeof(u_int16_t));
+	nfct_set_attr_l(ct, type, &value, sizeof(uint16_t));
 }
 
 /**
@@ -437,9 +437,9 @@ void nfct_set_attr_u16(struct nf_conntrack *ct,
  */
 void nfct_set_attr_u32(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
-		       u_int32_t value)
+		       uint32_t value)
 {
-	nfct_set_attr_l(ct, type, &value, sizeof(u_int32_t));
+	nfct_set_attr_l(ct, type, &value, sizeof(uint32_t));
 }
 
 /**
@@ -450,9 +450,9 @@ void nfct_set_attr_u32(struct nf_conntrack *ct,
  */
 void nfct_set_attr_u64(struct nf_conntrack *ct,
 		       const enum nf_conntrack_attr type, 
-		       u_int64_t value)
+		       uint64_t value)
 {
-	nfct_set_attr_l(ct, type, &value, sizeof(u_int64_t));
+	nfct_set_attr_l(ct, type, &value, sizeof(uint64_t));
 }
 
 /**
@@ -492,10 +492,10 @@ const void *nfct_get_attr(const struct nf_conntrack *ct,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfct_attr_is_set.
  */
-u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
+uint8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
 			  const enum nf_conntrack_attr type)
 {
-	const u_int8_t *ret = nfct_get_attr(ct, type);
+	const uint8_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -508,10 +508,10 @@ u_int8_t nfct_get_attr_u8(const struct nf_conntrack *ct,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfct_attr_is_set.
  */
-u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
+uint16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
 {
-	const u_int16_t *ret = nfct_get_attr(ct, type);
+	const uint16_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -524,10 +524,10 @@ u_int16_t nfct_get_attr_u16(const struct nf_conntrack *ct,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfct_attr_is_set.
  */
-u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
+uint32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
 {
-	const u_int32_t *ret = nfct_get_attr(ct, type);
+	const uint32_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -540,10 +540,10 @@ u_int32_t nfct_get_attr_u32(const struct nf_conntrack *ct,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfct_attr_is_set.
  */
-u_int64_t nfct_get_attr_u64(const struct nf_conntrack *ct,
+uint64_t nfct_get_attr_u64(const struct nf_conntrack *ct,
 			    const enum nf_conntrack_attr type)
 {
-	const u_int64_t *ret = nfct_get_attr(ct, type);
+	const uint64_t *ret = nfct_get_attr(ct, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -770,8 +770,8 @@ int nfct_attr_grp_unset(struct nf_conntrack *ct,
 int nfct_build_conntrack(struct nfnl_subsys_handle *ssh,
 			 void *req,
 			 size_t size,
-			 u_int16_t type,
-			 u_int16_t flags,
+			 uint16_t type,
+			 uint16_t flags,
 			 const struct nf_conntrack *ct)
 {
 	assert(ssh != NULL);
@@ -787,7 +787,7 @@ __build_query_ct(struct nfnl_subsys_handle *ssh,
 		 const void *data, void *buffer, unsigned int size)
 {
 	struct nfnlhdr *req = buffer;
-	const u_int32_t *family = data;
+	const uint32_t *family = data;
 
 	assert(ssh != NULL);
 	assert(data != NULL);
@@ -866,7 +866,7 @@ __build_query_ct(struct nfnl_subsys_handle *ssh,
  * 	- NFCT_Q_DUMP_FILTER: dump the conntrack table
  * 	- NFCT_Q_DUMP_FILTER_RESET: dump the conntrack table and reset counters
  *
- * Pass a valid pointer to the protocol family (u_int32_t)
+ * Pass a valid pointer to the protocol family (uint32_t)
  *
  * On success, 0 is returned. On error, -1 is returned and errno is set
  * appropiately.
@@ -1379,7 +1379,7 @@ void nfct_filter_add_attr(struct nfct_filter *filter,
  */
 void nfct_filter_add_attr_u32(struct nfct_filter *filter,
 			      const enum nfct_filter_attr type,
-			      u_int32_t value)
+			      uint32_t value)
 {
 	nfct_filter_add_attr(filter, type, &value);
 }
@@ -1511,7 +1511,7 @@ void nfct_filter_dump_set_attr(struct nfct_filter_dump *filter_dump,
  */
 void nfct_filter_dump_set_attr_u8(struct nfct_filter_dump *filter_dump,
 				  const enum nfct_filter_dump_attr type,
-				  u_int8_t value)
+				  uint8_t value)
 {
 	nfct_filter_dump_set_attr(filter_dump, type, &value);
 }
