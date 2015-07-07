@@ -766,7 +766,7 @@ nfct_parse_timestamp(const struct nlattr *attr, struct nf_conntrack *ct)
 	}
 	if (tb[CTA_TIMESTAMP_STOP]) {
 		ct->timestamp.stop =
-			be64toh(mnl_attr_get_u64(tb[CTA_TIMESTAMP_START]));
+			be64toh(mnl_attr_get_u64(tb[CTA_TIMESTAMP_STOP]));
 		set_bit(ATTR_TIMESTAMP_STOP, ct->head.set);
 	}
 
